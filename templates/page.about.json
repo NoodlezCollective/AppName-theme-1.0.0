@@ -1,68 +1,293 @@
 {
   "sections": {
     "hero": {
-      "type": "about-hero",
-      "settings": {
-        "heading": "Sleep Was Broken.\nWe Fixed It.",
-        "subheading": "Bedding and sleepwear, done right. Engineered for better sleep.",
-        "cta_label": "Shop Now",
-        "image_alt": "Woman resting on a {AppName} pillow",
-        "show_placeholder": true
-      }
+      "type": "somna-about-hero",
+      "settings": {}
     },
-    "story": {
-      "type": "about-story",
-      "settings": {
-        "heading": "How {AppName} was created to redefine sleep",
-        "body": "Most comforters make you choose: too hot or too cold, too heavy or too light, impossible to wash or just plain uncomfortable.",
-        "highlight": "It shouldn't be this complicated.",
-        "image_left_alt": "Woman smiling while resting on {AppName} pillows",
-        "image_bottom_alt": "Hand pressing into a {AppName} comforter",
-        "show_placeholders": true
-      }
+    "founder": {
+      "type": "somna-about-founder",
+      "settings": {}
+    },
+    "stats": {
+      "type": "somna-about-stats",
+      "blocks": {
+        "stat-1": {
+          "type": "stat",
+          "settings": {
+            "value": "[X]+",
+            "label": "Happy sleepers"
+          }
+        },
+        "stat-2": {
+          "type": "stat",
+          "settings": {
+            "value": "[X]",
+            "label": "Five-star reviews"
+          }
+        },
+        "stat-3": {
+          "type": "stat",
+          "settings": {
+            "value": "[X]",
+            "label": "Prototypes tested"
+          }
+        },
+        "stat-4": {
+          "type": "stat",
+          "settings": {
+            "value": "[Year]",
+            "label": "Founded in [City]"
+          }
+        }
+      },
+      "block_order": [
+        "stat-1",
+        "stat-2",
+        "stat-3",
+        "stat-4"
+      ],
+      "settings": {}
     },
     "values": {
-      "type": "about-values",
+      "type": "somna-about-values",
       "blocks": {
         "value-1": {
           "type": "value",
           "settings": {
-            "icon": "snowflake",
-            "title": "Engineered for every sleeper",
-            "body": "Dual-sided fabrics, adaptive fills and ergonomic shapes so hot sleepers, cold sleepers and side sleepers all get their best night."
+            "number": "01",
+            "title": "Comfort You Can Feel",
+            "text": "If it doesn’t make bedtime feel better, it doesn’t ship. Every product is tested by real sleepers before launch."
           }
         },
         "value-2": {
           "type": "value",
           "settings": {
-            "icon": "wash",
-            "title": "Washable by design",
-            "body": "Everything we make survives the washing machine and comes out fluffy. Bedding should be easy to love and easy to clean."
+            "number": "02",
+            "title": "Honest About What’s Inside",
+            "text": "Clear materials, clear care instructions, and no claims we can’t back up."
           }
         },
         "value-3": {
           "type": "value",
           "settings": {
-            "icon": "moon",
-            "title": "Tested by 124,952+ sleepers",
-            "body": "We iterate on real feedback, from award-winning pillows to the comforter that started it all."
+            "number": "03",
+            "title": "Risk-Free, Always",
+            "text": "A [100]-night trial and [lifetime] warranty, because the only real test is your own bed."
           }
         }
       },
-      "block_order": ["value-1", "value-2", "value-3"],
-      "settings": {
-        "heading": "What we stand for"
-      }
+      "block_order": [
+        "value-1",
+        "value-2",
+        "value-3"
+      ],
+      "settings": {}
     },
-    "closing": {
-      "type": "about-closing",
-      "settings": {
-        "show_page_content": true,
-        "heading": "Ready to sleep {AppName}?",
-        "body": "Try any product for 30 nights. If you do not sleep better, returns are on us.",
-        "cta_label": "Shop Best Sellers"
-      }
+    "process": {
+      "type": "somna-about-process",
+      "blocks": {
+        "step-1": {
+          "type": "step",
+          "settings": {
+            "code": "A-05",
+            "brief": "Team reviewing customer notes and survey cards",
+            "title": "Listen",
+            "text": "We start with what keeps people up: heat, neck pain, partners who sleep differently."
+          }
+        },
+        "step-2": {
+          "type": "step",
+          "settings": {
+            "code": "A-06",
+            "brief": "Pillow prototypes lined up on a workbench",
+            "title": "Prototype",
+            "text": "We test fills, fabrics and shapes, then test them again."
+          }
+        },
+        "step-3": {
+          "type": "step",
+          "settings": {
+            "code": "A-07",
+            "brief": "Tester in their own bedroom, candid",
+            "title": "Sleep Test",
+            "text": "Real sleepers take samples home and tell us the truth."
+          }
+        },
+        "step-4": {
+          "type": "step",
+          "settings": {
+            "code": "A-08",
+            "brief": "Hands finishing a seam, close-up",
+            "title": "Refine",
+            "text": "Only the version that wins the most nights becomes a {AppName} product."
+          }
+        }
+      },
+      "block_order": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4"
+      ],
+      "settings": {}
+    },
+    "materials": {
+      "type": "somna-about-materials",
+      "blocks": {
+        "chip-1": {
+          "type": "chip",
+          "settings": {
+            "label": "[Certification 1]"
+          }
+        },
+        "chip-2": {
+          "type": "chip",
+          "settings": {
+            "label": "[Certification 2]"
+          }
+        },
+        "chip-3": {
+          "type": "chip",
+          "settings": {
+            "label": "[Recyclable packaging]"
+          }
+        }
+      },
+      "block_order": [
+        "chip-1",
+        "chip-2",
+        "chip-3"
+      ],
+      "settings": {}
+    },
+    "press": {
+      "type": "somna-about-press",
+      "blocks": {
+        "outlet-1": {
+          "type": "outlet",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "outlet-2": {
+          "type": "outlet",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "outlet-3": {
+          "type": "outlet",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "outlet-4": {
+          "type": "outlet",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "outlet-5": {
+          "type": "outlet",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "outlet-6": {
+          "type": "outlet",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "outlet-7": {
+          "type": "outlet",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "outlet-8": {
+          "type": "outlet",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        }
+      },
+      "block_order": [
+        "outlet-1",
+        "outlet-2",
+        "outlet-3",
+        "outlet-4",
+        "outlet-5",
+        "outlet-6",
+        "outlet-7",
+        "outlet-8"
+      ],
+      "settings": {}
+    },
+    "community": {
+      "type": "somna-about-community",
+      "blocks": {
+        "photo-1": {
+          "type": "photo",
+          "settings": {
+            "code": "UGC-01"
+          }
+        },
+        "photo-2": {
+          "type": "photo",
+          "settings": {
+            "code": "UGC-02"
+          }
+        },
+        "photo-3": {
+          "type": "photo",
+          "settings": {
+            "code": "UGC-03"
+          }
+        },
+        "photo-4": {
+          "type": "photo",
+          "settings": {
+            "code": "UGC-04"
+          }
+        },
+        "photo-5": {
+          "type": "photo",
+          "settings": {
+            "code": "UGC-05"
+          }
+        },
+        "photo-6": {
+          "type": "photo",
+          "settings": {
+            "code": "UGC-06"
+          }
+        }
+      },
+      "block_order": [
+        "photo-1",
+        "photo-2",
+        "photo-3",
+        "photo-4",
+        "photo-5",
+        "photo-6"
+      ],
+      "settings": {}
+    },
+    "cta": {
+      "type": "somna-about-cta",
+      "settings": {}
     }
   },
-  "order": ["hero", "story", "values", "closing"]
+  "order": [
+    "hero",
+    "founder",
+    "stats",
+    "values",
+    "process",
+    "materials",
+    "press",
+    "community",
+    "cta"
+  ]
 }

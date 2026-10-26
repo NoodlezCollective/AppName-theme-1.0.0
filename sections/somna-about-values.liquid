@@ -1,0 +1,65 @@
+{%- comment -%}
+  Values cards (design: About.dc, "VALUES"): centred heading and numbered
+  mist cards.
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<section class="s-pg s-pg-sec">
+  <div class="s-pg-stack40">
+    <div class="s-pg-head-center">
+      {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | escape }}</span>{%- endif -%}
+      <h2 class="s-h2">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h2>
+    </div>
+    <div class="s-avalues__grid">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign number = block.settings.number
+          if number == blank
+            if forloop.index < 10
+              assign number = '0' | append: forloop.index
+            else
+              assign number = forloop.index
+            endif
+          endif
+        -%}
+        <div class="s-avalue" {{ block.shopify_attributes }}>
+          <span class="s-avalue__n" aria-hidden="true">{{ number }}</span>
+          <h3 class="s-h3">{{ block.settings.title | replace: '{AppName}', settings.brand_name | escape }}</h3>
+          <p class="s-avalue__body">{{ block.settings.text | replace: '{AppName}', settings.brand_name | escape }}</p>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Values",
+  "class": "s-section-about-values",
+  "settings": [
+    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "What we believe"},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "Three Promises, Every Product"}
+  ],
+  "max_blocks": 6,
+  "blocks": [
+    {
+      "type": "value",
+      "name": "Value",
+      "settings": [
+        {"type": "text", "id": "number", "label": "Number", "info": "Leave empty to number the cards 01, 02, 03."},
+        {"type": "text", "id": "title", "label": "Title", "default": "Comfort You Can Feel"},
+        {"type": "textarea", "id": "text", "label": "Text", "default": "If it doesn’t make bedtime feel better, it doesn’t ship. Every product is tested by real sleepers before launch."}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Values",
+      "blocks": [
+        {"type": "value", "settings": {"title": "Comfort You Can Feel", "text": "If it doesn’t make bedtime feel better, it doesn’t ship. Every product is tested by real sleepers before launch."}},
+        {"type": "value", "settings": {"title": "Honest About What’s Inside", "text": "Clear materials, clear care instructions, and no claims we can’t back up."}},
+        {"type": "value", "settings": {"title": "Risk-Free, Always", "text": "A [100]-night trial and [lifetime] warranty, because the only real test is your own bed."}}
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,22 @@
+{%- comment -%}
+  Outputs the URL of the online-store page with `handle` (or `/pages/<handle>`
+  while that page does not exist yet), plus an optional `anchor` (without #).
+  {% render 'somna-policy-url', handle: 'support', anchor: 'track' %}
+{%- endcomment -%}
+{%- liquid
+  assign target = pages[handle]
+  if target.url != blank
+    assign out = target.url
+  else
+    assign root = routes.root_url
+    if root == '/'
+      assign out = '/pages/' | append: handle
+    else
+      assign out = root | append: '/pages/' | append: handle
+    endif
+  endif
+  if anchor != blank
+    assign out = out | append: '#' | append: anchor
+  endif
+  echo out
+-%}

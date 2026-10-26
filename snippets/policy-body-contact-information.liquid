@@ -1,19 +1,56 @@
 {%- comment -%}
-  Default body of the contact-information policy (app/lib/content/policies.ts), rendered
-  by sections/main-page.liquid while the page body is empty. Bracketed
-  placeholders such as [Store Name] are filled in by the merchant.
+  Default Contact Information page (design: Contact.dc), rendered by
+  snippets/somna-policy-doc.liquid while the page body is empty. Unlike the
+  other policies it has no "On this page" menu: contact cards, the team
+  table and the reply-hours card fill the full width (sections/main-page).
+  part: 'toc' (nothing) or 'body'.
 {%- endcomment -%}
-<h2>Business Details</h2>
-<p><strong>Trading name:</strong> [Store Name]<br>
-<strong>Legal business name:</strong> [Legal Business Name]<br>
-<strong>Company registration number:</strong> [Company Number]<br>
-<strong>VAT number:</strong> [VAT Number, if registered]<br>
-<strong>Business address:</strong> [Business Address]</p>
+{%- unless part == 'toc' -%}
+  {%- capture refund_url -%}{%- render 'somna-policy-url', handle: 'refund-policy' -%}{%- endcapture -%}
+  <div class="s-cinfo">
+    <div class="s-cinfo__cards">
+      <div class="s-ccard">
+        <span class="s-ccard__icon">{%- render 'somna-icon', name: 'mail', size: 28 -%}</span>
+        <h2 class="s-ccard__title">Email</h2>
+        <a class="s-ccard__strong" href="mailto:hello@[yourdomain].com" style="text-decoration: underline;">hello@[yourdomain].com</a>
+        <span class="s-ccard__note">Replies within [24 hours], 7 days a week</span>
+      </div>
+      <div class="s-ccard">
+        <span class="s-ccard__icon">{%- render 'somna-icon', name: 'pin', size: 28 -%}</span>
+        <h2 class="s-ccard__title">Mailing Address</h2>
+        <address>[{AppName} legal entity name]<br>[Street address]<br>[City, State ZIP]<br>[Country]</address>
+        <span class="s-ccard__note">Not a returns address. Start returns <a href="{{ refund_url }}">here</a>.</span>
+      </div>
+    </div>
 
-<h2>Get in Touch</h2>
-<p><strong>Email:</strong> [Email]<br>
-<strong>Phone:</strong> [Phone]</p>
-
-<h2>Customer Service Hours</h2>
-<p>[Monday to Friday, 9:00 AM – 5:00 PM (GMT)]</p>
-<p>We aim to reply to all emails within 48 hours.</p>
+    <div class="s-cinfo__row">
+      <div class="s-cinfo__teams">
+        <h2 class="s-cinfo__h">Reach the Right Team</h2>
+        <div class="s-table-box">
+          <table class="s-pol-table s-pol-table--lg">
+            <thead><tr><th scope="col">Team</th><th scope="col">For</th><th scope="col">Email</th></tr></thead>
+            <tbody>
+              <tr><td>Customer care</td><td>Orders, shipping, product questions</td><td><a href="mailto:hello@[yourdomain].com">hello@[yourdomain].com</a></td></tr>
+              <tr><td>Returns &amp; warranty</td><td>Trial returns, exchanges, warranty claims</td><td><a href="mailto:returns@[yourdomain].com">returns@[yourdomain].com</a></td></tr>
+              <tr><td>Privacy</td><td>Data access, deletion and opt-out requests</td><td><a href="mailto:privacy@[yourdomain].com">privacy@[yourdomain].com</a></td></tr>
+              <tr><td>Wholesale</td><td>Retail, hotel and corporate gifting</td><td><a href="mailto:wholesale@[yourdomain].com">wholesale@[yourdomain].com</a></td></tr>
+              <tr><td>Press &amp; partnerships</td><td>Media, creators, ambassadors</td><td><a href="mailto:press@[yourdomain].com">press@[yourdomain].com</a></td></tr>
+              <tr><td>Legal</td><td>Legal notices and arbitration opt-outs</td><td><a href="mailto:legal@[yourdomain].com">legal@[yourdomain].com</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="s-cinfo__note">Writing about an order? Include your order number so we can help faster.</p>
+      </div>
+      <div class="s-hours">
+        <h2 class="s-ccard__title">Email Reply Hours</h2>
+        <p class="s-hours__p">We support by email only, so every answer is in writing for your records.</p>
+        <dl>
+          <dt>Mon–Fri</dt><dd>[9am–6pm ET]</dd>
+          <dt>Sat–Sun</dt><dd>[10am–4pm ET]</dd>
+          <dt>Holidays</dt><dd>Replies may take a little longer</dd>
+        </dl>
+        <a class="s-btn" href="mailto:hello@[yourdomain].com">Email Us</a>
+      </div>
+    </div>
+  </div>
+{%- endunless -%}

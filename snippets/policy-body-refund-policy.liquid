@@ -1,69 +1,56 @@
 {%- comment -%}
-  Default body of the refund-policy policy (app/lib/content/policies.ts), rendered
-  by sections/main-page.liquid while the page body is empty. Bracketed
-  placeholders such as [Store Name] are filled in by the merchant.
+  Default Return & Refund Policy (design: Returns.dc), rendered by
+  snippets/somna-policy-doc.liquid while the page body is empty.
+  part: 'toc' (On this page links) or 'body'. Bracketed text such as [100] is
+  for the merchant to fill in; {AppName} becomes the brand name.
 {%- endcomment -%}
-<p>Thank you for shopping with [Store Name]. We want you to love your new bedding. If you are not completely happy with your purchase, we are here to help. This policy explains how returns, refunds and exchanges work.</p>
+{%- if part == 'toc' -%}
+  <a href="#trial">1. The [100]-night trial</a>
+  <a href="#start">2. How to start a return</a>
+  <a href="#refunds">3. Refunds</a>
+  <a href="#exchanges">4. Exchanges</a>
+  <a href="#exceptions">5. Items that can't be returned</a>
+  <a href="#damaged">6. Damaged or wrong items</a>
+  <a href="#warranty">7. Warranty</a>
+  <a href="#contact">8. Contact us</a>
+{%- else -%}
+  {%- capture support_url -%}{%- render 'somna-policy-url', handle: 'support' -%}{%- endcapture -%}
+  {%- render 'somna-policy-glance', items: '[100] nights to try any sleep product at home|Free returns in the [US], no restocking fees|Refunds to your original payment within [5–7] business days|Free exchanges for a different size or firmness' -%}
 
-<h2>Return Window</h2>
-<p>You can request a return within 30 days of receiving your order.</p>
-<p>To qualify for a return, your item must be:</p>
-<ul>
-<li>Unused, unwashed and not slept on</li>
-<li>In the same condition you received it, free from stains, odours, pet hair and damage</li>
-<li>Returned in its original packaging with all labels and inserts included</li>
-<li>Returned with any matching items sold as a set (for example, a duvet cover and pillowcases sold together)</li>
-</ul>
+  <h2 id="trial">1. The [100]-Night Trial</h2>
+  <p>Every {AppName} pillow and comforter comes with a [100]-night home trial, starting the day your order is delivered. We ask that you sleep on it for at least [14] nights first, because your body needs time to adjust to new support.</p>
+  <p>The trial applies to orders placed directly on [yourdomain].com. Products bought from other retailers follow that retailer's return policy.</p>
 
-<h2>Hygiene and Sealed Items</h2>
-<p>For hygiene reasons, the following items can only be returned if they are unopened and still in their original sealed packaging:</p>
-<ul>
-<li>Pillows</li>
-<li>Duvets, quilts and comforters</li>
-<li>Mattress toppers and mattress protectors</li>
-<li>Any other filled or padded sleep products</li>
-</ul>
-<p>Once the seal or protective packaging on these items has been opened or removed, they cannot be returned unless they are faulty, damaged or incorrect. This does not affect your rights if an item arrives faulty, damaged or not as described.</p>
-<p>Sheets, pillowcases, duvet covers and blankets may be returned if they have been taken out of their packaging to check them, as long as they are unused, unwashed and in perfect condition.</p>
+  <h2 id="start">2. How to Start a Return</h2>
+  <ol>
+    <li>Visit our <a href="{{ support_url }}">Help Center</a> or email [returns@yourdomain.com] with your order number.</li>
+    <li>Tell us what isn't working. We may suggest an exchange that fixes it.</li>
+    <li>We'll email a prepaid return label, or arrange a donation pickup for bulky items.</li>
+    <li>Pack the item in any box. The original packaging isn't required.</li>
+  </ol>
+  <p>Limit of [one] trial return per product type per household.</p>
 
-<h2>Faulty, Damaged or Incorrect Items</h2>
-<p>If your item arrives faulty, damaged, or is not what you ordered, please contact us within 30 days of delivery with your order number and photos of the issue. We will cover the cost of the return and offer you a replacement or a full refund, depending on availability and your preference.</p>
+  <h2 id="refunds">3. Refunds</h2>
+  <p>Once your return is received and checked, we'll refund the product price to your original payment method within [5–7] business days. Original shipping charges are [refundable / non-refundable]. Free gifts received with the order don't need to be returned, [or: will be deducted at full value if kept].</p>
+  <p>If you paid with Shop Pay Installments or Afterpay, the refund goes back to that provider and they adjust your plan.</p>
 
-<h2>Change of Mind</h2>
-<p>If you would like to return an item because of its size, colour, feel or firmness, or simply because you changed your mind, you are responsible for the cost of return shipping. Original shipping charges are non-refundable. We do not charge restocking fees.</p>
-<p>Please note that larger items such as duvets and pillows may cost more to send back. We recommend using a tracked service, as we are not responsible for returns lost in transit.</p>
+  <h2 id="exchanges">4. Exchanges</h2>
+  <p>Want a different size, firmness or warmth? Exchanges are free during your trial. We'll ship the replacement as soon as the return label is scanned.</p>
 
-<h2>Non-Returnable Items</h2>
-<p>The following cannot be returned unless faulty, damaged or incorrect:</p>
-<ul>
-<li>Filled items (such as pillows, duvets and toppers) that have been removed from their sealed packaging</li>
-<li>Any item that has been used, washed, slept on or altered</li>
-<li>Personalised or made-to-order items</li>
-<li>Gift cards</li>
-<li>Sale items marked "final sale"</li>
-</ul>
+  <h2 id="exceptions">5. Items That Can't Be Returned</h2>
+  <ul>
+    <li>Gift cards</li>
+    <li>Final-sale and clearance items, marked as such at checkout</li>
+    <li>[Opened Silk Sleep Masks and pillowcases, for hygiene reasons]</li>
+    <li>Items damaged by misuse, stains or not following the care label</li>
+  </ul>
 
-<h2>How to Start a Return</h2>
-<ol>
-<li>Contact us at [Email] with your order number, the item(s) you would like to return and the reason for the return.</li>
-<li>We will reply with return instructions and the return address. Items sent back without first requesting a return will not be accepted.</li>
-<li>Pack your item securely in its original packaging so it stays clean and protected during transit, then send it using a tracked shipping service.</li>
-</ol>
+  <h2 id="damaged">6. Damaged, Defective or Wrong Items</h2>
+  <p>If something arrives damaged or isn't what you ordered, contact us within [14] days of delivery with your order number and a photo. We'll send a replacement or refund at no cost, and you won't need to send the original back.</p>
 
-<h2>Refunds</h2>
-<p>Once we receive your return, we will inspect it to make sure it meets the conditions above and let you know whether it has been approved. Approved refunds are issued to your original payment method. Please allow up to 7 business days for the refund to appear, as processing times vary between banks and card providers.</p>
-<p>If a returned item shows signs of use, washing or damage that was not present when it was sent, we may refuse the return or reduce the refund to reflect the loss in value.</p>
-<p>If you have not received your refund after this time, please check with your bank first, then contact us at [Email].</p>
-<p>All refunds are processed in GBP (£).</p>
+  <h2 id="warranty">7. Warranty</h2>
+  <p>Outside the trial, manufacturing defects are covered by our [lifetime / X-year] limited warranty. It covers issues like seam failure or fill loss under normal use, not normal wear or accidental damage. Read the full warranty terms on our [Warranty page].</p>
 
-<h2>Exchanges</h2>
-<p>If you would like a different size (for example, Single, Double, King or Super King), colour or fill, please contact us before sending your item back. We will check stock availability and explain how to arrange the exchange.</p>
-
-<h2>Cancellations</h2>
-<p>You may cancel your order free of charge before it has been dispatched by contacting us as soon as possible at [Email]. Once an order has been dispatched, it can no longer be cancelled and must be returned following the steps above.</p>
-
-<h2>Your Statutory Rights</h2>
-<p>This policy does not affect your statutory rights as a consumer under the Consumer Rights Act 2015 and the Consumer Contracts Regulations 2013. Under these regulations, the right to cancel does not apply to sealed goods that are not suitable for return for health protection or hygiene reasons once they have been unsealed after delivery.</p>
-
-<h2>Questions</h2>
-<p>If you have any questions about returns or refunds, contact us at [Email] or [Phone]. Our customer service team is available [Monday to Friday, 9:00 AM – 5:00 PM GMT].</p>
+  <h2 id="contact">8. Contact Us</h2>
+  {%- render 'somna-policy-cta', title: 'Questions about a return?', text: 'Email [returns@yourdomain.com] with your order number. We reply within [24 hours].', label: 'Start a Return', url: support_url -%}
+{%- endif -%}

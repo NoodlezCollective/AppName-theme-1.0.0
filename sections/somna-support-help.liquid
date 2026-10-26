@@ -1,0 +1,118 @@
+{%- comment -%}
+  Help topics and their questions (design: Support.dc, "TOPICS" and "FAQ").
+  Add a Topic block, then the Question blocks for it: each question belongs
+  to the topic above it. Picking a topic card swaps the list below; one
+  answer is open at a time.
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'somna-pages.js' | asset_url }}" defer></script>
+{%- liquid
+  assign topic_blocks = section.blocks | where: 'type', 'topic'
+  assign first_topic = topic_blocks | first
+  assign first_title = first_topic.settings.title | default: section.settings.heading
+  assign loose_faqs = false
+  for block in section.blocks
+    if block.type == 'topic'
+      break
+    endif
+    assign loose_faqs = true
+  endfor
+-%}
+<div class="s-pg" data-somna-help>
+  {%- if first_topic != blank -%}
+    <section class="s-stopics" aria-label="{{ section.settings.topics_label | escape }}">
+      <div class="s-stopics__grid">
+        {%- for topic in topic_blocks -%}
+          {%- assign topic_title = topic.settings.title | replace: '{AppName}', settings.brand_name -%}
+          <button type="button" class="s-topic" aria-pressed="{% if forloop.first and loose_faqs == false %}true{% else %}false{% endif %}" aria-controls="FaqList-{{ section.id }}" data-topic="topic-{{ forloop.index }}" data-title="{{ topic_title | escape }}" {{ topic.shopify_attributes }}>
+            <span class="s-topic__mark" aria-hidden="true">{{ topic.settings.mark | escape }}</span>
+            <span class="s-topic__text">
+              <strong class="s-topic__title">{{ topic_title | escape }}</strong>
+              {%- if topic.settings.subtitle != blank -%}<span class="s-topic__sub">{{ topic.settings.subtitle | replace: '{AppName}', settings.brand_name | escape }}</span>{%- endif -%}
+            </span>
+          </button>
+        {%- endfor -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  <section class="s-sfaq" id="faq" aria-labelledby="FaqTitle-{{ section.id }}">
+    <div class="s-sfaq__inner">
+      <h2 class="s-h2" id="FaqTitle-{{ section.id }}" data-somna-faq-title aria-live="polite">{% if loose_faqs %}{{ section.settings.heading | escape }}{% else %}{{ first_title | replace: '{AppName}', settings.brand_name | escape }}{% endif %}</h2>
+      <div id="FaqList-{{ section.id }}">
+        {%- if loose_faqs -%}
+          <div class="s-faq s-sfaq__panel" data-topic-panel="general">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'topic' -%}{%- break -%}{%- endif -%}
+              {%- render 'somna-support-faq', block: block, open: forloop.first -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+        {%- for topic in topic_blocks -%}
+          {%- assign topic_number = forloop.index -%}
+          <div class="s-faq s-sfaq__panel" data-topic-panel="topic-{{ topic_number }}"{% if loose_faqs or forloop.first == false %} hidden{% endif %}>
+            {%- liquid
+              assign owner = 0
+              assign item_index = 0
+              for block in section.blocks
+                if block.type == 'topic'
+                  assign owner = owner | plus: 1
+                elsif owner == topic_number
+                  assign item_index = item_index | plus: 1
+                  assign is_first = false
+                  if item_index == 1
+                    assign is_first = true
+                  endif
+                  render 'somna-support-faq', block: block, open: is_first
+                endif
+              endfor
+            -%}
+          </div>
+        {%- endfor -%}
+        <div class="s-faq s-sfaq__panel" data-topic-panel="search" data-label="{{ section.settings.results_label | escape }}" hidden></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% schema %}
+{
+  "name": "Help topics and FAQ",
+  "class": "s-section-support-help",
+  "settings": [
+    {"type": "text", "id": "topics_label", "label": "Topics accessible name", "default": "Help topics"},
+    {"type": "text", "id": "heading", "label": "Heading without topics", "default": "Frequently Asked Questions"},
+    {"type": "text", "id": "results_label", "label": "Search results heading", "default": "Results for “{q}”", "info": "{q} is replaced by the search text."}
+  ],
+  "blocks": [
+    {
+      "type": "topic",
+      "name": "Topic",
+      "settings": [
+        {"type": "text", "id": "mark", "label": "Number", "default": "01"},
+        {"type": "text", "id": "title", "label": "Title", "default": "Orders & Shipping"},
+        {"type": "text", "id": "subtitle", "label": "Subtitle", "default": "Delivery times, tracking, changes"},
+        {"type": "paragraph", "content": "Add the Question blocks for this topic directly below it."}
+      ]
+    },
+    {
+      "type": "faq",
+      "name": "Question",
+      "settings": [
+        {"type": "text", "id": "question", "label": "Question", "default": "When will my order ship?"},
+        {"type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Most orders leave us within [1–2] business days. You’ll get a tracking email as soon as it ships.</p>"}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Help topics and FAQ",
+      "blocks": [
+        {"type": "topic", "settings": {"mark": "01", "title": "Orders & Shipping", "subtitle": "Delivery times, tracking, changes"}},
+        {"type": "faq", "settings": {"question": "When will my order ship?", "answer": "<p>Most orders leave us within [1–2] business days. You’ll get a tracking email as soon as it ships.</p>"}},
+        {"type": "faq", "settings": {"question": "Can I change or cancel my order?", "answer": "<p>Yes, within [2 hours] of ordering. Message us with your order number and we’ll update it before it ships.</p>"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

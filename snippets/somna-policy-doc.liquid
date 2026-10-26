@@ -1,0 +1,19 @@
+{%- comment -%}
+  Default policy document for a page handle, rendered while the page body is
+  empty. part: 'toc' outputs the "On this page" links, 'body' the article
+  content. Outputs nothing for a handle without a default document.
+  {% render 'somna-policy-doc', handle: page.handle, part: 'body' %}
+{%- endcomment -%}
+{%- capture doc -%}
+  {%- case handle -%}
+    {%- when 'refund-policy' -%}{%- render 'policy-body-refund-policy', part: part -%}
+    {%- when 'shipping-policy' -%}{%- render 'policy-body-shipping-policy', part: part -%}
+    {%- when 'privacy-policy' -%}{%- render 'policy-body-privacy-policy', part: part -%}
+    {%- when 'terms-of-service' -%}{%- render 'policy-body-terms-of-service', part: part -%}
+    {%- when 'payment-policy' -%}{%- render 'policy-body-payment-policy', part: part -%}
+    {%- when 'contact-information' -%}{%- render 'policy-body-contact-information', part: part -%}
+    {%- when 'legal-notice' -%}{%- render 'policy-body-legal-notice', part: part -%}
+    {%- when 'do-not-sell' -%}{%- render 'policy-body-do-not-sell', part: part -%}
+  {%- endcase -%}
+{%- endcapture -%}
+{{- doc | replace: '{AppName}', settings.brand_name -}}

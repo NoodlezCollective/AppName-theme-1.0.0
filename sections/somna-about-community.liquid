@@ -1,0 +1,74 @@
+{%- comment -%}
+  Community photo grid (design: About.dc, "COMMUNITY"): hashtag heading,
+  Instagram link and square customer photos (labelled placeholders
+  UGC-01… until images are picked).
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+{%- assign instagram_url = section.settings.link | default: 'https://instagram.com' -%}
+<section class="s-pg s-pg-sec">
+  <div class="s-pg-stack32">
+    <div class="s-head-row">
+      <div class="s-pg-head">
+        {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | replace: '{AppName}', settings.brand_name | escape }}</span>{%- endif -%}
+        <h2 class="s-h2">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h2>
+      </div>
+      {%- if section.settings.link_label != blank -%}
+        <a class="s-acomm__link" style="text-decoration: underline;" href="{{ instagram_url }}"{% if instagram_url contains '://' %} target="_blank" rel="noopener"{% endif %}>{{ section.settings.link_label | escape }}</a>
+      {%- endif -%}
+    </div>
+    <div class="s-acomm__grid">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign ugc_label = 'Customer photo placeholder ' | append: block.settings.code
+          assign ugc_alt = block.settings.image_alt | default: block.settings.image.alt | default: 'Customer photo'
+        -%}
+        {%- if block.settings.link != blank -%}
+          <a class="s-acomm__tile" href="{{ block.settings.link }}" {{ block.shopify_attributes }}>
+        {%- else -%}
+          <div class="s-acomm__tile" {{ block.shopify_attributes }}>
+        {%- endif -%}
+          {%- render 'somna-media', image: block.settings.image, alt: ugc_alt, code: block.settings.code, label: ugc_label, icon: 'none', radius: 20, sizes: '(min-width: 1000px) 200px, 50vw' -%}
+        {%- if block.settings.link != blank -%}</a>{%- else -%}</div>{%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Community photos",
+  "class": "s-section-about-community",
+  "settings": [
+    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "#SleepWith{AppName}"},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "Real Bedrooms, Real Sleepers"},
+    {"type": "text", "id": "link_label", "label": "Link label", "default": "Follow us on Instagram"},
+    {"type": "url", "id": "link", "label": "Link", "info": "Your Instagram profile. Defaults to instagram.com."}
+  ],
+  "max_blocks": 12,
+  "blocks": [
+    {
+      "type": "photo",
+      "name": "Photo",
+      "settings": [
+        {"type": "image_picker", "id": "image", "label": "Image", "info": "Shown square."},
+        {"type": "text", "id": "image_alt", "label": "Image alt text"},
+        {"type": "text", "id": "code", "label": "Placeholder code", "default": "UGC-01"},
+        {"type": "url", "id": "link", "label": "Link"}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Community photos",
+      "blocks": [
+        {"type": "photo", "settings": {"code": "UGC-01"}},
+        {"type": "photo", "settings": {"code": "UGC-02"}},
+        {"type": "photo", "settings": {"code": "UGC-03"}},
+        {"type": "photo", "settings": {"code": "UGC-04"}},
+        {"type": "photo", "settings": {"code": "UGC-05"}},
+        {"type": "photo", "settings": {"code": "UGC-06"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

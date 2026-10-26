@@ -1,0 +1,81 @@
+{%- comment -%}
+  "Track Your Order" band (design: Support.dc, "TRACK ORDER").
+  With a tracking page address set (for example an order-tracking app page)
+  the form opens it with the order number and email as URL parameters.
+  Without one it sends an order-status request to the store's inbox through
+  the Shopify contact form.
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'somna-pages.js' | asset_url }}" defer></script>
+{%- liquid
+  assign order_label = section.settings.order_label | escape
+  assign email_label = section.settings.email_label | escape
+-%}
+<section class="s-pg s-strack" id="track" aria-labelledby="TrackTitle-{{ section.id }}">
+  <div class="s-strack__inner">
+    <div class="s-strack__text">
+      {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | escape }}</span>{%- endif -%}
+      <h2 class="s-h2" id="TrackTitle-{{ section.id }}">{{ section.settings.heading | escape }}</h2>
+      {%- if section.settings.text != blank -%}<p class="s-pg-p17">{{ section.settings.text | escape }}</p>{%- endif -%}
+    </div>
+    {%- if section.settings.tracking_url != blank -%}
+      <form class="s-strack__form" action="{{ section.settings.tracking_url }}" method="get">
+        <div class="s-field">
+          <label class="s-label" for="OrderNo-{{ section.id }}">{{ order_label }}</label>
+          <input class="s-input" id="OrderNo-{{ section.id }}" type="text" name="{{ section.settings.order_param | default: 'order' }}" placeholder="#1001" required>
+        </div>
+        <div class="s-field">
+          <label class="s-label" for="OrderEmail-{{ section.id }}">{{ email_label }}</label>
+          <input class="s-input" id="OrderEmail-{{ section.id }}" type="email" name="{{ section.settings.email_param | default: 'email' }}" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+        <button type="submit" class="s-btn s-btn--block s-pg-btn-17">{{ section.settings.button_label | escape }}</button>
+      </form>
+    {%- else -%}
+      {%- form 'contact', id: 'SomnaTrackForm', class: 's-strack__form', data-somna-form: '' -%}
+        {%- assign track_sent = false -%}
+        {%- if form.posted_successfully? -%}{%- assign track_sent = true -%}{%- endif -%}
+        <div class="s-stack" style="gap: 16px;" data-somna-fields{% if track_sent %} hidden{% endif %}>
+          {%- if form.errors -%}
+            <p class="s-pg-status s-pg-status--error" role="alert">{{ form.errors | default_errors }}</p>
+          {%- endif -%}
+          <input type="hidden" name="contact[Request]" value="Order status">
+          <div class="s-field">
+            <label class="s-label" for="OrderNo-{{ section.id }}">{{ order_label }}</label>
+            <input class="s-input" id="OrderNo-{{ section.id }}" type="text" name="contact[Order number]" placeholder="#1001" required>
+          </div>
+          <div class="s-field">
+            <label class="s-label" for="OrderEmail-{{ section.id }}">{{ email_label }}</label>
+            <input class="s-input" id="OrderEmail-{{ section.id }}" type="email" name="contact[email]" placeholder="you@example.com" autocomplete="email" required>
+          </div>
+          <button type="submit" class="s-btn s-btn--block s-pg-btn-17">{{ section.settings.button_label | escape }}</button>
+        </div>
+        <div class="s-stack" style="gap: 16px;" data-somna-done role="status"{% unless track_sent %} hidden{% endunless %}>
+          <p class="s-pg-status">{{ section.settings.success_text | escape }}</p>
+          <button type="button" class="s-pill-btn" style="align-self: flex-start;" data-somna-reset>{{ section.settings.again_label | escape }}</button>
+        </div>
+      {%- endform -%}
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Track your order",
+  "class": "s-section-support-track",
+  "settings": [
+    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Order status"},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "Track Your Order"},
+    {"type": "textarea", "id": "text", "label": "Text", "default": "Enter your order number and the email you used at checkout. No account needed."},
+    {"type": "text", "id": "order_label", "label": "Order number label", "default": "Order number"},
+    {"type": "text", "id": "email_label", "label": "Email label", "default": "Email address"},
+    {"type": "text", "id": "button_label", "label": "Button", "default": "Track Order"},
+    {"type": "header", "content": "Where the form goes"},
+    {"type": "text", "id": "tracking_url", "label": "Tracking page address", "info": "For example /apps/track. Leave empty to email the request to your store inbox."},
+    {"type": "text", "id": "order_param", "label": "Order number parameter", "default": "order"},
+    {"type": "text", "id": "email_param", "label": "Email parameter", "default": "email"},
+    {"type": "text", "id": "success_text", "label": "Message after sending", "default": "Thanks! We'll email your order status within [24 hours]."},
+    {"type": "text", "id": "again_label", "label": "Send another button", "default": "Track another order"}
+  ],
+  "presets": [{"name": "Track your order"}]
+}
+{% endschema %}

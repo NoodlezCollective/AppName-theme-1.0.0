@@ -1,70 +1,139 @@
 {%- comment -%}
-  Page body (app/routes/pages.$handle.tsx). With the page.policy template it
-  renders the policy layout (app/routes/policies.$handle.tsx): breadcrumbs,
-  prose and the footer buttons, below sections/policy-hero.liquid. A policy
-  page whose body is still empty shows the storefront's own document from
-  snippets/policy-body-<handle>.liquid (app/lib/content/policies.ts).
+  Page body. With the page.policy template it renders the Somna policy
+  layout (design: Standard, Returns, Privacy, Terms, Payment, Legal):
+  "On this page" menu beside the document. A page whose body is still empty
+  shows the storefront's default document for its handle
+  (snippets/policy-body-<handle>.liquid via somna-policy-doc); a page with
+  its own body text is shown in the same styled article and the menu is
+  built from its h2 headings by assets/somna-pages.js.
+  contact-information (empty body) gets the full-width contact layout and
+  do-not-sell adds the opt-out switch and request form (design: Contact,
+  DoNotSell). Other templates get a simple Somna page.
 {%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'somna-pages.js' | asset_url }}" defer></script>
 {%- liquid
-  assign policies_handle = section.settings.policies_page | default: 'policies'
-  assign policies_url = pages[policies_handle].url
-  if policies_url == blank
-    assign policies_url = routes.root_url | append: 'pages/' | append: policies_handle
+  assign handle = page.handle
+  assign has_content = false
+  if page.content != blank
+    assign has_content = true
   endif
 -%}
 {%- if template.suffix == 'policy' -%}
-  <article class="content-page">
-    <div class="container container--text policy-page__body">
-      <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <a href="{{ policies_url }}">Policies</a>
-        <span aria-hidden="true">/</span>
-        <span aria-current="page">{{ page.title }}</span>
-      </nav>
-      <div class="prose">
-        {%- if page.content != blank -%}
-          {{ page.content }}
-        {%- else -%}
-          {%- case page.handle -%}
-            {%- when 'privacy-policy' -%}
-              {%- render 'policy-body-privacy-policy' -%}
-            {%- when 'terms-of-service' -%}
-              {%- render 'policy-body-terms-of-service' -%}
-            {%- when 'refund-policy' -%}
-              {%- render 'policy-body-refund-policy' -%}
-            {%- when 'shipping-policy' -%}
-              {%- render 'policy-body-shipping-policy' -%}
-            {%- when 'contact-information' -%}
-              {%- render 'policy-body-contact-information' -%}
-            {%- when 'legal-notice' -%}
-              {%- render 'policy-body-legal-notice' -%}
-          {%- endcase -%}
+  {%- if handle == 'contact-information' and has_content == false -%}
+    <section class="s-pg s-pol">
+      {%- render 'somna-policy-doc', handle: handle, part: 'body' -%}
+    </section>
+  {%- elsif handle == 'do-not-sell' -%}
+    <section class="s-pg s-pol s-dns">
+      <div class="s-dns__inner">
+        <article class="s-policy">
+          {%- if has_content -%}
+            {%- capture ad_switch -%}{%- render 'somna-policy-adswitch' -%}{%- endcapture -%}
+            {%- if page.content contains '[ad-switch]' -%}
+              {{ page.content | replace: '<p>[ad-switch]</p>', ad_switch | replace: '[ad-switch]', ad_switch }}
+            {%- else -%}
+              {{ ad_switch }}
+              {{ page.content }}
+            {%- endif -%}
+          {%- else -%}
+            {%- render 'somna-policy-doc', handle: handle, part: 'body' -%}
+          {%- endif -%}
+        </article>
+        {%- if section.settings.show_optout_form -%}
+          {%- render 'somna-policy-optout' -%}
         {%- endif -%}
       </div>
-      <footer class="policy__footer">
-        <a class="btn btn--outline btn--sm" href="{{ policies_url }}"><span class="btn__label">All policies</span></a>
-        <a class="btn btn--ghost btn--sm" href="{{ routes.all_products_collection_url }}"><span class="btn__label">Continue shopping</span></a>
-      </footer>
-    </div>
-  </article>
+    </section>
+  {%- else -%}
+    {%- liquid
+      assign toc = ''
+      assign toc_class = ''
+      assign article_class = ''
+      unless has_content
+        capture toc
+          render 'somna-policy-doc', handle: handle, part: 'toc'
+        endcapture
+        if handle == 'shipping-policy'
+          assign toc_class = ' s-toc--lg'
+          assign article_class = ' s-policy--flow'
+        elsif handle == 'terms-of-service'
+          assign toc_class = ' s-toc--tight'
+        endif
+      endunless
+    -%}
+    <section class="s-pg s-pol">
+      <div class="s-pol__inner">
+        {%- if section.settings.show_toc -%}
+          <nav class="s-toc{{ toc_class }}" aria-label="{{ section.settings.toc_label | default: 'On this page' | escape }}" data-somna-toc{% if toc == blank %} data-somna-toc-auto hidden{% endif %}>
+            <span class="s-toc__label">{{ section.settings.toc_label | default: 'On this page' | escape }}</span>
+            {{- toc -}}
+          </nav>
+        {%- endif -%}
+        <article class="s-policy{{ article_class }}" data-somna-policy>
+          {%- if has_content -%}
+            {{ page.content }}
+          {%- else -%}
+            {%- capture doc -%}{%- render 'somna-policy-doc', handle: handle, part: 'body' -%}{%- endcapture -%}
+            {%- if doc != blank -%}
+              {{ doc }}
+            {%- else -%}
+              <p>{{ section.settings.empty_text | replace: '{AppName}', settings.brand_name }}</p>
+            {%- endif -%}
+          {%- endif -%}
+        </article>
+      </div>
+    </section>
+  {%- endif -%}
 {%- else -%}
-  <article class="content-page container container--text">
-    <header class="page-header">
-      <p class="eyebrow page-header__eyebrow">{{ settings.brand_name }}</p>
-      <h1>{{ page.title }}</h1>
-    </header>
-    <div class="prose">{{ page.content }}</div>
-  </article>
+  <section class="s-pg s-page-hero">
+    <div class="s-wrap s-wrap--760 s-page-hero__inner">
+      <nav class="s-crumbs" aria-label="Breadcrumb">
+        <a href="{{ routes.root_url }}">Home</a> <span aria-hidden="true">/</span> <span aria-current="page">{{ page.title }}</span>
+      </nav>
+      <span class="s-eyebrow">{{ settings.brand_name }}</span>
+      <h1 class="s-h1">{{ page.title }}</h1>
+    </div>
+  </section>
+  <section class="s-pg s-pol">
+    <div class="s-pol__inner" style="max-width: 760px;">
+      <article class="s-policy s-policy--full" data-somna-policy>{{ page.content }}</article>
+    </div>
+  </section>
 {%- endif -%}
 
 {% schema %}
 {
   "name": "Page body",
+  "class": "s-section-main-page",
   "settings": [
     {
-      "type": "page",
-      "id": "policies_page",
-      "label": "Policies index page",
-      "info": "Target of the Policies breadcrumb on policy pages (template page.policies). Defaults to the page with the handle policies."
+      "type": "paragraph",
+      "content": "Policy pages (template page.policy) show a default document for the handles refund-policy, shipping-policy, privacy-policy, terms-of-service, payment-policy, contact-information, legal-notice and do-not-sell until you write your own page content."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_toc",
+      "label": "Show \"On this page\" menu",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "toc_label",
+      "label": "Menu title",
+      "default": "On this page"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_optout_form",
+      "label": "Show opt-out request form on do-not-sell",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "empty_text",
+      "label": "Text for a policy page without content",
+      "default": "This policy is being updated. Please contact us if you have any questions."
     }
   ]
 }

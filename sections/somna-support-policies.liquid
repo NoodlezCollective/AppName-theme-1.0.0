@@ -1,0 +1,52 @@
+{%- comment -%}
+  Row of policy pills on a soft band (design: Support.dc, "POLICIES").
+  Each block links to a page (or a page handle while the page does not exist
+  yet), optionally to a section of it.
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<section class="s-pg s-spol" aria-label="{{ section.settings.label | default: 'Policies' | escape }}">
+  <div class="s-spol__inner">
+    {%- if section.settings.label != blank -%}<span class="s-eyebrow s-spol__label">{{ section.settings.label | escape }}</span>{%- endif -%}
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign link_page = block.settings.page
+        assign link_handle = link_page.handle | default: block.settings.handle | strip
+        assign link_label = block.settings.label | default: link_page.title | default: link_handle | replace: '{AppName}', settings.brand_name
+      -%}
+      <a class="s-spol__link" href="{% render 'somna-policy-url', handle: link_handle, anchor: block.settings.anchor %}" {{ block.shopify_attributes }}>{{ link_label | escape }}</a>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Policy links",
+  "class": "s-section-support-policies",
+  "settings": [
+    {"type": "text", "id": "label", "label": "Label", "default": "Policies"}
+  ],
+  "blocks": [
+    {
+      "type": "link",
+      "name": "Policy link",
+      "settings": [
+        {"type": "text", "id": "label", "label": "Label", "default": "Shipping"},
+        {"type": "page", "id": "page", "label": "Page"},
+        {"type": "text", "id": "handle", "label": "Page handle", "default": "shipping-policy", "info": "Used while no page is picked above."},
+        {"type": "text", "id": "anchor", "label": "Section of the page", "info": "Optional anchor without #, for example warranty."}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Policy links",
+      "blocks": [
+        {"type": "link", "settings": {"label": "Shipping", "handle": "shipping-policy"}},
+        {"type": "link", "settings": {"label": "Returns & [100]-Night Trial", "handle": "refund-policy"}},
+        {"type": "link", "settings": {"label": "Privacy", "handle": "privacy-policy"}},
+        {"type": "link", "settings": {"label": "Terms", "handle": "terms-of-service"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

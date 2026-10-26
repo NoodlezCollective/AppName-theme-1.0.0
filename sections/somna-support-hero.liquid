@@ -1,0 +1,67 @@
+{%- comment -%}
+  Help center banner with search (design: Support.dc, "HERO + SEARCH").
+  The search first looks through the FAQ answers on the page
+  (assets/somna-pages.js); with no match it runs the store search.
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'somna-pages.js' | asset_url }}" defer></script>
+<section class="s-pg s-shero" aria-labelledby="SupportTitle-{{ section.id }}">
+  <div class="s-shero__inner">
+    {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | escape }}</span>{%- endif -%}
+    <h1 id="SupportTitle-{{ section.id }}" class="s-h1">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h1>
+    {%- if section.settings.subheading != blank -%}<p class="s-shero__sub">{{ section.settings.subheading | replace: '{AppName}', settings.brand_name | escape }}</p>{%- endif -%}
+    {%- if section.settings.show_search -%}
+      <form class="s-shero__form" role="search" action="{{ routes.search_url }}" method="get" data-somna-help-search>
+        <label class="s-sr" for="HelpSearch-{{ section.id }}">{{ section.settings.search_label | escape }}</label>
+        <input class="s-shero__input" id="HelpSearch-{{ section.id }}" type="search" name="q" placeholder="{{ section.settings.placeholder | escape }}" autocomplete="off">
+        <button type="submit" class="s-btn">{{ section.settings.button_label | escape }}</button>
+      </form>
+      <p class="s-shero__results" data-somna-help-note aria-live="polite" hidden></p>
+    {%- endif -%}
+    {%- if section.blocks.size > 0 -%}
+      <div class="s-shero__popular">
+        {%- if section.settings.popular_label != blank -%}<span>{{ section.settings.popular_label | escape }}</span>{%- endif -%}
+        {%- for block in section.blocks -%}
+          <a href="{{ block.settings.link | default: '#faq' }}" {{ block.shopify_attributes }}>{{ block.settings.label | escape }}</a>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Support banner",
+  "class": "s-section-support-hero",
+  "settings": [
+    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Help center"},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "How Can We Help You Sleep Better?"},
+    {"type": "text", "id": "subheading", "label": "Subheading", "default": "Search answers, track an order, or email our sleep team."},
+    {"type": "checkbox", "id": "show_search", "label": "Show search", "default": true},
+    {"type": "text", "id": "search_label", "label": "Search field label (screen readers)", "default": "Search help articles"},
+    {"type": "text", "id": "placeholder", "label": "Search placeholder", "default": "Try \"return my comforter\" or \"pillow sizes\""},
+    {"type": "text", "id": "button_label", "label": "Search button", "default": "Search"},
+    {"type": "text", "id": "popular_label", "label": "Popular links label", "default": "Popular:"}
+  ],
+  "blocks": [
+    {
+      "type": "link",
+      "name": "Popular link",
+      "settings": [
+        {"type": "text", "id": "label", "label": "Label", "default": "Start a return"},
+        {"type": "text", "id": "link", "label": "Link", "default": "#faq", "info": "A page address or an anchor on this page: #faq (questions), #track (order status), #contact (message form)."}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Support banner",
+      "blocks": [
+        {"type": "link", "settings": {"label": "Start a return", "link": "#faq"}},
+        {"type": "link", "settings": {"label": "Where's my order?", "link": "#track"}},
+        {"type": "link", "settings": {"label": "Warranty claim", "link": "#faq"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

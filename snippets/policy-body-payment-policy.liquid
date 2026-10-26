@@ -1,0 +1,63 @@
+{%- comment -%}
+  Default Payment Policy (design: Payment.dc), rendered by
+  snippets/somna-policy-doc.liquid while the page body is empty.
+  part: 'toc' (On this page links) or 'body'.
+{%- endcomment -%}
+{%- if part == 'toc' -%}
+  <a href="#methods">1. Accepted payment methods</a>
+  <a href="#currency">2. Currency &amp; pricing</a>
+  <a href="#charged">3. When you're charged</a>
+  <a href="#later">4. Pay later options</a>
+  <a href="#codes">5. Discount codes &amp; gift cards</a>
+  <a href="#security">6. Payment security</a>
+  <a href="#declined">7. Declined payments</a>
+  <a href="#refunds">8. Refunds</a>
+  <a href="#contact">9. Contact us</a>
+{%- else -%}
+  {%- capture refund_url -%}{%- render 'somna-policy-url', handle: 'refund-policy' -%}{%- endcapture -%}
+  {%- render 'somna-policy-glance', items: "Major cards, PayPal, Shop Pay, Apple Pay, Google Pay and Afterpay|Prices in [USD]; you're charged when you place your order|Encrypted checkout; we never see or store your full card number|Refunds go back to your original payment method" -%}
+
+  <h2 id="methods">1. Accepted Payment Methods</h2>
+  <div class="s-table-box">
+    <table class="s-pol-table">
+      <thead><tr><th scope="col">Method</th><th scope="col">Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Visa, Mastercard, American Express, Discover</td><td>Credit and debit cards, processed by [Shopify Payments]</td></tr>
+        <tr><td>Shop Pay</td><td>Saves your details for one-tap checkout; Shop Pay Installments available</td></tr>
+        <tr><td>PayPal</td><td>Pay with your PayPal balance or linked account</td></tr>
+        <tr><td>Apple Pay &amp; Google Pay</td><td>Available on supported devices and browsers</td></tr>
+        <tr><td>Afterpay</td><td>Split eligible orders into [4] interest-free payments</td></tr>
+        <tr><td>{AppName} gift cards</td><td>Can be combined with one other payment method</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>We don't accept cash on delivery, checks or bank transfers for online orders. [Edit this list to match the payment methods enabled in your Shopify settings.]</p>
+
+  <h2 id="currency">2. Currency &amp; Pricing</h2>
+  <p>All prices are shown in [US dollars (USD)]. If you shop from another country, your bank may convert the charge and apply its own exchange rate or fees. Sales tax is calculated at checkout based on your shipping address.</p>
+
+  <h2 id="charged">3. When You're Charged</h2>
+  <p>Your payment method is authorised and charged when you place your order. For pre-orders or back-ordered items, we [charge at checkout / charge when the item ships], and say so on the product page.</p>
+
+  <h2 id="later">4. Pay Later Options</h2>
+  <p>Shop Pay Installments and Afterpay let you split eligible orders into smaller payments. These services are provided by their own companies, subject to approval and their terms. Late fees or interest, if any, are set by them, not by {AppName}.</p>
+
+  <h2 id="codes">5. Discount Codes &amp; Gift Cards</h2>
+  <ul>
+    <li>One discount code per order unless the offer says otherwise.</li>
+    <li>Codes must be entered at checkout and can't be applied after an order is placed.</li>
+    <li>Gift cards never expire, can't be exchanged for cash, and are treated like cash if lost or stolen.</li>
+  </ul>
+
+  <h2 id="security">6. Payment Security</h2>
+  <p>Checkout is encrypted and processed by PCI DSS–compliant payment providers. {AppName} never sees or stores your full card number. We may also use automated checks to help prevent fraud, and may contact you to verify an order before it ships.</p>
+
+  <h2 id="declined">7. Declined Payments</h2>
+  <p>If your payment is declined, your order won't be placed. Check that your billing address matches your card, or try another method. Your bank can tell you why a payment was declined; we can't see that detail.</p>
+
+  <h2 id="refunds">8. Refunds</h2>
+  <p>Approved refunds go back to the original payment method within [5–7] business days. Your bank may take a few extra days to show it. See our <a href="{{ refund_url }}">Return &amp; Refund Policy</a> for details.</p>
+
+  <h2 id="contact">9. Contact Us</h2>
+  {%- render 'somna-policy-cta', title: 'Question about a payment?', text: 'Email [hello@yourdomain.com] with your order number. We reply within [24 hours].', label: 'Email Us', url: 'mailto:hello@[yourdomain].com' -%}
+{%- endif -%}

@@ -1,121 +1,215 @@
 {%- comment -%}
-  Indigo banner above policy and information pages (app/components/PolicyHero.tsx).
-  The headline, subheadline and image default per policy page handle
-  (app/lib/content/policies.ts) and can be overridden in the section settings.
-  With the page.policies template it renders the index banner
-  (app/routes/policies._index.tsx).
+  Soft lavender banner above policy and information pages (design: Standard,
+  Returns, Privacy, Terms, Payment, Contact, Legal, DoNotSell): breadcrumb
+  Home / Support / <page title>, eyebrow, h1, sub and an optional meta line.
+  Copy defaults per page handle and can be replaced per page with a
+  "Page copy" block. With the page.policies template it renders the index.
+  Tokens: {AppName} brand name, {date} the page's publish date,
+  {minutes} reading time of the document.
 {%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+{%- capture dns_sub -%}{AppName} doesn't sell your personal information for money. Some advertising cookies may count as "sharing" under certain US state laws. You can switch that off here, any time.{%- endcapture -%}
 {%- liquid
-  assign default_eyebrow = page.title
-  assign default_headline = page.title
-  assign default_subheadline = ''
-  assign placeholder = 'placeholder-about-hero.svg'
-  assign placeholder_alt = 'A stack of {AppName} pillows'
+  assign handle = page.handle
+  assign effective = 'Effective {date} · {minutes} min read'
+  assign eyebrow = 'Policies'
+  assign headline = page.title
+  assign sub = ''
+  assign meta = ''
+  assign wide = false
+  assign default_minutes = 0
+  assign parent_handle = section.settings.parent_page.handle | default: 'support'
+  assign parent_label = section.settings.parent_label | default: 'Support'
 
-  case page.handle
-    when 'privacy-policy'
-      assign default_headline = "Sleep Easy, Your Data's Safe"
-      assign default_subheadline = 'From checkout to sweet dreams, we keep your details private, never shared, always protected.'
-      assign placeholder = 'placeholder-lifestyle-1.svg'
-      assign placeholder_alt = 'Customer hugging a {AppName} pillow'
-    when 'shipping-policy'
-      assign default_headline = 'From Our Door To Yours'
-      assign default_subheadline = 'Where we deliver, how long it takes and what it costs, in plain language.'
-      assign placeholder = 'placeholder-lifestyle-2.svg'
-      assign placeholder_alt = 'A {AppName} parcel ready to ship'
-    when 'terms-of-service'
-      assign default_headline = 'Our Terms, Made Simple'
-      assign default_subheadline = 'Because clarity matters as much as comfort.'
-      assign placeholder = 'placeholder-lifestyle-1.svg'
-      assign placeholder_alt = 'Customer hugging a {AppName} pillow'
+  case handle
     when 'refund-policy'
-      assign default_headline = 'Love It, Or Send It Back'
-      assign default_subheadline = '30 days to decide, no restocking fees and real people to help if anything is wrong.'
+      assign default_minutes = 4
+      assign eyebrow = 'Return & Refund Policy'
+      assign headline = 'Returns, Made Simple'
+      assign sub = "Sleep on it for [100] nights. If it isn't right, we'll make it right."
+      assign meta = effective
+    when 'shipping-policy'
+      assign eyebrow = 'Policies'
+      assign headline = 'Shipping Policy'
+      assign sub = 'Everything you need to know about getting your {AppName} order to your door. Last updated {date}.'
+    when 'privacy-policy'
+      assign default_minutes = 7
+      assign eyebrow = 'Privacy Policy'
+      assign headline = 'Your Privacy, Made Simple'
+      assign sub = 'What we collect, why we collect it, and the choices you have. We never sell your personal information.'
+      assign meta = effective
+    when 'terms-of-service'
+      assign default_minutes = 12
+      assign eyebrow = 'Terms of Service'
+      assign headline = 'Our Terms, Made Simple'
+      assign sub = 'The rules for shopping with {AppName}, written as plainly as the law allows.'
+      assign meta = effective
+    when 'payment-policy'
+      assign default_minutes = 4
+      assign eyebrow = 'Payment Policy'
+      assign headline = 'Payments, Made Simple'
+      assign sub = "How you can pay, when you're charged, and how we keep every payment secure."
+      assign meta = effective
     when 'contact-information'
-      assign default_headline = "We're Here To Help"
-      assign default_subheadline = 'Real people, real replies: how to reach us and when we are around.'
-      assign placeholder = 'placeholder-lifestyle-2.svg'
-      assign placeholder_alt = 'The {AppName} customer service team'
+      assign eyebrow = 'Contact Information'
+      assign headline = "We're Here to Help"
+      assign sub = 'Real people, real answers. Reach the right team below, usually within [24 hours].'
     when 'legal-notice'
-      assign default_headline = 'The Legal Details'
-      assign default_subheadline = 'Who operates this website and how your rights are protected.'
+      assign eyebrow = 'Legal Notice'
+      assign headline = "Who's Behind {AppName}"
+      assign sub = 'The company details, ownership and legal information for [yourdomain].com.'
+      assign meta = 'Last updated {date}'
+    when 'do-not-sell'
+      assign eyebrow = 'Your privacy choices'
+      assign headline = 'Do Not Sell or Share My Personal Information'
+      assign sub = dns_sub
+      assign wide = true
+      assign parent_handle = 'privacy-policy'
+      assign parent_label = pages['privacy-policy'].title | default: 'Privacy Policy'
   endcase
 
   if template.suffix == 'policies'
-    assign default_eyebrow = '{AppName}'
-    assign default_headline = 'Policies'
-    assign default_subheadline = 'The fine print, in plain language: how we ship, how returns work and how we look after your information.'
+    assign eyebrow = 'Support'
+    assign headline = 'Our Policies'
+    assign sub = 'The fine print, in plain language: how we ship, how returns work and how we look after your information.'
+    assign meta = ''
+    assign wide = false
   endif
 
-  assign eyebrow = section.settings.eyebrow | default: default_eyebrow | replace: '{AppName}', settings.brand_name
-  assign headline = section.settings.headline | default: default_headline | replace: '{AppName}', settings.brand_name
-  assign subheadline = section.settings.subheadline | default: default_subheadline | replace: '{AppName}', settings.brand_name
-  assign image = section.settings.image
-  assign image_alt = section.settings.image_alt | default: image.alt | default: placeholder_alt | replace: '{AppName}', settings.brand_name
+  for block in section.blocks
+    if block.settings.page != blank and block.settings.page.handle == handle
+      if block.settings.eyebrow != blank
+        assign eyebrow = block.settings.eyebrow
+      endif
+      if block.settings.headline != blank
+        assign headline = block.settings.headline
+      endif
+      if block.settings.subheadline != blank
+        assign sub = block.settings.subheadline
+      endif
+      if block.settings.hide_meta
+        assign meta = ''
+      elsif block.settings.meta != blank
+        assign meta = block.settings.meta
+      endif
+    endif
+  endfor
+
+  assign date = page.published_at | date: '%B %-d, %Y'
+  if date == blank
+    assign date = 'now' | date: '%B %-d, %Y'
+  endif
+
+  if meta contains '{minutes}'
+    if page.content == blank and default_minutes > 0
+      assign minutes = default_minutes
+    else
+      if page.content != blank
+        assign doc_text = page.content
+      else
+        capture doc_text
+          render 'somna-policy-doc', handle: handle, part: 'body'
+        endcapture
+      endif
+      assign words = doc_text | strip_html | newline_to_br | replace: '<br />', ' ' | split: ' ' | size
+      assign wpm = section.settings.words_per_minute | default: 200
+      assign minutes = words | plus: wpm | minus: 1 | divided_by: wpm
+      if minutes < 1
+        assign minutes = 1
+      endif
+    endif
+    assign meta = meta | replace: '{minutes}', minutes
+  endif
+
+  assign eyebrow = eyebrow | replace: '{AppName}', settings.brand_name
+  assign headline = headline | replace: '{AppName}', settings.brand_name
+  assign sub = sub | replace: '{AppName}', settings.brand_name | replace: '{date}', date
+  assign meta = meta | replace: '{AppName}', settings.brand_name | replace: '{date}', date
 -%}
-<div class="policy-page">
-  <div class="container">
-    <section class="policy-hero" aria-labelledby="policy-hero-heading">
-      <div class="policy-hero__content">
-        {%- if settings.rating_label != blank -%}
-          {%- render 'stars', rating: 5, label: settings.rating_label, size: 'md' -%}
-        {%- endif -%}
-        {%- if eyebrow != blank -%}<p class="policy-hero__eyebrow">{{ eyebrow }}</p>{%- endif -%}
-        <h1 id="policy-hero-heading" class="policy-hero__heading">{{ headline }}</h1>
-        {%- if subheadline != blank -%}<p class="policy-hero__sub">{{ subheadline }}</p>{%- endif -%}
-      </div>
-      {%- if section.settings.show_image -%}
-        <div class="policy-hero__media">
-          {%- if image != blank -%}
-            {{ image | image_url: width: 1376 | image_tag: widths: '400, 600, 800, 1000, 1376', sizes: '(min-width: 64em) 50vw, 100vw', loading: 'eager', decoding: 'async', alt: image_alt }}
-          {%- else -%}
-            <img src="{{ placeholder | asset_url }}" alt="{{ image_alt | escape }}" width="1376" height="760" loading="eager" decoding="async">
-          {%- endif -%}
-        </div>
-      {%- endif -%}
-    </section>
+<section class="s-pg s-page-hero s-phero" aria-labelledby="PolicyHeroTitle-{{ section.id }}">
+  <div class="s-wrap s-wrap--1200 s-page-hero__inner">
+    <nav class="s-crumbs" aria-label="Breadcrumb">
+      <a href="{{ routes.root_url }}">Home</a> <span aria-hidden="true">/</span>
+      <a href="{% render 'somna-policy-url', handle: parent_handle %}">{{ parent_label | escape }}</a> <span aria-hidden="true">/</span>
+      <span aria-current="page">{{ page.title }}</span>
+    </nav>
+    {%- if eyebrow != blank -%}<span class="s-eyebrow">{{ eyebrow | escape }}</span>{%- endif -%}
+    <h1 id="PolicyHeroTitle-{{ section.id }}" class="s-h1{% if wide %} s-h1--wide s-balance{% endif %}">{{ headline | escape }}</h1>
+    {%- if sub != blank -%}<p class="s-lead">{{ sub }}</p>{%- endif -%}
+    {%- if meta != blank -%}<span class="s-phero__meta">{{ meta }}</span>{%- endif -%}
   </div>
-</div>
+</section>
 
 {% schema %}
 {
   "name": "Policy banner",
+  "class": "s-section-policy-hero",
   "settings": [
     {
       "type": "paragraph",
-      "content": "Leave a field empty to use the storefront's copy for this policy (privacy-policy, shipping-policy, terms-of-service, refund-policy, contact-information, legal-notice)."
+      "content": "Copy defaults per page handle: refund-policy, shipping-policy, privacy-policy, terms-of-service, payment-policy, contact-information, legal-notice, do-not-sell. Add a \"Page copy\" block to change it for one page. Tokens: {AppName}, {date} (page publish date), {minutes} (reading time)."
+    },
+    {
+      "type": "page",
+      "id": "parent_page",
+      "label": "Breadcrumb parent page",
+      "info": "Middle breadcrumb link. Defaults to the page with the handle support."
     },
     {
       "type": "text",
-      "id": "eyebrow",
-      "label": "Eyebrow",
-      "info": "Defaults to the page title."
+      "id": "parent_label",
+      "label": "Breadcrumb parent label",
+      "default": "Support"
     },
     {
-      "type": "text",
-      "id": "headline",
-      "label": "Headline"
-    },
+      "type": "range",
+      "id": "words_per_minute",
+      "label": "Reading speed for {minutes}",
+      "min": 100,
+      "max": 300,
+      "step": 10,
+      "unit": "wpm",
+      "default": 200
+    }
+  ],
+  "blocks": [
     {
-      "type": "text",
-      "id": "subheadline",
-      "label": "Subheadline"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_image",
-      "label": "Show image",
-      "default": true
-    },
-    {
-      "type": "image_picker",
-      "id": "image",
-      "label": "Image"
-    },
-    {
-      "type": "text",
-      "id": "image_alt",
-      "label": "Image alt text"
+      "type": "page_copy",
+      "name": "Page copy",
+      "settings": [
+        {
+          "type": "page",
+          "id": "page",
+          "label": "Page"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow"
+        },
+        {
+          "type": "text",
+          "id": "headline",
+          "label": "Headline"
+        },
+        {
+          "type": "textarea",
+          "id": "subheadline",
+          "label": "Subheadline"
+        },
+        {
+          "type": "text",
+          "id": "meta",
+          "label": "Date line",
+          "info": "For example: Effective March 1, 2026 · {minutes} min read"
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_meta",
+          "label": "Hide date line",
+          "default": false
+        }
+      ]
     }
   ]
 }

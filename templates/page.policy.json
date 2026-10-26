@@ -2,6 +2,23 @@
   "sections": {
     "hero": {
       "type": "policy-hero",
+      "settings": {
+        "parent_label": "Support"
+      }
+    },
+    "nav": {
+      "type": "somna-policy-nav",
+      "blocks": {
+        "returns": {"type": "link", "settings": {"label": "Returns & Refunds", "handle": "refund-policy"}},
+        "shipping": {"type": "link", "settings": {"label": "Shipping Policy", "handle": "shipping-policy"}},
+        "privacy": {"type": "link", "settings": {"label": "Privacy Policy", "handle": "privacy-policy"}},
+        "terms": {"type": "link", "settings": {"label": "Terms of Service", "handle": "terms-of-service"}},
+        "payment": {"type": "link", "settings": {"label": "Payment Policy", "handle": "payment-policy"}},
+        "contact": {"type": "link", "settings": {"label": "Contact Information", "handle": "contact-information"}},
+        "legal": {"type": "link", "settings": {"label": "Legal Notice", "handle": "legal-notice"}},
+        "donotsell": {"type": "link", "settings": {"label": "Do Not Sell or Share", "handle": "do-not-sell"}}
+      },
+      "block_order": ["returns", "shipping", "privacy", "terms", "payment", "contact", "legal", "donotsell"],
       "settings": {}
     },
     "main": {
@@ -9,5 +26,5 @@
       "settings": {}
     }
   },
-  "order": ["hero", "main"]
+  "order": ["hero", "nav", "main"]
 }

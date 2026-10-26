@@ -1,0 +1,14 @@
+{%- comment -%}
+  "At a glance" summary box at the top of a policy document.
+  {% render 'somna-policy-glance', items: 'First point|Second point', note: '…' %}
+{%- endcomment -%}
+{%- assign glance_items = items | split: '|' -%}
+<div class="s-glance">
+  <h2 class="s-glance__title">{{ title | default: 'At a glance' }}</h2>
+  <ul class="s-glance__list">
+    {%- for item in glance_items -%}
+      <li><span class="s-glance__tick" aria-hidden="true">✓</span>{{ item }}</li>
+    {%- endfor -%}
+  </ul>
+  <p class="s-glance__note">{{ note | default: 'This summary is for convenience. The full policy below is what applies.' }}</p>
+</div>

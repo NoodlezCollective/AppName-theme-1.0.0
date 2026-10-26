@@ -1,0 +1,55 @@
+{%- comment -%}
+  Founder story split (design: About.dc, "FOUNDER"): 4:5 portrait beside
+  the story, with a signature (text or image) and the founder's name.
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<section class="s-pg s-pg-sec">
+  <div class="s-split">
+    {%- assign media_alt = section.settings.image_alt | replace: '{AppName}', settings.brand_name -%}
+    {%- render 'somna-media',
+      image: section.settings.image,
+      alt: media_alt,
+      code: section.settings.code,
+      brief: section.settings.brief,
+      label: 'Photo placeholder A-02',
+      radius: 28,
+      class: 's-afounder__media s-ph--30',
+      sizes: '(min-width: 1000px) 500px, 100vw'
+    -%}
+    <div class="s-afounder__text">
+      {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | escape }}</span>{%- endif -%}
+      <h2 class="s-h2 s-balance">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h2>
+      {%- if section.settings.text != blank -%}<div class="s-pg-p">{{ section.settings.text | replace: '{AppName}', settings.brand_name }}</div>{%- endif -%}
+      {%- if section.settings.signature != blank or section.settings.signature_image != blank or section.settings.name != blank -%}
+        <div class="s-afounder__sign">
+          {%- if section.settings.signature_image != blank -%}
+            <span class="s-afounder__sig">{{ section.settings.signature_image | image_url: height: 96 | image_tag: alt: section.settings.signature, loading: 'lazy' }}</span>
+          {%- elsif section.settings.signature != blank -%}
+            <span class="s-afounder__sig">{{ section.settings.signature | escape }}</span>
+          {%- endif -%}
+          {%- if section.settings.name != blank -%}<span class="s-afounder__name">{{ section.settings.name | escape }}</span>{%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Founder story",
+  "class": "s-section-about-founder",
+  "settings": [
+    {"type": "image_picker", "id": "image", "label": "Portrait", "info": "Shown at 4:5."},
+    {"type": "text", "id": "image_alt", "label": "Portrait alt text", "default": "The {AppName} founder in the studio"},
+    {"type": "text", "id": "code", "label": "Placeholder shot code", "default": "A-02 · FOUNDER PORTRAIT"},
+    {"type": "text", "id": "brief", "label": "Placeholder brief", "default": "Founder(s) in a real workspace with fabric swatches and pillow prototypes, natural light"},
+    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Why we started"},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "It Started With Too Many Sleepless Nights"},
+    {"type": "richtext", "id": "text", "label": "Story", "default": "<p>[Founder story, 2–3 short paragraphs. The real problem you faced (waking up hot, a stiff neck, bedding that felt like a compromise), what you tried, and the moment you decided to make it yourself.]</p><p>[What makes your approach different: who you worked with, how many prototypes, how you tested with real sleepers.]</p>"},
+    {"type": "text", "id": "signature", "label": "Signature text", "default": "[Signature]"},
+    {"type": "image_picker", "id": "signature_image", "label": "Signature image", "info": "Replaces the signature text."},
+    {"type": "text", "id": "name", "label": "Name and role", "default": "[Founder name], Founder"}
+  ],
+  "presets": [{"name": "Founder story"}]
+}
+{% endschema %}

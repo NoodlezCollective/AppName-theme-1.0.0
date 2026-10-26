@@ -1,0 +1,16 @@
+{%- comment -%}
+  Lavender call-to-action card that closes a policy document.
+  {% render 'somna-policy-cta', title: '…', text: '…', label: 'Contact Us', url: '/pages/support', large: false %}
+  large: the bigger card with an h2 title (shipping policy).
+{%- endcomment -%}
+<div class="s-pol-cta{% if large %} s-pol-cta--lg{% endif %}">
+  <div class="s-pol-cta__text">
+    {%- if large -%}
+      <h2 class="s-pol-cta__title">{{ title }}</h2>
+    {%- else -%}
+      <strong class="s-pol-cta__title">{{ title }}</strong>
+    {%- endif -%}
+    <span class="s-pol-cta__sub">{{ text }}</span>
+  </div>
+  <a class="s-btn" href="{{ url }}">{{ label }}</a>
+</div>

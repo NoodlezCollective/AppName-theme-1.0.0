@@ -1,0 +1,305 @@
+{
+  "sections": {
+    "hero": {
+      "type": "somna-support-hero",
+      "blocks": {
+        "pop-1": {
+          "type": "link",
+          "settings": {
+            "label": "Start a return",
+            "link": "#faq"
+          }
+        },
+        "pop-2": {
+          "type": "link",
+          "settings": {
+            "label": "Where's my order?",
+            "link": "#track"
+          }
+        },
+        "pop-3": {
+          "type": "link",
+          "settings": {
+            "label": "Warranty claim",
+            "link": "#faq"
+          }
+        }
+      },
+      "block_order": [
+        "pop-1",
+        "pop-2",
+        "pop-3"
+      ],
+      "settings": {}
+    },
+    "help": {
+      "type": "somna-support-help",
+      "blocks": {
+        "topic-orders": {
+          "type": "topic",
+          "settings": {
+            "mark": "01",
+            "title": "Orders & Shipping",
+            "subtitle": "Delivery times, tracking, changes"
+          }
+        },
+        "faq-orders-1": {
+          "type": "faq",
+          "settings": {
+            "question": "When will my order ship?",
+            "answer": "<p>Most orders leave us within [1–2] business days. You’ll get a tracking email as soon as it ships.</p>"
+          }
+        },
+        "faq-orders-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I change or cancel my order?",
+            "answer": "<p>Yes, within [2 hours] of ordering. Message us with your order number and we’ll update it before it ships.</p>"
+          }
+        },
+        "faq-orders-3": {
+          "type": "faq",
+          "settings": {
+            "question": "Do you ship internationally?",
+            "answer": "<p>We ship to [countries]. See our Shipping Policy for rates and timing.</p>"
+          }
+        },
+        "faq-orders-4": {
+          "type": "faq",
+          "settings": {
+            "question": "My tracking hasn’t updated. What should I do?",
+            "answer": "<p>Carriers can take [48 hours] to scan a package. If it still hasn’t moved, contact us and we’ll chase it.</p>"
+          }
+        },
+        "topic-returns": {
+          "type": "topic",
+          "settings": {
+            "mark": "02",
+            "title": "Returns & Trial",
+            "subtitle": "How the [100]-night trial works"
+          }
+        },
+        "faq-returns-1": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the [100]-night trial work?",
+            "answer": "<p>Sleep on it for at least [14] nights so your body can adjust. Then if it isn’t right, contact us within [100] nights of delivery for a free return.</p>"
+          }
+        },
+        "faq-returns-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Do I need the original packaging?",
+            "answer": "<p>No. We’ll send a prepaid label, and you can use any box.</p>"
+          }
+        },
+        "faq-returns-3": {
+          "type": "faq",
+          "settings": {
+            "question": "When will I get my refund?",
+            "answer": "<p>Within [5–7] business days of the return being received.</p>"
+          }
+        },
+        "faq-returns-4": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I exchange for a different firmness?",
+            "answer": "<p>Yes, exchanges are free during your trial.</p>"
+          }
+        },
+        "topic-warranty": {
+          "type": "topic",
+          "settings": {
+            "mark": "03",
+            "title": "Warranty",
+            "subtitle": "What’s covered and how to claim"
+          }
+        },
+        "faq-warranty-1": {
+          "type": "faq",
+          "settings": {
+            "question": "What does the [lifetime] warranty cover?",
+            "answer": "<p>Manufacturing defects such as seam failure or loss of fill. It doesn’t cover normal wear, stains or misuse.</p>"
+          }
+        },
+        "faq-warranty-2": {
+          "type": "faq",
+          "settings": {
+            "question": "How do I make a claim?",
+            "answer": "<p>Send your order number and a photo of the issue using the form below.</p>"
+          }
+        },
+        "topic-care": {
+          "type": "topic",
+          "settings": {
+            "mark": "04",
+            "title": "Product Care",
+            "subtitle": "Washing, drying, fluffing"
+          }
+        },
+        "faq-care-1": {
+          "type": "faq",
+          "settings": {
+            "question": "How do I wash my comforter?",
+            "answer": "<p>Machine wash cold on gentle, tumble dry low with dryer balls. Check the care label for each product.</p>"
+          }
+        },
+        "faq-care-2": {
+          "type": "faq",
+          "settings": {
+            "question": "How do I restore my pillow’s shape?",
+            "answer": "<p>Give it a firm fluff and leave it in the sun or a low dryer cycle for [10 minutes].</p>"
+          }
+        },
+        "topic-sizing": {
+          "type": "topic",
+          "settings": {
+            "mark": "05",
+            "title": "Sizing & Fit",
+            "subtitle": "Dimensions and firmness guide"
+          }
+        },
+        "faq-sizing-1": {
+          "type": "faq",
+          "settings": {
+            "question": "What size pillow should I get?",
+            "answer": "<p>Standard fits most beds; Queen and King give more room to move. See dimensions on each product page.</p>"
+          }
+        },
+        "faq-sizing-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Which firmness is right for me?",
+            "answer": "<p>Side: Medium or Firm. Back: Medium. Stomach: Soft.</p>"
+          }
+        },
+        "topic-account": {
+          "type": "topic",
+          "settings": {
+            "mark": "06",
+            "title": "Account & Payments",
+            "subtitle": "Shop Pay, Afterpay, discounts"
+          }
+        },
+        "faq-account-1": {
+          "type": "faq",
+          "settings": {
+            "question": "Which payment methods do you accept?",
+            "answer": "<p>Visa, Mastercard, Amex, PayPal, Shop Pay and Afterpay.</p>"
+          }
+        },
+        "faq-account-2": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I use more than one discount code?",
+            "answer": "<p>[State your stacking policy.]</p>"
+          }
+        }
+      },
+      "block_order": [
+        "topic-orders",
+        "faq-orders-1",
+        "faq-orders-2",
+        "faq-orders-3",
+        "faq-orders-4",
+        "topic-returns",
+        "faq-returns-1",
+        "faq-returns-2",
+        "faq-returns-3",
+        "faq-returns-4",
+        "topic-warranty",
+        "faq-warranty-1",
+        "faq-warranty-2",
+        "topic-care",
+        "faq-care-1",
+        "faq-care-2",
+        "topic-sizing",
+        "faq-sizing-1",
+        "faq-sizing-2",
+        "topic-account",
+        "faq-account-1",
+        "faq-account-2"
+      ],
+      "settings": {}
+    },
+    "track": {
+      "type": "somna-support-track",
+      "settings": {}
+    },
+    "contact": {
+      "type": "somna-support-contact",
+      "blocks": {
+        "email": {
+          "type": "card",
+          "settings": {
+            "icon": "mail",
+            "title": "Email",
+            "text": "We reply within [24 hours], 7 days a week.",
+            "link_label": "hello@[yourdomain].com",
+            "link": "mailto:hello@[yourdomain].com"
+          }
+        }
+      },
+      "block_order": [
+        "email"
+      ],
+      "settings": {}
+    },
+    "policies": {
+      "type": "somna-support-policies",
+      "blocks": {
+        "shipping": {
+          "type": "link",
+          "settings": {
+            "label": "Shipping",
+            "handle": "shipping-policy"
+          }
+        },
+        "returns": {
+          "type": "link",
+          "settings": {
+            "label": "Returns & [100]-Night Trial",
+            "handle": "refund-policy"
+          }
+        },
+        "warranty": {
+          "type": "link",
+          "settings": {
+            "label": "Warranty",
+            "handle": "refund-policy",
+            "anchor": "warranty"
+          }
+        },
+        "privacy": {
+          "type": "link",
+          "settings": {
+            "label": "Privacy",
+            "handle": "privacy-policy"
+          }
+        },
+        "terms": {
+          "type": "link",
+          "settings": {
+            "label": "Terms",
+            "handle": "terms-of-service"
+          }
+        }
+      },
+      "block_order": [
+        "shipping",
+        "returns",
+        "warranty",
+        "privacy",
+        "terms"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "help",
+    "track",
+    "contact",
+    "policies"
+  ]
+}

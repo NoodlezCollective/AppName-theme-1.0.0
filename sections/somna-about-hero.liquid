@@ -1,0 +1,45 @@
+{%- comment -%}
+  About page banner (design: About.dc, "HERO"): centred eyebrow, heading and
+  intro on the soft band, with a wide 21:9 brand image (labelled
+  placeholder A-01 until an image is picked).
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<section class="s-pg s-ahero" aria-labelledby="AboutTitle-{{ section.id }}">
+  <div class="s-ahero__inner">
+    {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | replace: '{AppName}', settings.brand_name | escape }}</span>{%- endif -%}
+    <h1 class="s-h1 s-balance" id="AboutTitle-{{ section.id }}">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h1>
+    {%- if section.settings.text != blank -%}<p class="s-ahero__sub">{{ section.settings.text | replace: '{AppName}', settings.brand_name }}</p>{%- endif -%}
+    {%- if section.settings.show_image -%}
+      {%- assign media_alt = section.settings.image_alt | replace: '{AppName}', settings.brand_name -%}
+      {%- render 'somna-media',
+        image: section.settings.image,
+        alt: media_alt,
+        code: section.settings.code,
+        brief: section.settings.brief,
+        label: 'Photo placeholder A-01',
+        radius: 28,
+        class: 's-ahero__media',
+        sizes: '(min-width: 1400px) 1340px, 100vw',
+        loading: 'eager'
+      -%}
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "About banner",
+  "class": "s-section-about-hero",
+  "settings": [
+    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our story"},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "Sleep Shouldn't Be Complicated. It Should Just Feel Right."},
+    {"type": "inline_richtext", "id": "text", "label": "Intro", "default": "{AppName} comes from <em>somnus</em>, Latin for sleep. We make pillows and comforters for the moment between sunset and sleep, when everything should finally feel soft."},
+    {"type": "checkbox", "id": "show_image", "label": "Show image", "default": true},
+    {"type": "image_picker", "id": "image", "label": "Wide image", "info": "Shown at 21:9."},
+    {"type": "text", "id": "image_alt", "label": "Image alt text", "default": "A {AppName} bedroom at dusk"},
+    {"type": "text", "id": "code", "label": "Placeholder shot code", "default": "A-01 · WIDE BRAND HERO"},
+    {"type": "text", "id": "brief", "label": "Placeholder brief", "default": "Wide bedroom at dusk: lavender walls, peach sunset glow on a made bed, nobody in frame yet"}
+  ],
+  "presets": [{"name": "About banner"}]
+}
+{% endschema %}

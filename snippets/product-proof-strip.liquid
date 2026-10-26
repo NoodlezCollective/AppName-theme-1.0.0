@@ -1,8 +1,0 @@
-{%- comment -%}
-  Authority chips from `mellow.proof` (app/components/product/ProofStrip.tsx).
-  {% render 'product-proof-strip', product: product %}
-{%- endcomment -%}
-{%- assign proof = product.metafields.mellow.proof.value -%}
-{%- if proof.size > 0 -%}
-  {%- render 'product-icon-list', items: proof, class: 'proof-strip', item_class: 'proof-chip', label: 'Why sleepers trust it', size: 16 -%}
-{%- endif -%}

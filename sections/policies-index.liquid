@@ -1,53 +1,60 @@
-{%- assign brand_token = '{AppName}' -%}
 {%- comment -%}
-  Policy index list (app/routes/policies._index.tsx). Each block links to the
-  Page that holds the policy (template page.policy); until that page exists the
-  link points at /pages/<handle>.
+  Policies index (template page.policies): a grid of soft cards in the Somna
+  look, one per policy page. Each block links to its page (or /pages/<handle>
+  until that page exists).
 {%- endcomment -%}
-<div class="content-page">
-  <div class="container container--text policy-page__body">
-    <ul class="policy-list">
-      {%- for block in section.blocks -%}
-        {%- liquid
-          assign handle = block.settings.handle | strip
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<section class="s-pg s-pidx">
+  <ul class="s-pidx__grid" role="list">
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign policy_page = block.settings.page
+        assign handle = policy_page.handle | default: block.settings.handle | strip
+        if policy_page == blank
           assign policy_page = pages[handle]
-          assign url = policy_page.url
-          if url == blank
-            assign url = routes.root_url | append: 'pages/' | append: handle
-          endif
-          assign title = block.settings.title | default: policy_page.title | default: handle
-        -%}
-        <li {{ block.shopify_attributes }}>
-          <a class="policy-card" href="{{ url }}">
-            <span class="policy-card__body">
-              <span class="policy-card__title">{{ title | replace: brand_token, settings.brand_name }}</span>
-              {%- if block.settings.description != blank -%}
-                <span class="policy-card__description">{{ block.settings.description | replace: brand_token, settings.brand_name }}</span>
-              {%- endif -%}
-            </span>
-            {%- render 'icon', name: 'arrow-right', size: 20, class: 'policy-card__arrow' -%}
-          </a>
-        </li>
-      {%- endfor -%}
-    </ul>
-  </div>
-</div>
+        endif
+        assign title = block.settings.title | default: policy_page.title | default: handle | replace: '{AppName}', settings.brand_name
+        assign description = block.settings.description | replace: '{AppName}', settings.brand_name
+      -%}
+      <li {{ block.shopify_attributes }}>
+        <a class="s-pidx__card" href="{% if policy_page.url != blank %}{{ policy_page.url }}{% else %}{% render 'somna-policy-url', handle: handle %}{% endif %}">
+          <span class="s-pidx__title">{{ title | escape }}</span>
+          {%- if description != blank -%}<span class="s-pidx__desc">{{ description | escape }}</span>{%- endif -%}
+          <span class="s-pidx__more">{{ section.settings.link_label | default: 'Read policy' | escape }} {% render 'somna-icon', name: 'arrow-right', size: 18 %}</span>
+        </a>
+      </li>
+    {%- endfor -%}
+  </ul>
+</section>
 
 {% schema %}
 {
   "name": "Policies list",
-  "settings": [],
+  "class": "s-section-policies-index",
+  "settings": [
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Card link label",
+      "default": "Read policy"
+    }
+  ],
   "blocks": [
     {
       "type": "policy",
       "name": "Policy",
       "settings": [
         {
+          "type": "page",
+          "id": "page",
+          "label": "Page"
+        },
+        {
           "type": "text",
           "id": "handle",
           "label": "Page handle",
           "default": "privacy-policy",
-          "info": "Handle of the page that uses the page.policy template."
+          "info": "Used while no page is picked above."
         },
         {
           "type": "text",
@@ -59,7 +66,7 @@
           "type": "text",
           "id": "description",
           "label": "Description",
-          "default": "How we collect, use and protect your personal information."
+          "default": "What we collect, why we collect it, and the choices you have."
         }
       ]
     }
@@ -68,12 +75,10 @@
     {
       "name": "Policies list",
       "blocks": [
-        {"type": "policy", "settings": {"handle": "privacy-policy", "title": "Privacy Policy", "description": "How we collect, use and protect your personal information."}},
-        {"type": "policy", "settings": {"handle": "shipping-policy", "title": "Shipping Policy", "description": "Processing times, delivery estimates and tracking."}},
-        {"type": "policy", "settings": {"handle": "terms-of-service", "title": "Terms of Service", "description": "The terms that apply when you shop with {AppName}."}},
-        {"type": "policy", "settings": {"handle": "refund-policy", "title": "Return and Refund Policy", "description": "Our 30-day return window and how refunds and exchanges work."}},
-        {"type": "policy", "settings": {"handle": "contact-information", "title": "Contact Information", "description": "Business details, how to reach us and when we reply."}},
-        {"type": "policy", "settings": {"handle": "legal-notice", "title": "Legal Notice", "description": "Who operates this website, hosting and intellectual property."}}
+        {"type": "policy", "settings": {"handle": "refund-policy", "title": "Returns & Refunds", "description": "Sleep on it for [100] nights. If it isn't right, we'll make it right."}},
+        {"type": "policy", "settings": {"handle": "shipping-policy", "title": "Shipping Policy", "description": "Processing times, rates, delivery and tracking."}},
+        {"type": "policy", "settings": {"handle": "privacy-policy", "title": "Privacy Policy", "description": "What we collect, why we collect it, and the choices you have."}},
+        {"type": "policy", "settings": {"handle": "terms-of-service", "title": "Terms of Service", "description": "The rules for shopping with {AppName}, written as plainly as the law allows."}}
       ]
     }
   ]

@@ -1,0 +1,79 @@
+{%- comment -%}
+  Pill menu between the policy pages (design: PolicyNav.dc). Each block is a
+  label plus a page (or a page handle while the page does not exist yet);
+  the pill for the page being viewed is highlighted. Without blocks it lists
+  the eight default policy pages.
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'somna-pages.js' | asset_url }}" defer></script>
+{%- liquid
+  assign default_items = 'Returns & Refunds|refund-policy,Shipping Policy|shipping-policy,Privacy Policy|privacy-policy,Terms of Service|terms-of-service,Payment Policy|payment-policy,Contact Information|contact-information,Legal Notice|legal-notice,Do Not Sell or Share|do-not-sell' | split: ','
+-%}
+<nav class="s-pg s-pnav" aria-label="{{ section.settings.label | default: 'Policies' | escape }}">
+  <div class="s-pnav__list" data-somna-pnav>
+    {%- if section.blocks.size > 0 -%}
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign item_page = block.settings.page
+          assign item_handle = item_page.handle | default: block.settings.handle | strip
+          assign item_label = block.settings.label | default: item_page.title | default: item_handle
+          assign item_label = item_label | replace: '{AppName}', settings.brand_name
+        -%}
+        {%- if item_handle != blank -%}
+          <a class="s-pnav__link" href="{% if item_page != blank %}{{ item_page.url }}{% else %}{% render 'somna-policy-url', handle: item_handle %}{% endif %}"{% if item_handle == page.handle %} aria-current="page"{% endif %} {{ block.shopify_attributes }}>{{ item_label | escape }}</a>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- else -%}
+      {%- for item in default_items -%}
+        {%- assign parts = item | split: '|' -%}
+        <a class="s-pnav__link" href="{% render 'somna-policy-url', handle: parts[1] %}"{% if parts[1] == page.handle %} aria-current="page"{% endif %}>{{ parts[0] | escape }}</a>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+</nav>
+
+{% schema %}
+{
+  "name": "Policy menu",
+  "class": "s-section-policy-nav",
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Accessible name",
+      "default": "Policies"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "link",
+      "name": "Policy link",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Privacy Policy"
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": "Page"
+        },
+        {
+          "type": "text",
+          "id": "handle",
+          "label": "Page handle",
+          "default": "privacy-policy",
+          "info": "Used while no page is picked above."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Policy menu"
+    }
+  ]
+}
+{% endschema %}

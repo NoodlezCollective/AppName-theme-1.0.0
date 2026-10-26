@@ -1,0 +1,70 @@
+{%- comment -%}
+  Materials and responsibility split (design: About.dc, "MATERIALS"): text
+  with certification chips beside a 4:3 image; the image stacks above the
+  text on small screens.
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<section class="s-pg s-pg-sec">
+  <div class="s-split s-split--rev">
+    <div class="s-amat__text">
+      {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | escape }}</span>{%- endif -%}
+      <h2 class="s-h2 s-balance">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h2>
+      {%- if section.settings.text != blank -%}<div class="s-pg-p">{{ section.settings.text | replace: '{AppName}', settings.brand_name }}</div>{%- endif -%}
+      {%- if section.blocks.size > 0 -%}
+        <ul class="s-amat__chips">
+          {%- for block in section.blocks -%}
+            <li {{ block.shopify_attributes }}>{{ block.settings.label | escape }}</li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+    {%- assign media_alt = section.settings.image_alt | replace: '{AppName}', settings.brand_name -%}
+    {%- render 'somna-media',
+      image: section.settings.image,
+      alt: media_alt,
+      code: section.settings.code,
+      brief: section.settings.brief,
+      label: 'Photo placeholder A-04',
+      icon: 'leaf',
+      radius: 28,
+      class: 's-amat__media s-ph--30',
+      sizes: '(min-width: 1000px) 560px, 100vw'
+    -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Materials",
+  "class": "s-section-about-materials",
+  "settings": [
+    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Materials & responsibility"},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "Softer on You, Kinder to the Planet"},
+    {"type": "richtext", "id": "text", "label": "Text", "default": "<p>[Where your fabrics and fills come from, any certifications you hold, and what you're doing about packaging. Only list what you can verify.]</p>"},
+    {"type": "image_picker", "id": "image", "label": "Image", "info": "Shown at 4:3."},
+    {"type": "text", "id": "image_alt", "label": "Image alt text", "default": "{AppName} fill, fabric swatches and recyclable box"},
+    {"type": "text", "id": "code", "label": "Placeholder shot code", "default": "A-04 · MATERIALS FLAT-LAY"},
+    {"type": "text", "id": "brief", "label": "Placeholder brief", "default": "Raw fill, fabric swatches and recyclable box arranged on a lavender surface, top-down"}
+  ],
+  "max_blocks": 8,
+  "blocks": [
+    {
+      "type": "chip",
+      "name": "Certification chip",
+      "settings": [
+        {"type": "text", "id": "label", "label": "Label", "default": "[Certification 1]"}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Materials",
+      "blocks": [
+        {"type": "chip", "settings": {"label": "[Certification 1]"}},
+        {"type": "chip", "settings": {"label": "[Certification 2]"}},
+        {"type": "chip", "settings": {"label": "[Recyclable packaging]"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

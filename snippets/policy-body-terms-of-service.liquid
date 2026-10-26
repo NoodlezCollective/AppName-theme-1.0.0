@@ -1,93 +1,92 @@
 {%- comment -%}
-  Default body of the terms-of-service policy (app/lib/content/policies.ts), rendered
-  by sections/main-page.liquid while the page body is empty. Bracketed
-  placeholders such as [Store Name] are filled in by the merchant.
+  Default Terms of Service (design: Terms.dc), rendered by
+  snippets/somna-policy-doc.liquid while the page body is empty.
+  part: 'toc' (On this page links) or 'body'.
 {%- endcomment -%}
-<p><strong>Last updated: [Date]</strong></p>
+{%- if part == 'toc' -%}
+  <a href="#t1">1. Overview</a>
+  <a href="#t2">2. Using our store</a>
+  <a href="#t3">3. Pricing &amp; promotions</a>
+  <a href="#t4">4. Orders &amp; billing</a>
+  <a href="#t5">5. Products &amp; accuracy</a>
+  <a href="#t6">6. Third-party tools &amp; links</a>
+  <a href="#t7">7. Reviews &amp; content you share</a>
+  <a href="#t8">8. Personal information</a>
+  <a href="#t9">9. Prohibited uses</a>
+  <a href="#t10">10. Health &amp; product claims</a>
+  <a href="#t11">11. Warranties &amp; liability</a>
+  <a href="#t12">12. Indemnification</a>
+  <a href="#t13">13. Arbitration &amp; class waiver</a>
+  <a href="#t14">14. Advertising disclosures</a>
+  <a href="#t15">15. Termination &amp; severability</a>
+  <a href="#t16">16. Governing law</a>
+  <a href="#t17">17. Changes to these terms</a>
+  <a href="#t18">18. Contact information</a>
+{%- else -%}
+  {%- capture privacy_url -%}{%- render 'somna-policy-url', handle: 'privacy-policy' -%}{%- endcapture -%}
+  {%- capture refund_url -%}{%- render 'somna-policy-url', handle: 'refund-policy' -%}{%- endcapture -%}
+  {%- capture shipping_url -%}{%- render 'somna-policy-url', handle: 'shipping-policy' -%}{%- endcapture -%}
+  {%- capture contact_url -%}{%- render 'somna-policy-url', handle: 'contact-information' -%}{%- endcapture -%}
+  {%- render 'somna-policy-glance', items: "By shopping with us, you agree to these terms|Prices and promotions can change, and we can cancel orders with obvious pricing errors|Our products support better sleep but aren't medical devices|Disputes go to individual arbitration, with an opt-out (section 13)", note: 'This summary is for convenience. The full terms below are what apply.' -%}
 
-<h2>1. About These Terms</h2>
-<p>This website is operated by [Legal Business Name], trading as [Store Name] ("we", "us", "our"). These Terms of Service ("Terms") apply to everyone who visits our website or buys from us ("you", "your"). By using our website or placing an order, you agree to these Terms together with our <a href="/policies/privacy-policy">Privacy Policy</a>, <a href="/policies/refund-policy">Return and Refund Policy</a> and <a href="/policies/shipping-policy">Shipping Policy</a>. If you do not agree, please do not use our website.</p>
-<p>Our store is hosted on Shopify, which provides the online platform that allows us to sell our products to you.</p>
+  <h2 id="t1">1. Overview</h2>
+  <p>This website is operated by [{AppName} legal entity name] ("{AppName}", "we", "us"). These Terms of Service ("Terms") apply to everyone who visits [yourdomain].com or buys from us. By using the site or placing an order, you agree to these Terms and to the policies they reference, including our <a href="{{ privacy_url }}">Privacy Policy</a>, <a href="{{ refund_url }}">Return &amp; Refund Policy</a> and <a href="{{ shipping_url }}">Shipping Policy</a>.</p>
 
-<h2>2. Eligibility</h2>
-<p>By using this website, you confirm that you are at least 18 years old, or that you are using the website with the consent and supervision of a parent or guardian.</p>
+  <h2 id="t2">2. Using Our Store</h2>
+  <p>You must be at least the age of majority where you live to place an order. You agree not to use our products or site for any unlawful purpose. We may refuse service to anyone, for any lawful reason, at any time. Our store is hosted on Shopify.</p>
 
-<h2>3. Using Our Website</h2>
-<p>You agree not to:</p>
-<ul>
-<li>Use the website for any unlawful or fraudulent purpose</li>
-<li>Upload or transmit viruses or any other harmful code</li>
-<li>Attempt to interfere with the security or operation of the website</li>
-<li>Copy, reproduce, resell or commercially exploit any part of the website without our written permission</li>
-<li>Collect data from the website by automated means without our permission</li>
-</ul>
-<p>We may suspend or end your access to the website if you break these Terms.</p>
+  <h2 id="t3">3. Pricing &amp; Promotions</h2>
+  <h3>Compare-at prices</h3>
+  <p>Where we show a crossed-out or "compare at" price, it reflects [the price at which the item was previously offered / an MSRP], as described on the product page. Savings figures are calculated from that price.</p>
+  <h3>Promotions and codes</h3>
+  <p>Promotions run for the period stated, may be limited to stock on hand, and can't be combined unless we say so. Free gifts are added while supplies last.</p>
+  <h3>Pricing errors</h3>
+  <p>If a product is listed at an incorrect price, we may cancel the order and refund you, even after it's confirmed.</p>
 
-<h2>4. Product Information</h2>
-<p>We work hard to describe and photograph our bedding and sleep products accurately. However, please note:</p>
-<ul>
-<li>Colours and textures may appear slightly different depending on your screen and lighting.</li>
-<li>Dimensions, fill weights and thread counts are given as a guide and may vary slightly due to the nature of textiles and filling materials.</li>
-<li>Comfort, softness and firmness are personal, and descriptions of how a product feels are general guidance only.</li>
-<li>Pillows, duvets and other filled items may be vacuum-packed for delivery and can take up to 48 hours to regain their full shape and loft after unpacking.</li>
-<li>Natural fibres can shrink slightly after washing.</li>
-</ul>
-<p>Please check the size guide and product description before ordering, especially to make sure sheets and covers fit your mattress, duvet and pillows. If a product is not as described, your rights are set out in our Return and Refund Policy.</p>
+  <h2 id="t4">4. Orders &amp; Billing</h2>
+  <p>We may limit or cancel quantities per person, household or order. You agree to give current, complete and accurate purchase and account information, and to update it promptly. If we change or cancel an order, we'll try to notify you using the email or phone number you gave us.</p>
 
-<h2>5. Care and Use</h2>
-<p>To keep your products in the best condition, please follow the care instructions on the product label and product page. We are not responsible for damage caused by washing, drying or using products in a way that does not follow these instructions, or by normal wear and tear over time.</p>
-<p>Our products are designed for general household use and comfort. They are not medical devices and are not intended to diagnose, treat or prevent any medical condition, including sleep disorders, allergies or back and neck pain. If you have a medical condition, please seek advice from a healthcare professional. Where materials are described as hypoallergenic, this means they are designed to reduce the likelihood of an allergic reaction; it does not guarantee that a reaction will not occur.</p>
+  <h2 id="t5">5. Products &amp; Accuracy</h2>
+  <p>We try to show colours and details accurately, but your screen may vary. Product descriptions, availability and prices may change without notice. If information on the site is inaccurate or out of date, we may correct it at any time, including after you've placed an order.</p>
 
-<h2>6. Prices and Payment</h2>
-<p>All prices are shown in GBP (£) and include VAT where applicable. Shipping costs are shown at checkout before you pay. We may change our prices at any time, but changes will not affect orders that have already been confirmed.</p>
-<p>Payment is taken when you place your order. We accept the payment methods shown at checkout. Payment information is encrypted and processed securely by our payment providers; we do not store your full card details.</p>
+  <h2 id="t6">6. Third-Party Tools &amp; Links</h2>
+  <p>We may offer tools or links from third parties, such as payment providers, review platforms or social media. We don't control them and aren't responsible for their content or practices. Your use of them is at your own risk and under their terms.</p>
 
-<h2>7. Orders</h2>
-<p>Placing an order is an offer to buy. A contract between you and us is formed only when we send you an email confirming that your order has been dispatched. We may refuse or cancel an order, for example if a product is out of stock, if there is a pricing or description error, or if we suspect fraud. If we cancel an order you have paid for, we will refund you in full.</p>
-<p>We may limit the quantity of products sold per person, household or order.</p>
+  <h2 id="t7">7. Reviews &amp; Content You Share</h2>
+  <p>When you send us reviews, photos, videos, comments or ideas, or tag us on social media with [#SleepWith{AppName}], you give {AppName} a non-exclusive, royalty-free, worldwide licence to use, edit and display that content in any media, with credit where practical. You confirm the content is yours, is truthful, and doesn't infringe anyone's rights. We may remove content we find unlawful, offensive or misleading. We don't pay for or edit the meaning of reviews; incentivised reviews are labelled as such.</p>
 
-<h2>8. Accuracy of Information</h2>
-<p>We may occasionally make mistakes in product descriptions, pricing or availability. We reserve the right to correct any errors and to update information at any time without prior notice, including after an order has been placed.</p>
+  <h2 id="t8">8. Personal Information</h2>
+  <p>How we handle your personal information is described in our <a href="{{ privacy_url }}">Privacy Policy</a>.</p>
 
-<h2>9. Account Information</h2>
-<p>You agree to provide accurate, complete and up-to-date information when placing an order or creating an account. You are responsible for keeping your account login details confidential.</p>
+  <h2 id="t9">9. Prohibited Uses</h2>
+  <p>You may not use the site to break any law; infringe our or anyone's intellectual property; harass or discriminate; submit false information; upload malicious code; collect others' data; scrape or spam; or interfere with the site's security. We may end your access for breaching this section.</p>
 
-<h2>10. Delivery and Returns</h2>
-<p>Delivery is covered by our <a href="/policies/shipping-policy">Shipping Policy</a>. Returns, refunds and exchanges are covered by our <a href="/policies/refund-policy">Return and Refund Policy</a>. For hygiene reasons, some filled items such as pillows and duvets can only be returned if they are still in their original sealed packaging.</p>
+  <h2 id="t10">10. Health &amp; Product Claims</h2>
+  <p>{AppName} products are designed to support comfortable sleep. They are not medical devices and are not intended to diagnose, treat, cure or prevent any condition. Results vary from person to person. If you have a medical condition, sleep disorder, or ongoing pain, talk to a qualified healthcare professional. Statements such as "cooling" describe how products are designed to feel and are based on [describe testing], not a guarantee of a specific temperature change.</p>
 
-<h2>11. Intellectual Property</h2>
-<p>All content on this website, including text, images, logos and designs, belongs to us or our licensors and is protected by intellectual property laws. You may not use it without our written permission.</p>
+  <h2 id="t11">11. Disclaimer of Warranties &amp; Limitation of Liability</h2>
+  <p class="caps">Except as stated in our written limited warranty, the site and products are provided "as is" and "as available", without warranties of any kind, to the fullest extent permitted by law.</p>
+  <p class="caps">To the fullest extent permitted by law, {AppName} will not be liable for any indirect, incidental, special or consequential damages. Our total liability for any claim is limited to the amount you paid for the product involved.</p>
+  <p>Some jurisdictions don't allow these limits, so they may not apply to you. Nothing here limits rights you have under consumer protection law.</p>
 
-<h2>12. Feedback and Reviews</h2>
-<p>If you send us reviews, comments or suggestions, you allow us to use, publish and edit them free of charge. You agree that your submissions will not be unlawful, offensive, misleading or infringe anyone else's rights.</p>
+  <h2 id="t12">12. Indemnification</h2>
+  <p>You agree to defend and hold harmless {AppName} and its team from claims arising from your breach of these Terms or your violation of any law or third-party right.</p>
 
-<h2>13. Third-Party Links and Tools</h2>
-<p>Our website may contain links to, or tools provided by, third parties. We are not responsible for their content, products or privacy practices, and your use of them is at your own risk and subject to their terms.</p>
+  <h2 id="t13">13. Binding Arbitration &amp; Class Action Waiver</h2>
+  <p>[Please have counsel review this section.] Any dispute with {AppName} will be resolved by binding individual arbitration administered by [arbitration body] under its consumer rules, rather than in court, except that you may bring qualifying claims in small claims court. You and {AppName} waive the right to a jury trial and to participate in class actions. You may opt out of this section within [30] days of your first purchase by emailing [legal@yourdomain.com] with your name and the words "arbitration opt-out".</p>
 
-<h2>14. Personal Information</h2>
-<p>We handle your personal information in line with our <a href="/policies/privacy-policy">Privacy Policy</a>.</p>
+  <h2 id="t14">14. Advertising Disclosures</h2>
+  <p>Some creators, affiliates and ambassadors receive free products, commissions or payment for sharing {AppName}. They're asked to disclose that relationship clearly. Press mentions and awards shown on our site link to, or name, their original source.</p>
 
-<h2>15. Our Liability</h2>
-<p>Nothing in these Terms limits or excludes our liability for death or personal injury caused by our negligence, for fraud, or for anything else that cannot be limited or excluded by law. Your statutory rights as a consumer are not affected.</p>
-<p>Subject to the above, we are not liable for any loss that was not reasonably foreseeable, or for any business losses, including loss of profit or loss of data. Our total liability to you in connection with any order is limited to the price you paid for that order.</p>
+  <h2 id="t15">15. Termination &amp; Severability</h2>
+  <p>These Terms apply until ended by you or us. You can end them by no longer using the site. If any part of these Terms is found unenforceable, the rest still applies, and the unenforceable part will be limited to the minimum extent necessary.</p>
 
-<h2>16. Indemnity</h2>
-<p>You agree to compensate us for any claims, losses or costs that arise from your breach of these Terms or your misuse of our website.</p>
+  <h2 id="t16">16. Governing Law &amp; Entire Agreement</h2>
+  <p>These Terms are governed by the laws of [State / Country], without regard to conflict-of-law rules. They, together with the policies linked above, are the entire agreement between you and {AppName} about the site and supersede any prior agreements.</p>
 
-<h2>17. Events Outside Our Control</h2>
-<p>We are not responsible for delays or failures caused by events outside our reasonable control, such as carrier disruptions, severe weather, strikes or technical failures.</p>
+  <h2 id="t17">17. Changes to These Terms</h2>
+  <p>We may update these Terms from time to time. The effective date at the top shows when they last changed. Continuing to use the site after a change means you accept the updated Terms.</p>
 
-<h2>18. Severability</h2>
-<p>If any part of these Terms is found to be invalid or unenforceable, the rest of the Terms will remain in effect.</p>
-
-<h2>19. Changes to These Terms</h2>
-<p>We may update these Terms from time to time by posting a new version on this page. The Terms in force when you place an order will apply to that order.</p>
-
-<h2>20. Governing Law</h2>
-<p>These Terms are governed by the laws of England and Wales. If you are a consumer, you may bring proceedings in the courts of England and Wales, or in the courts of the part of the UK where you live.</p>
-
-<h2>21. Contact Us</h2>
-<p>[Legal Business Name], trading as [Store Name]<br>
-[Business Address]<br>
-Email: [Email]<br>
-Phone: [Phone]</p>
+  <h2 id="t18">18. Contact Information</h2>
+  {%- render 'somna-policy-cta', title: 'Questions about these terms?', text: 'Email [hello@yourdomain.com]. For an existing order, include your order number.', label: 'Contact Us', url: contact_url -%}
+{%- endif -%}

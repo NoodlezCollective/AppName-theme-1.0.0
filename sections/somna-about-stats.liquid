@@ -1,0 +1,44 @@
+{%- comment -%}
+  Indigo stats band (design: About.dc, "STATS"): big numbers with labels.
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+<section class="s-pg s-astats">
+  <div class="s-astats__grid">
+    {%- for block in section.blocks -%}
+      <div class="s-astat" {{ block.shopify_attributes }}>
+        <span class="s-astat__value">{{ block.settings.value | escape }}</span>
+        <span class="s-astat__label">{{ block.settings.label | replace: '{AppName}', settings.brand_name | escape }}</span>
+      </div>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Stats band",
+  "class": "s-section-about-stats",
+  "settings": [],
+  "max_blocks": 6,
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Stat",
+      "settings": [
+        {"type": "text", "id": "value", "label": "Number", "default": "[X]+"},
+        {"type": "text", "id": "label", "label": "Label", "default": "Happy sleepers"}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Stats band",
+      "blocks": [
+        {"type": "stat", "settings": {"value": "[X]+", "label": "Happy sleepers"}},
+        {"type": "stat", "settings": {"value": "[X]", "label": "Five-star reviews"}},
+        {"type": "stat", "settings": {"value": "[X]", "label": "Prototypes tested"}},
+        {"type": "stat", "settings": {"value": "[Year]", "label": "Founded in [City]"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

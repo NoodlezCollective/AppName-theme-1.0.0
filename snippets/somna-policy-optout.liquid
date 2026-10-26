@@ -1,0 +1,61 @@
+{%- comment -%}
+  "Opt Out Across Devices" request card (design: DoNotSell.dc). Sends a
+  Shopify contact form to the store's sender email, so requests arrive in
+  the merchant's inbox; after a successful post it shows "Request received".
+  {% render 'somna-policy-optout' %}
+{%- endcomment -%}
+<div class="s-dns__card" id="opt-out-request">
+  {%- form 'contact', id: 'SomnaOptOutForm', class: 's-dns__wrap', data-somna-form: '' -%}
+    {%- if form.posted_successfully? -%}
+      {%- assign optout_sent = true -%}
+    {%- endif -%}
+    <div class="s-dns__form" data-somna-fields{% if optout_sent %} hidden{% endif %}>
+        <div class="s-dns__head">
+          <h2 class="s-form-title">Opt Out Across Devices</h2>
+          <p class="s-dns__lead">Tell us your email and we'll apply your choice to your {{ settings.brand_name }} account and any data linked to it.</p>
+        </div>
+        {%- if form.errors -%}
+          <div class="s-pg-status s-pg-status--error" role="alert">
+            Please check the form:
+            <ul>
+              {%- for field in form.errors -%}
+                <li>{% if field == 'form' %}{{ form.errors.messages[field] }}{% else %}{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}{% endif %}</li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+        <input type="hidden" name="contact[Request]" value="Do Not Sell or Share opt-out">
+        <div class="s-field">
+          <label class="s-label" for="dns-name">Full name</label>
+          <input class="s-input" id="dns-name" type="text" name="contact[name]" autocomplete="name" value="{{ form.name }}">
+        </div>
+        <div class="s-field">
+          <label class="s-label" for="dns-email">Email address</label>
+          <input class="s-input" id="dns-email" type="email" name="contact[email]" autocomplete="email" required value="{{ form.email }}">
+        </div>
+        <div class="s-field">
+          <label class="s-label" for="dns-state">State of residence</label>
+          <select class="s-input" id="dns-state" name="contact[State of residence]">
+            <option>California</option>
+            <option>Colorado</option>
+            <option>Connecticut</option>
+            <option>Virginia</option>
+            <option>Other US state</option>
+            <option>Outside the US</option>
+          </select>
+        </div>
+        <label class="s-pg-check">
+          <input type="checkbox" name="contact[Confirmed]" value="Yes" required>
+          I confirm this request is for my own personal information, or I'm authorised to make it.
+        </label>
+        <button type="submit" class="s-btn s-btn--block s-pg-btn-56 s-pg-btn-17">Submit Opt-Out Request</button>
+        <p class="s-note">We'll confirm by email and complete your request within [15] business days. You can also email [privacy@yourdomain.com].</p>
+    </div>
+    <div class="s-dns__done" role="status" data-somna-done{% unless optout_sent %} hidden{% endunless %}>
+      <span class="s-dns__tick">{%- render 'somna-icon', name: 'check', size: 30, stroke_width: 2.25 -%}</span>
+      <h2 class="s-dns__done-title">Request received</h2>
+      <p>Check your inbox for a confirmation email. We'll finish processing your opt-out within [15] business days.</p>
+      <button type="button" class="s-pill-btn" data-somna-reset>Submit another request</button>
+    </div>
+  {%- endform -%}
+</div>

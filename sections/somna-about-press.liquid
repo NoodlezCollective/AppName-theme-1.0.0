@@ -1,0 +1,52 @@
+{%- comment -%}
+  "As featured in" press marquee (design: About.dc, "PRESS"): indigo band
+  scrolling outlet names or logos; the list repeats once for a seamless loop.
+{%- endcomment -%}
+{{ 'somna-pages.css' | asset_url | stylesheet_tag }}
+{%- capture press_items -%}
+  {%- for block in section.blocks -%}
+    <li {{ block.shopify_attributes }}>
+      {%- if block.settings.logo != blank -%}
+        {{ block.settings.logo | image_url: height: 56 | image_tag: alt: block.settings.name, loading: 'lazy' }}
+      {%- else -%}
+        {{ block.settings.name | escape }}
+      {%- endif -%}
+    </li>
+  {%- endfor -%}
+{%- endcapture -%}
+<section class="s-pg s-marquee" aria-label="{{ section.settings.label | escape }}">
+  <div class="s-marquee__track">
+    <ul class="s-marquee__list" role="list">{{ press_items }}</ul>
+    <ul class="s-marquee__list" role="list" aria-hidden="true">{{ press_items }}</ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Press marquee",
+  "class": "s-section-about-press",
+  "settings": [
+    {"type": "text", "id": "label", "label": "Accessible name", "default": "As featured in"}
+  ],
+  "max_blocks": 16,
+  "blocks": [
+    {
+      "type": "outlet",
+      "name": "Press outlet",
+      "settings": [
+        {"type": "text", "id": "name", "label": "Name", "default": "[Press outlet]"},
+        {"type": "image_picker", "id": "logo", "label": "Logo", "info": "Light logo on a transparent background. Replaces the name."}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Press marquee",
+      "blocks": [
+        {"type": "outlet"}, {"type": "outlet"}, {"type": "outlet"}, {"type": "outlet"},
+        {"type": "outlet"}, {"type": "outlet"}, {"type": "outlet"}, {"type": "outlet"}
+      ]
+    }
+  ]
+}
+{% endschema %}

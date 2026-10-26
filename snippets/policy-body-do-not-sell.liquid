@@ -1,0 +1,23 @@
+{%- comment -%}
+  Default "Do Not Sell or Share" article (design: DoNotSell.dc), rendered by
+  snippets/somna-policy-doc.liquid while the page body is empty. The opt-out
+  request card beside it comes from snippets/somna-policy-optout.liquid.
+  part: 'toc' (nothing) or 'body'.
+{%- endcomment -%}
+{%- unless part == 'toc' -%}
+  {%- capture privacy_url -%}{%- render 'somna-policy-url', handle: 'privacy-policy' -%}{%- endcapture -%}
+  <h2>1. Turn Off Ad Sharing on This Browser</h2>
+  <p>This stops advertising cookies and pixels from partners like [Google, Meta and TikTok] on this device. Essential cookies that run the store stay on.</p>
+  {%- render 'somna-policy-adswitch' -%}
+
+  <h2>2. What Opting Out Covers</h2>
+  <ul>
+    <li>Ad cookies and pixels used to show you {AppName} ads on other sites</li>
+    <li>Sharing hashed emails with ad platforms to build audiences</li>
+    <li>It doesn't stop order emails, or marketing emails you signed up for. Use the unsubscribe link for those.</li>
+  </ul>
+
+  <h2>3. Authorised Agents</h2>
+  <p>You can ask someone to make a request for you. We'll need proof they're authorised, and we may ask you to confirm your identity directly.</p>
+  <p>Read more in our <a href="{{ privacy_url }}">Privacy Policy</a>.</p>
+{%- endunless -%}

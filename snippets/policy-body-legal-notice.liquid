@@ -1,28 +1,48 @@
 {%- comment -%}
-  Default body of the legal-notice policy (app/lib/content/policies.ts), rendered
-  by sections/main-page.liquid while the page body is empty. Bracketed
-  placeholders such as [Store Name] are filled in by the merchant.
+  Default Legal Notice (design: Legal.dc), rendered by
+  snippets/somna-policy-doc.liquid while the page body is empty.
+  part: 'toc' (On this page links) or 'body'.
 {%- endcomment -%}
-<h2>Website Operator</h2>
-<p>This website is operated by [Legal Business Name], trading as [Store Name].</p>
-<p>Registered office / business address: [Business Address]<br>
-Company registration number: [Company Number]<br>
-Registered in: [England and Wales / your country]<br>
-VAT number: [VAT Number, if registered]<br>
-Director / responsible person: [Full Name]</p>
+{%- if part == 'toc' -%}
+  <a href="#company">1. Company details</a>
+  <a href="#ip">2. Trademarks &amp; copyright</a>
+  <a href="#content">3. Website content</a>
+  <a href="#links">4. External links</a>
+  <a href="#safety">5. Product safety</a>
+  <a href="#disputes">6. Consumer disputes</a>
+  <a href="#credits">7. Credits</a>
+{%- else -%}
+  {%- capture terms_url -%}{%- render 'somna-policy-url', handle: 'terms-of-service' -%}{%- endcapture -%}
+  <h2 id="company">1. Company Details</h2>
+  <div class="s-table-box">
+    <table class="s-pol-table s-pol-table--lg s-pol-table--rows" style="min-width: 440px;">
+      <tbody>
+        <tr><th scope="row">Legal name</th><td>[{AppName} legal entity name], trading as {AppName}</td></tr>
+        <tr><th scope="row">Registered address</th><td>[Street address], [City, State ZIP], [Country]</td></tr>
+        <tr><th scope="row">Company registration</th><td>[Registration number], [Registry / State of incorporation]</td></tr>
+        <tr><th scope="row">Tax / VAT ID</th><td>[EIN, VAT or GST number]</td></tr>
+        <tr><th scope="row">Managing director(s)</th><td>[Name(s)]</td></tr>
+        <tr><th scope="row">Email</th><td><a href="mailto:legal@[yourdomain].com">legal@[yourdomain].com</a></td></tr>
+        <tr><th scope="row">Website hosting</th><td>Shopify Inc., [confirm Shopify's current registered address]</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-<h2>Contact</h2>
-<p>Email: [Email]<br>
-Phone: [Phone]</p>
+  <h2 id="ip">2. Trademarks &amp; Copyright</h2>
+  <p>{AppName}, the {AppName} logo and our product names are trademarks of [{AppName} legal entity name] [registered or pending in Country]. All text, photos, videos and graphics on this site belong to us or our licensors and may not be copied, reproduced or used without written permission, except for sharing links or personal, non-commercial use.</p>
 
-<h2>Hosting</h2>
-<p>This online store is hosted by Shopify Inc., 151 O'Connor Street, Ground Floor, Ottawa, Ontario, K2P 2L8, Canada.</p>
+  <h2 id="content">3. Website Content</h2>
+  <p>We work to keep everything on this site accurate and current, but we can't guarantee it's complete or free of errors. Product information is for general guidance and isn't medical advice. See our <a href="{{ terms_url }}">Terms of Service</a> for the full terms of use.</p>
 
-<h2>Intellectual Property</h2>
-<p>All content on this website, including text, images, graphics, logos and product designs, is owned by or licensed to [Legal Business Name] and protected by copyright and trademark law. It may not be copied, reproduced or used without our prior written permission.</p>
+  <h2 id="links">4. External Links</h2>
+  <p>Our site may link to websites run by others, such as press coverage, social media or payment providers. We don't control those sites and aren't responsible for their content. If you find a link to unlawful content, let us know and we'll remove it.</p>
 
-<h2>Liability for Content</h2>
-<p>We take care to keep the information on this website accurate and up to date, but we cannot guarantee that it is always complete or error-free. We are not responsible for the content of external websites linked from this site.</p>
+  <h2 id="safety">5. Product Safety</h2>
+  <p>Manufacturer: [Manufacturer name and address]. [For EU sales: EU responsible person, name, address and email.] To report a product safety concern, email <a href="mailto:safety@[yourdomain].com">safety@[yourdomain].com</a>.</p>
 
-<h2>Complaints</h2>
-<p>If you have a complaint, please contact us first at [Email] and we will do our best to resolve it. Your statutory rights are not affected.</p>
+  <h2 id="disputes">6. Consumer Disputes</h2>
+  <p>If you have a complaint, please contact us first. We'll do our best to resolve it quickly. [State whether you participate in any consumer dispute resolution scheme, and name it if required in your market.] Our <a href="{{ terms_url }}">Terms of Service</a> explain how other disputes are handled.</p>
+
+  <h2 id="credits">7. Credits</h2>
+  <p>Photography: [Photographer or studio]. Website design and development: [Agency or team].</p>
+{%- endif -%}

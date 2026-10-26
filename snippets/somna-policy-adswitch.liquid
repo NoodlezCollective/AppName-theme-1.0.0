@@ -1,0 +1,14 @@
+{%- comment -%}
+  "Targeted advertising" on/off switch (design: DoNotSell.dc). assets/somna-pages.js
+  connects it to Shopify's Customer Privacy API (sale_of_data consent) and
+  honours Global Privacy Control. Merchant-written page content can place it
+  with the text [ad-switch]; otherwise it is shown at the top of the article.
+{%- endcomment -%}
+<div class="s-dns__switchbox" data-somna-adswitch>
+  <span class="s-dns__switchtext">
+    <strong id="ads-label">Targeted advertising</strong>
+    <span class="s-dns__status" data-on="On for this browser" data-off="Off: you’ve opted out on this browser" aria-live="polite">On for this browser</span>
+  </span>
+  <button type="button" class="s-switch" role="switch" aria-checked="true" aria-labelledby="ads-label"><span class="s-switch__knob" aria-hidden="true"></span></button>
+</div>
+<p class="s-dns__gpc">We also honour Global Privacy Control (GPC) signals sent by your browser as an opt-out for that browser.</p>
