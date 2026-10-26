@@ -1,0 +1,123 @@
+{%- comment -%}
+  Somna product card (homepage bestsellers, collection grid).
+  {% render 'somna-product-card', product: product, actions: 'shop' | 'quick', heading_level: 3, show_swatches: false, shot: 'P-01', brief: '…', loading: 'lazy' %}
+  actions 'shop'  -> one "Shop Now" button (homepage)
+  actions 'quick' -> "Quick Add" (adds the first available variant to the
+                     cart drawer, assets/somna.js) + "Details" (collection)
+  Without a product (onboarding) pass `placeholder: true` with name/line/badge.
+  Badge: metafield mellow.badge. One-liner: metafield mellow.short_description,
+  else the first sentence of the description. Swatches: the Color option's
+  values, coloured by their swatch (Shopify) or by name.
+{%- endcomment -%}
+{%- liquid
+  assign actions = actions | default: 'shop'
+  assign loading = loading | default: 'lazy'
+  assign heading_level = heading_level | default: 3
+  assign heading_tag = 'h' | append: heading_level
+  assign sizes = sizes | default: '(min-width: 90em) 340px, (min-width: 48em) 33vw, 100vw'
+
+  if product != blank
+    assign url = product.url
+    assign name = product.title
+    assign badge = product.metafields.mellow.badge.value | strip
+    assign line = product.metafields.mellow.short_description.value | strip
+    if line == blank
+      assign clean = product.description | strip_html | strip_newlines | strip
+      assign first = clean | split: '. ' | first
+      assign line = first | truncate: 90
+      unless line contains '.' or line contains '…'
+        assign line = line | append: '.'
+      endunless
+    endif
+    assign rating = nil
+    if product.metafields.reviews.rating.value != blank
+      assign rating = product.metafields.reviews.rating.value.rating | times: 5.0 | divided_by: product.metafields.reviews.rating.value.scale_max
+    endif
+    assign rating_count = product.metafields.reviews.rating_count.value
+    assign price = product.price_min
+    assign compare_at = product.compare_at_price_min
+    assign variant = product.selected_or_first_available_variant
+  else
+    assign url = url | default: routes.all_products_collection_url
+    assign name = name | default: 'Product name'
+  endif
+-%}
+<article class="s-card">
+  <a class="s-card__media" href="{{ url }}" aria-label="{{ name | escape }}">
+    {%- if badge != blank -%}<span class="s-badge s-card__badge">{{ badge }}</span>{%- endif -%}
+    {%- if product.featured_media != blank -%}
+      {{ product.featured_media.preview_image | image_url: width: 1200, height: 1200, crop: 'center' | image_tag: widths: '300, 400, 600, 800, 1000, 1200', sizes: sizes, loading: loading, alt: '' }}
+      {%- if product.media.size > 1 -%}
+        {{ product.media[1].preview_image | image_url: width: 1200, height: 1200, crop: 'center' | image_tag: widths: '300, 400, 600, 800, 1000, 1200', sizes: sizes, loading: 'lazy', alt: '', class: 's-card__img--hover' }}
+      {%- endif -%}
+    {%- else -%}
+      <span class="s-ph" aria-hidden="true">
+        {%- render 'somna-icon', name: 'camera', size: 28 -%}
+        <span class="s-ph__code">{{ shot | default: 'P-01' }}{% if actions == 'quick' %} · Packshot + hover{% endif %}</span>
+        {%- if brief != blank -%}<span>{{ brief }}</span>{%- endif -%}
+      </span>
+    {%- endif -%}
+  </a>
+  {%- if show_swatches and product != blank -%}
+    {%- assign color_option = product.options_with_values | where: 'name', 'Color' | first -%}
+    {%- unless color_option -%}{%- assign color_option = product.options_with_values | where: 'name', 'Colour' | first -%}{%- endunless -%}
+    {%- if color_option -%}
+      <div class="s-card__swatches">
+        {%- for value in color_option.values -%}
+          {%- liquid
+            assign hex = value.swatch.color | default: ''
+            if hex == blank
+              assign key = value | downcase
+              case key
+                when 'lavender'
+                  assign hex = '#e0e0ff'
+                when 'dusk'
+                  assign hex = '#a39bd4'
+                when 'sunset', 'peach'
+                  assign hex = '#fff1ec'
+                else
+                  assign hex = '#ffffff'
+              endcase
+            endif
+          -%}
+          <span class="s-card__swatch" title="{{ value | escape }}" style="background: {{ hex }};{% if value.swatch.image %} background-image: url({{ value.swatch.image | image_url: width: 40 }}); background-size: cover;{% endif %}"></span>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+  <div class="s-rating">
+    {%- render 'somna-stars', rating: rating, size: 15 -%}
+    {%- if rating_count != blank -%}<span>({{ rating_count }} reviews)</span>{%- elsif product == blank -%}<span>([X] reviews)</span>{%- endif -%}
+  </div>
+  <{{ heading_tag }} class="s-card__title"><a href="{{ url }}">{{ name }}</a></{{ heading_tag }}>
+  {%- if line != blank -%}<p class="s-card__line">{{ line }}</p>{%- endif -%}
+  <div class="s-price">
+    {%- if product != blank -%}
+      <span class="s-price__now">{% if product.price_varies %}From {% endif %}{{ price | money }}</span>
+      {%- if compare_at > price -%}
+        <s class="s-price__was"><span class="s-sr">Regular price </span>{{ compare_at | money }}</s>
+        <span class="s-save">Save {{ compare_at | minus: price | money_without_trailing_zeros }}</span>
+      {%- endif -%}
+    {%- else -%}
+      <span class="s-price__now">[$Price]</span><s class="s-price__was">[$Was]</s><span class="s-save">Save [$X]</span>
+    {%- endif -%}
+  </div>
+  {%- if actions == 'quick' -%}
+    <div class="s-card__actions">
+      {%- if product != blank and variant.available -%}
+        <form action="{{ routes.cart_add_url }}" method="post" data-somna-quick-add>
+          <input type="hidden" name="id" value="{{ variant.id }}">
+          <input type="hidden" name="quantity" value="1">
+          <button type="submit" class="s-btn s-btn--md s-btn--block" aria-label="Quick add {{ name | escape }}">Quick Add</button>
+        </form>
+      {%- elsif product != blank -%}
+        <button type="button" class="s-btn s-btn--md s-btn--block" disabled>Sold Out</button>
+      {%- else -%}
+        <a class="s-btn s-btn--md s-btn--block" href="{{ url }}">Quick Add</a>
+      {%- endif -%}
+      <a class="s-btn s-btn--md s-btn--lavender" href="{{ url }}" aria-label="Details: {{ name | escape }}">Details</a>
+    </div>
+  {%- else -%}
+    <a class="s-btn s-btn--md s-btn--block" href="{{ url }}" style="margin-top: 4px;" aria-label="Shop now: {{ name | escape }}">{{ cta_label | default: 'Shop Now' }}</a>
+  {%- endif -%}
+</article>

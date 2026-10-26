@@ -1,0 +1,51 @@
+{%- comment -%}
+  Somna redesign icon set: stroke icons drawn on a 24px grid, copied from the
+  design canvas. Decorative (aria-hidden) unless a title is passed.
+  {% render 'somna-icon', name: 'truck', size: 20, class: '', title: '' %}
+  name: camera, star, moon, play, check, gift, arrow-right, truck, truck-solid,
+  mail, lock, instagram, youtube, facebook, tiktok, close, bag, leaf, quote,
+  soft, drop, shield-check, shield, snowflake, pin, user, search, minus, plus,
+  chevron-down
+{%- endcomment -%}
+{%- liquid
+  assign size = size | default: 24
+  assign stroke_width = stroke_width | default: 1.75
+  assign fill = 'none'
+  assign stroke = 'currentColor'
+-%}
+{%- capture body -%}
+  {%- case name -%}
+    {%- when 'camera' -%}<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>
+    {%- when 'star' -%}{%- assign fill = 'currentColor' -%}{%- assign stroke = 'none' -%}<path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/>
+    {%- when 'moon' -%}<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>
+    {%- when 'play' -%}{%- assign stroke = 'none' -%}<path d="M8 5.5v13l11-6.5z" fill="currentColor"/>
+    {%- when 'check' -%}<path d="M5 12.5l4.5 4.5L19 7.5"/>
+    {%- when 'gift' -%}<path d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13"/><path d="M12 7c-2-4-6-3-5-1s5 1 5 1 4 1 5-1-3-3-5 1"/>
+    {%- when 'arrow-right' -%}<path d="M5 12h14M13 6l6 6-6 6"/>
+    {%- when 'truck' -%}<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.5"/><circle cx="17" cy="17.5" r="1.5"/>
+    {%- when 'truck-solid' -%}<path d="M2 6h12v10H2zM14 9h4.5l3.5 3.5V16h-8z"/><circle cx="6.5" cy="17.5" r="2" fill="currentColor"/><circle cx="17.5" cy="17.5" r="2" fill="currentColor"/>
+    {%- when 'mail' -%}<path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/>
+    {%- when 'lock' -%}<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+    {%- when 'instagram' -%}<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="0.6" fill="currentColor"/>
+    {%- when 'youtube' -%}<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10.5 9.5v5l4-2.5z" fill="currentColor"/>
+    {%- when 'facebook' -%}<path d="M14.5 21v-8h3l.5-3.5h-3.5V7.5c0-1 .4-1.8 1.9-1.8H18V2.6c-.4 0-1.5-.1-2.7-.1-2.7 0-4.3 1.6-4.3 4.5v2.5H8V13h3v8"/>
+    {%- when 'tiktok' -%}<path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M14 3c.5 2.8 2.4 4.6 5 4.8"/>
+    {%- when 'close' -%}<path d="M6 6l12 12M18 6L6 18"/>
+    {%- when 'bag' -%}<path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+    {%- when 'leaf' -%}<path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19l8-8"/>
+    {%- when 'quote' -%}{%- assign stroke = 'none' -%}<path d="M4 18v-5c0-4 2-7 6-8l1 2c-2 1-3 2.5-3 4h3v7zm9 0v-5c0-4 2-7 6-8l1 2c-2 1-3 2.5-3 4h3v7z" fill="currentColor"/>
+    {%- when 'soft' -%}<path d="M20 4c-6 0-12 4-13 13l-3 3M7 17c5 0 10-3 11-9M10 14h5"/>
+    {%- when 'drop' -%}<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>
+    {%- when 'shield-check' -%}<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>
+    {%- when 'shield' -%}<path d="M12 2l9 3.4V12c0 5-3.8 8.9-9 10-5.2-1.1-9-5-9-10V5.4z"/>
+    {%- when 'snowflake' -%}<path d="M12 2v20M4.9 7l14.2 10M4.9 17L19.1 7M9 4l3 2 3-2M9 20l3-2 3 2"/>
+    {%- when 'pin' -%}<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>
+    {%- when 'user' -%}<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>
+    {%- when 'search' -%}<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>
+    {%- when 'minus' -%}<path d="M5 12h14"/>
+    {%- when 'plus' -%}<path d="M12 5v14M5 12h14"/>
+    {%- when 'chevron-down' -%}<path d="M6 9l6 6 6-6"/>
+    {%- when 'menu' -%}<path d="M4 7h16M4 12h16M4 17h16"/>
+  {%- endcase -%}
+{%- endcapture -%}
+<svg class="s-icon{% if class %} {{ class }}{% endif %}" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="{{ fill }}" stroke="{{ stroke }}" stroke-width="{{ stroke_width }}" stroke-linecap="round" stroke-linejoin="round"{% if title != blank %} role="img" aria-label="{{ title | escape }}"{% else %} aria-hidden="true" focusable="false"{% endif %}>{{ body }}</svg>
