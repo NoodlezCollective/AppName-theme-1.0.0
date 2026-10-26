@@ -133,7 +133,8 @@
 
   function updateCount(sectionRoot, region, hasNextPage) {
     var count = sectionRoot.querySelector('.collection-toolbar__count');
-    if (!count) return;
+    // A count of the whole (filtered) collection does not change per page.
+    if (!count || count.hasAttribute('data-count-static')) return;
     var n = region.children.length;
     var noun = n === 1 && !hasNextPage ? ' product' : ' products';
     count.textContent = formatNumber(n) + (hasNextPage ? '+' : '') + noun;
@@ -260,7 +261,7 @@
 
     function setPending(on) {
       var count = root.querySelector('.collection-toolbar__count');
-      var grid = root.querySelector('.product-grid');
+      var grid = root.querySelector('[data-product-grid], .product-grid');
       if (count && on) count.textContent = 'Updating…';
       if (grid) grid.classList.toggle('is-loading', on);
     }

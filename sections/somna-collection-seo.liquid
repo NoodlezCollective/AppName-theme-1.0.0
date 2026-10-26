@@ -1,0 +1,38 @@
+{%- comment -%}
+  SEO copy block under the collection grid (Collection design).
+{%- endcomment -%}
+{%- assign brand = settings.brand_name -%}
+{{ 'somna-collection.css' | asset_url | stylesheet_tag }}
+<section class="sc-seo">
+  <div class="sc-seo__inner">
+    {%- if section.settings.heading != blank -%}<h2 class="s-h2--sm">{{ section.settings.heading | replace: '{AppName}', brand }}</h2>{%- endif -%}
+    {%- if section.settings.text != blank -%}<div class="sc-seo__text">{{ section.settings.text | replace: '{AppName}', brand }}</div>{%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Collection SEO copy",
+  "tag": "div",
+  "class": "section-somna-collection-seo",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Cooling Pillows & Comforters for Better Sleep"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>[SEO copy, 120–200 words. Describe who each category is for, the materials, and the trial and warranty. Target terms like \"cooling comforter\", \"pillow for side sleepers\" and \"all-season duvet\". Keep it below the grid so shoppers see products first.]</p>"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection SEO copy"
+    }
+  ]
+}
+{% endschema %}

@@ -214,3 +214,6 @@ textarea.s-input { padding: 14px 18px; min-height: 140px; resize: vertical; }
 select.s-input { appearance: auto; }
 
 .s-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* theme.css underlines every link on hover; Somna buttons and pills never underline */
+body a.s-btn, body a.s-btn:hover, body a.s-chip, body a.s-chip:hover, body a.s-link-arrow:hover { text-decoration: none; }

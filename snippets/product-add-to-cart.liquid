@@ -1,21 +1,23 @@
 {%- comment -%}
-  Add to cart form (app/components/AddToCartButton.tsx). Posts to
-  routes.cart_add_url so it works without JavaScript; product.js intercepts
-  the submit and calls theme.cart.add([...], {open: true}) so the add-on rides
-  along and the cart drawer opens.
-  {% render 'product-add-to-cart', variant: variant, form_id: 'product-form' %}
+  Somna add to cart form (Product design: "Add to Cart · $129"). Posts to
+  routes.cart_add_url so it works without JavaScript; assets/product.js
+  intercepts the submit and calls theme.cart.add([...], {open: true}) so the
+  add-on rides along and the cart drawer opens. `total` is the price shown
+  after the label (cents).
+  {% render 'product-add-to-cart', variant: variant, form_id: 'product-form', label: 'Add to Cart', total: 12900 %}
 {%- endcomment -%}
 {%- liquid
+  assign label = label | default: 'Add to Cart'
   assign available = false
   if variant != blank and variant.available
     assign available = true
   endif
+  assign total = total | default: variant.price
 -%}
-<form method="post" action="{{ routes.cart_add_url }}" id="{{ form_id }}" data-product-form>
+<form method="post" action="{{ routes.cart_add_url }}" id="{{ form_id }}" class="sp-atc-form" data-product-form data-label="{{ label | escape }}">
   <input type="hidden" name="id" value="{{ variant.id }}" data-variant-input>
-  <div class="add-to-cart" data-add-to-cart>
-    <input name="analytics" type="hidden" value="">
-    <button class="btn btn--primary btn--lg btn--block" type="submit"{% unless available %} disabled{% endunless %} data-add-to-cart-button><span class="btn__label" data-add-to-cart-label>{% if available %}Add to cart{% else %}Sold out{% endif %}</span></button>
-    <p class="sr-only" role="status" aria-live="polite" data-add-to-cart-status></p>
+  <div class="sp-atc-wrap" data-add-to-cart>
+    <button class="sp-atc" type="submit"{% unless available %} disabled{% endunless %} data-add-to-cart-button><span data-add-to-cart-label>{% if available %}{{ label | escape }}{% else %}Sold Out{% endif %}</span><span data-add-to-cart-price{% unless available %} hidden{% endunless %}> · {{ total | money }}</span></button>
+    <p class="s-sr" role="status" aria-live="polite" data-add-to-cart-status></p>
   </div>
 </form>

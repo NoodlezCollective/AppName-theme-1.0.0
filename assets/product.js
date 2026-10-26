@@ -2,7 +2,9 @@
  * Product page behaviour, ported from app/components/product/*.tsx,
  * ProductForm.tsx and AddToCartButton.tsx:
  * gallery, variant selection, pack tiers, quantity, add-on, add to cart,
- * savings note, reviews carousel and product recommendations.
+ * savings note, reviews carousel and product recommendations; Somna
+ * redesign: tier-total price row, free-gift progress, sticky add-to-cart
+ * bar, review list (topic pills + load more) and the product video player.
  *
  * Expects assets/theme.js (window.theme):
  *   theme.cart.add(items, {open: true}) -> Promise (resolves once the lines
@@ -14,7 +16,7 @@
 (function () {
   'use strict';
 
-  // Three sections load this file; run it once.
+  // Several product-page sections load this file; run it once.
   if (window.theme && window.theme.productScriptLoaded) return;
   window.theme = window.theme || {};
   window.theme.productScriptLoaded = true;
@@ -55,10 +57,14 @@
     if (root.galleryApi) return root.galleryApi;
     var track = root.querySelector('[data-gallery-track]');
     if (!track) return null;
-    var slides = toArray(track.querySelectorAll('.gallery__slide'));
+    var slides = toArray(
+      track.querySelectorAll('.gallery__slide, [data-gallery-slide]'),
+    );
     var thumbStrip = root.querySelector('[data-gallery-thumbs]');
     var thumbs = thumbStrip
-      ? toArray(thumbStrip.querySelectorAll('.gallery__thumb'))
+      ? toArray(
+          thumbStrip.querySelectorAll('.gallery__thumb, [data-gallery-thumb]'),
+        )
       : [];
     var count = slides.length;
     var active = Math.max(
@@ -76,6 +82,12 @@
       track.style.setProperty('--gallery-index', String(active));
       slides.forEach(function (slide, index) {
         slide.classList.toggle('is-active', index === active);
+        // Stop a playing video once its slide is no longer shown.
+        if (index !== active) {
+          toArray(slide.querySelectorAll('video')).forEach(function (video) {
+            if (!video.paused) video.pause();
+          });
+        }
       });
       thumbs.forEach(function (thumb, index) {
         thumb.classList.toggle('is-active', index === active);
@@ -279,8 +291,13 @@
   function initPackTiers(root, onChange) {
     var tiers = toArray(root.querySelectorAll('[data-pack-tier]')).map(
       function (label) {
-        var input = label.querySelector('.pack-tier__input');
-        return {label: label, input: input, quantity: parseInt(input.value, 10)};
+        var input = label.querySelector('[data-pack-input], .pack-tier__input');
+        return {
+          label: label,
+          input: input,
+          quantity: parseInt(input.value, 10),
+          name: label.getAttribute('data-pack-label') || '',
+        };
       },
     );
     tiers.forEach(function (tier) {
@@ -290,6 +307,12 @@
     });
 
     return {
+      labelFor: function (quantity) {
+        for (var i = 0; i < tiers.length; i += 1) {
+          if (tiers[i].quantity === quantity) return tiers[i].name;
+        }
+        return '';
+      },
       sync: function (quantity) {
         tiers.forEach(function (tier) {
           var selected = tier.quantity === quantity;
@@ -334,26 +357,6 @@
         return id ? {id: id, quantity: 1} : null;
       },
     };
-  }
-
-  /* ---------- Price (Price.tsx / price snippet) ---------- */
-
-  function renderPrice(container, price, compareAtPrice, size) {
-    var onSale = compareAtPrice != null && compareAtPrice > price;
-    var classes = ['price', 'price--' + size];
-    if (onSale) classes.push('price--sale');
-    toArray(container.classList).forEach(function (name) {
-      if (name !== 'price' && name.indexOf('price--') !== 0) classes.push(name);
-    });
-    container.className = classes.join(' ');
-    var html = '<span class="price__current">' + money(price) + '</span>';
-    if (onSale) {
-      html +=
-        '<s class="price__compare"><span class="sr-only">Regular price </span>' +
-        moneyWithoutTrailingZeros(compareAtPrice) +
-        '</s>';
-    }
-    container.innerHTML = html;
   }
 
   /* ---------- Variant selection (VariantSelector.tsx, getProductOptions) ---------- */
@@ -404,9 +407,11 @@
     var button = form.querySelector('[data-add-to-cart-button]');
     var label = form.querySelector('[data-add-to-cart-label]');
     var status = form.querySelector('[data-add-to-cart-status]');
+    var priceTag = form.querySelector('[data-add-to-cart-price]');
     if (!wrap || !button || !label || !status) return null;
     var busy = false;
     var idleLabel = label.textContent;
+    var readyLabel = form.getAttribute('data-label') || 'Add to Cart';
     var errors = null;
 
     function setErrors(messages) {
@@ -438,11 +443,13 @@
         button.insertBefore(spinner, label);
         label.textContent = BUSY_LABEL;
         status.textContent = BUSY_LABEL;
+        if (priceTag) priceTag.hidden = true;
       } else {
         button.removeAttribute('aria-busy');
         var old = button.querySelector('.btn__spinner');
         if (old) old.remove();
         label.textContent = idleLabel;
+        if (priceTag) priceTag.hidden = !form.available;
       }
     }
 
@@ -489,12 +496,127 @@
       setVariant: function (variant) {
         var available = Boolean(variant && variant.available);
         form.available = available;
-        idleLabel = available ? 'Add to cart' : 'Sold out';
+        idleLabel = available ? readyLabel : 'Sold Out';
         if (!busy) {
           label.textContent = idleLabel;
           button.disabled = !available;
+          if (priceTag) priceTag.hidden = !available;
         }
       },
+      setTotal: function (cents) {
+        if (priceTag) priceTag.textContent = ' · ' + money(cents);
+      },
+    };
+  }
+
+  /* ---------- Price row (Somna: total for the selected tier + save badge) ---------- */
+
+  function initPrice(page) {
+    var root = page.querySelector('[data-price]');
+    if (!root) return null;
+    var now = root.querySelector('[data-price-now]');
+    var was = root.querySelector('[data-price-was]');
+    var wasAmount = root.querySelector('[data-price-was-amount]');
+    var save = root.querySelector('[data-price-save]');
+    var multiply = root.getAttribute('data-price-multiply') === 'true';
+
+    return function paint(variant, quantity) {
+      var qty = multiply ? quantity : 1;
+      var price = variant.price;
+      var compare = variant.compare_at_price;
+      var onSale = compare != null && compare > price;
+      if (now) now.textContent = money(price * qty);
+      if (was) was.hidden = !onSale;
+      if (wasAmount) wasAmount.textContent = onSale ? moneyWithoutTrailingZeros(compare * qty) : '';
+      if (save) {
+        save.hidden = !onSale;
+        if (onSale) {
+          save.textContent =
+            qty > 1
+              ? 'Save ' + Math.round(((compare - price) * 100) / compare) + '%'
+              : 'Save ' + moneyWithoutTrailingZeros(compare - price);
+        }
+      }
+    };
+  }
+
+  /* ---------- Free-gift progress (Somna) ---------- */
+
+  function initGift(page) {
+    var root = page.querySelector('[data-gift]');
+    if (!root) return null;
+    var min = parseInt(root.getAttribute('data-gift-min'), 10) || 0;
+    var locked = root.getAttribute('data-gift-locked') || '';
+    var unlocked = root.getAttribute('data-gift-unlocked') || '';
+    var label = root.querySelector('[data-gift-label]');
+    var bar = root.querySelector('[data-gift-bar]');
+
+    return function paint(quantity) {
+      if (!min) return;
+      var remaining = min - quantity;
+      var text = remaining > 0 ? locked.replace('{remaining}', String(remaining)) : unlocked;
+      var pct = remaining > 0 ? Math.floor((quantity * 100) / min) + 5 : 100;
+      if (label && label.textContent !== text) label.textContent = text;
+      if (bar) bar.style.width = Math.min(100, pct) + '%';
+    };
+  }
+
+  /* ---------- Sticky add-to-cart bar (Somna) ---------- */
+
+  function initSticky(page) {
+    var bar = page.querySelector('[data-sticky-atc]');
+    if (!bar) return null;
+    var mode = bar.getAttribute('data-sticky-mode') || 'always';
+    var button = bar.querySelector('[data-sticky-submit]');
+    var label = bar.querySelector('[data-sticky-label]');
+    var price = bar.querySelector('[data-sticky-price]');
+    var summary = bar.querySelector('[data-sticky-summary]');
+    var mainButton = page.querySelector('[data-add-to-cart-button]');
+    var readyLabel = label ? label.textContent : '';
+    var form = page.querySelector('[data-product-form]');
+    if (form && form.getAttribute('data-label')) readyLabel = form.getAttribute('data-label');
+    var mainVisible = false;
+    var footerVisible = false;
+
+    function show() {
+      var visible = !footerVisible && (mode === 'always' || !mainVisible);
+      bar.classList.toggle('is-visible', visible);
+      document.documentElement.classList.toggle('sp-sticky-on', visible);
+      if (visible) {
+        bar.removeAttribute('aria-hidden');
+        bar.removeAttribute('inert');
+      } else {
+        bar.setAttribute('aria-hidden', 'true');
+        bar.setAttribute('inert', '');
+      }
+    }
+
+    if ('IntersectionObserver' in window) {
+      if (mainButton && mode !== 'always') {
+        new IntersectionObserver(function (entries) {
+          mainVisible = entries[entries.length - 1].isIntersecting;
+          show();
+        }).observe(mainButton);
+      }
+      var footer = document.querySelector('.shopify-section-group-footer-group, footer');
+      if (footer) {
+        new IntersectionObserver(function (entries) {
+          footerVisible = entries[entries.length - 1].isIntersecting;
+          show();
+        }).observe(footer);
+      }
+    }
+    show();
+
+    return function paint(variant, total, summaryText) {
+      var available = Boolean(variant && variant.available);
+      if (button) button.disabled = !available;
+      if (label) label.textContent = available ? readyLabel : 'Sold Out';
+      if (price) {
+        price.hidden = !available;
+        price.textContent = ' · ' + money(total);
+      }
+      if (summary && summaryText != null) summary.textContent = summaryText;
     };
   }
 
@@ -506,6 +628,7 @@
 
     var data = readProductJson(page);
     var variants = data && Array.isArray(data.variants) ? data.variants : [];
+    var showOptions = !(data && data.hasOnlyDefaultVariant);
     var current = null;
     for (var i = 0; i < variants.length; i += 1) {
       if (data && variants[i].id === data.selectedVariantId) current = variants[i];
@@ -516,39 +639,63 @@
     var savings = page.querySelector('[data-savings-note]');
     if (savings) initSavingsNote(savings);
 
+    var paintPrice = initPrice(page);
+    var paintGift = initGift(page);
+    var paintSticky = initSticky(page);
+
     var packTiersRoot = page.querySelector('[data-pack-tiers]');
     var quantityRoot = page.querySelector('[data-quantity]');
     var packTiers = null;
     var quantity = null;
+    var addToCart = null;
+
+    function currentQuantity() {
+      return quantity ? quantity.get() : 1;
+    }
+
+    function paintTotals() {
+      if (!current) return;
+      var qty = currentQuantity();
+      var total = current.price * qty;
+      if (paintPrice) paintPrice(current, qty);
+      if (paintGift) paintGift(qty);
+      if (addToCart) addToCart.setTotal(total);
+      if (paintSticky) {
+        var parts = showOptions ? current.options.slice() : [];
+        var tierName = packTiers ? packTiers.labelFor(qty) : '';
+        if (tierName) parts.push(tierName);
+        paintSticky(current, total, parts.join(' · '));
+      }
+    }
+
     if (quantityRoot) {
       quantity = initQuantity(quantityRoot, function (value) {
         if (packTiers) packTiers.sync(value);
+        paintTotals();
       });
     }
     if (packTiersRoot) {
       packTiers = initPackTiers(packTiersRoot, function (value) {
         if (quantity) quantity.set(value);
         packTiers.sync(value);
+        paintTotals();
       });
     }
     var addon = initAddon(page);
 
     var form = page.querySelector('[data-product-form]');
     var variantInput = form && form.querySelector('[data-variant-input]');
-    var addToCart = form
+    addToCart = form
       ? initAddToCart(form, function () {
           if (!current || !current.available) return [];
-          var lines = [
-            {id: current.id, quantity: quantity ? quantity.get() : 1},
-          ];
+          var lines = [{id: current.id, quantity: currentQuantity()}];
           var extra = addon && addon.line();
           if (extra) lines.push(extra);
           return lines;
         })
       : null;
 
-    var priceEl = page.querySelector('.product-info__price');
-    var options = toArray(page.querySelectorAll('.product-option'));
+    var options = toArray(page.querySelectorAll('[data-option-index]'));
 
     function paintOptions(variant) {
       options.forEach(function (option) {
@@ -581,9 +728,6 @@
       if (!variant) return;
       current = variant;
       paintOptions(variant);
-      if (priceEl) {
-        renderPrice(priceEl, variant.price, variant.compare_at_price, 'lg');
-      }
       if (savings) {
         savings.hidden = !(
           variant.compare_at_price != null &&
@@ -594,6 +738,7 @@
       if (gallery && variant.featured_media) gallery.showMedia(variant.featured_media.id);
       if (variantInput) variantInput.value = String(variant.id);
       if (addToCart) addToCart.setVariant(variant);
+      paintTotals();
       if (writeUrl) writeVariantToUrl(variant);
     }
 
@@ -652,6 +797,91 @@
     });
   }
 
+  /* ---------- Review list: topic pills + "Load more reviews" (Somna) ---------- */
+
+  function initReviewList(root) {
+    if (root.reviewListInitialised) return;
+    root.reviewListInitialised = true;
+    var items = toArray(root.querySelectorAll('[data-review]'));
+    var pageSize = parseInt(root.getAttribute('data-page-size'), 10) || 3;
+    var more = root.querySelector('[data-reviews-more]');
+    var empty = root.querySelector('[data-reviews-empty]');
+    var pills = toArray(root.querySelectorAll('[data-review-filter]'));
+    var filter = '';
+    var shown = pageSize;
+
+    function matches(item) {
+      if (!filter) return true;
+      return (item.getAttribute('data-review-tags') || '').indexOf(filter) !== -1;
+    }
+
+    function paint() {
+      var matching = items.filter(matches);
+      items.forEach(function (item) {
+        item.hidden = matching.indexOf(item) === -1 || matching.indexOf(item) >= shown;
+      });
+      if (more) more.hidden = matching.length <= shown;
+      if (empty) empty.hidden = matching.length > 0;
+    }
+
+    pills.forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        filter = pill.getAttribute('data-review-filter') || '';
+        shown = pageSize;
+        pills.forEach(function (other) {
+          other.setAttribute('aria-pressed', other === pill ? 'true' : 'false');
+        });
+        paint();
+      });
+    });
+
+    if (more) {
+      more.addEventListener('click', function (event) {
+        event.preventDefault();
+        var firstHidden = items.filter(function (item) {
+          return item.hidden && matches(item);
+        })[0];
+        shown += pageSize;
+        paint();
+        if (firstHidden) {
+          var heading = firstHidden.querySelector('h3, p');
+          firstHidden.setAttribute('tabindex', '-1');
+          try {
+            firstHidden.focus({preventScroll: true});
+          } catch (error) {
+            firstHidden.focus();
+          }
+          if (heading) heading.scrollIntoView({block: 'nearest', behavior: scrollBehavior()});
+        }
+      });
+    }
+    paint();
+  }
+
+  /* ---------- Product video: poster + play button (Somna) ---------- */
+
+  function initVideo(root) {
+    if (root.videoInitialised) return;
+    root.videoInitialised = true;
+    var button = root.querySelector('[data-video-play]');
+    var template = root.querySelector('[data-video-template]');
+    var frame = root.querySelector('[data-video-frame]');
+    if (!button || !template || !frame) return;
+    button.addEventListener('click', function () {
+      frame.replaceChildren(document.importNode(template.content, true));
+      frame.classList.add('is-playing');
+      var video = frame.querySelector('video');
+      if (video) {
+        var playing = video.play();
+        if (playing && playing.catch) playing.catch(function () {});
+        video.focus();
+      } else {
+        var iframe = frame.querySelector('iframe');
+        if (iframe) iframe.focus();
+      }
+    });
+  }
+
   /* ---------- Recommendations (RecommendedProducts.tsx) ---------- */
 
   function initRecommendations(section) {
@@ -666,7 +896,7 @@
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, 'text/html');
         var fresh = doc.querySelector('[data-recommended]');
-        if (fresh && fresh.querySelector('.product-card')) {
+        if (fresh && fresh.querySelector('[data-recommended-item], .product-card')) {
           section.replaceWith(document.importNode(fresh, true));
         } else {
           section.remove();
@@ -683,6 +913,8 @@
     scope = scope || document;
     toArray(scope.querySelectorAll('[data-product-page]')).forEach(initProduct);
     toArray(scope.querySelectorAll('[data-reviews]')).forEach(initReviews);
+    toArray(scope.querySelectorAll('[data-review-list]')).forEach(initReviewList);
+    toArray(scope.querySelectorAll('[data-product-video]')).forEach(initVideo);
     toArray(scope.querySelectorAll('[data-recommended][data-url]')).forEach(
       initRecommendations,
     );

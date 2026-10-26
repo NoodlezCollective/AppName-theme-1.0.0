@@ -2,8 +2,95 @@
   "sections": {
     "main": {
       "type": "main-collection",
+      "blocks": {
+        "chip-all": {
+          "type": "chip",
+          "settings": {
+            "label": "All",
+            "link": "/collections/all"
+          }
+        },
+        "chip-pillows": {
+          "type": "chip",
+          "settings": {
+            "label": "Pillows",
+            "link": "/collections/pillows"
+          }
+        },
+        "chip-comforters": {
+          "type": "chip",
+          "settings": {
+            "label": "Comforters",
+            "link": "/collections/comforters"
+          }
+        },
+        "chip-bundles": {
+          "type": "chip",
+          "settings": {
+            "label": "Bundles",
+            "link": "/collections/bundles"
+          }
+        },
+        "chip-accessories": {
+          "type": "chip",
+          "settings": {
+            "label": "Accessories",
+            "link": "/collections/accessories"
+          }
+        },
+        "chip-hot": {
+          "type": "chip",
+          "settings": {
+            "label": "For Hot Sleepers",
+            "link": "/collections/hot-sleepers"
+          }
+        }
+      },
+      "block_order": ["chip-all", "chip-pillows", "chip-comforters", "chip-bundles", "chip-accessories", "chip-hot"],
+      "settings": {
+        "products_per_page": 12,
+        "show_filters": false,
+        "show_bundle": true
+      }
+    },
+    "guide": {
+      "type": "somna-collection-guide",
+      "blocks": {
+        "card-cool": {
+          "type": "card",
+          "settings": {
+            "eyebrow": "Best for hot sleepers",
+            "title": "CloudCool Comforter",
+            "warmth": 2,
+            "body": "Lightweight and breathable. Ideal if you wake up warm or live somewhere humid."
+          }
+        },
+        "card-mellow": {
+          "type": "card",
+          "settings": {
+            "eyebrow": "Best for cosy sleepers",
+            "title": "MarshMellow Comforter",
+            "warmth": 4,
+            "body": "Lofty, plush and cocooning. The one for people who love to sink in."
+          }
+        },
+        "card-control": {
+          "type": "card",
+          "settings": {
+            "eyebrow": "Best for couples",
+            "title": "CloudControl Comforter",
+            "warmth": 3,
+            "body": "Two sides, two feels. Flip it as the seasons, or your partner, change."
+          }
+        }
+      },
+      "block_order": ["card-cool", "card-mellow", "card-control"],
+      "settings": {}
+    },
+    "seo": {
+      "type": "somna-collection-seo",
       "settings": {}
     }
   },
-  "order": ["main"]
+  "order": ["main", "guide", "seo"]
 }

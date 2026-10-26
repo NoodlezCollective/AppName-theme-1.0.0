@@ -2,22 +2,161 @@
   "sections": {
     "main": {
       "type": "main-product",
+      "blocks": {
+        "detail-dimensions": {
+          "type": "detail",
+          "settings": {
+            "title": "Details & Dimensions",
+            "source": "custom",
+            "content": "<p>Standard [W × L × H], Queen [W × L × H], King [W × L × H]. Weight [X]. Fill [material].</p>",
+            "open": true
+          }
+        },
+        "detail-materials": {
+          "type": "detail",
+          "settings": {
+            "title": "Materials & Care",
+            "source": "materials_care",
+            "content": "<p>Cover: [fabric blend]. Core: [material]. Unzip and machine wash the cover cold, tumble dry low. Spot clean the core.</p>",
+            "open": false
+          }
+        },
+        "detail-shipping": {
+          "type": "detail",
+          "settings": {
+            "title": "Shipping & Returns",
+            "source": "custom",
+            "content": "<p>Ships within [1–2] business days. Free shipping over $[X]. Free returns within your [100]-night trial.</p>",
+            "open": false
+          }
+        },
+        "detail-trial": {
+          "type": "detail",
+          "settings": {
+            "title": "The [100]-Night Trial",
+            "source": "custom",
+            "content": "<p>Give your body a few weeks to adjust. If it’s not right, we’ll pick it up and refund you in full.</p>",
+            "open": false
+          }
+        }
+      },
+      "block_order": ["detail-dimensions", "detail-materials", "detail-shipping", "detail-trial"],
       "settings": {
-        "show_reviews": true
+        "show_breadcrumb": true,
+        "default_tier": 2,
+        "show_gift": true,
+        "gift_min_qty": 2,
+        "show_sticky": true,
+        "sticky_mode": "always"
+      }
+    },
+    "press": {
+      "type": "somna-product-press",
+      "blocks": {
+        "press-1": { "type": "outlet", "settings": { "name": "[Press outlet]" } },
+        "press-2": { "type": "outlet", "settings": { "name": "[Press outlet]" } },
+        "press-3": { "type": "outlet", "settings": { "name": "[Press outlet]" } },
+        "press-4": { "type": "outlet", "settings": { "name": "[Press outlet]" } },
+        "press-5": { "type": "outlet", "settings": { "name": "[Press outlet]" } },
+        "press-6": { "type": "outlet", "settings": { "name": "[Press outlet]" } },
+        "press-7": { "type": "outlet", "settings": { "name": "[Press outlet]" } },
+        "press-8": { "type": "outlet", "settings": { "name": "[Press outlet]" } }
+      },
+      "block_order": ["press-1", "press-2", "press-3", "press-4", "press-5", "press-6", "press-7", "press-8"],
+      "settings": {}
+    },
+    "features": {
+      "type": "somna-product-features",
+      "blocks": {
+        "split-alignment": {
+          "type": "split",
+          "settings": {
+            "eyebrow": "Alignment",
+            "title": "Supports Your Neck, However You Sleep",
+            "text": "<p>A gently contoured profile cradles your head and fills the gap at your neck, so your spine stays in line whether you start on your back or drift to your side.</p>",
+            "shot": "PD-01",
+            "brief": "Alignment infographic: side sleeper with spine line, callouts for contour and loft"
+          }
+        },
+        "split-cooling": {
+          "type": "split",
+          "settings": {
+            "eyebrow": "Cooling",
+            "title": "A Cover That Breathes",
+            "text": "<p>The cover is designed to feel cool to the touch and let warm air escape, so you’re not flipping to the cold side at 2am.</p>",
+            "shot": "PD-02",
+            "brief": "Macro of cover fabric with subtle airflow graphic, cool lavender light"
+          }
+        },
+        "split-care": {
+          "type": "split",
+          "settings": {
+            "eyebrow": "Easy care",
+            "title": "Fresh Every Week",
+            "text": "<p>Unzip, wash, zip. [Describe any adjustable fill or other feature here if the product has one.]</p>",
+            "shot": "PD-03",
+            "brief": "Hands unzipping the cover beside a laundry basket, bright daylight"
+          }
+        }
+      },
+      "block_order": ["split-alignment", "split-cooling", "split-care"],
+      "settings": {}
+    },
+    "video": {
+      "type": "somna-product-video",
+      "settings": {
+        "heading": "See the CloudAlign in Action"
       }
     },
     "reviews": {
       "type": "product-reviews",
-      "disabled": true,
       "settings": {}
+    },
+    "faq": {
+      "type": "somna-product-faq",
+      "blocks": {
+        "faq-firmness": {
+          "type": "question",
+          "settings": {
+            "question": "Which firmness should I choose?",
+            "answer": "<p>Side sleepers usually prefer Medium or Firm, back sleepers Medium, and stomach sleepers Soft. You can exchange within your trial.</p>"
+          }
+        },
+        "faq-smell": {
+          "type": "question",
+          "settings": {
+            "question": "Does it smell when I unbox it?",
+            "answer": "<p>[Describe any off-gassing and how long to air it out, or remove this question if it doesn’t apply.]</p>"
+          }
+        },
+        "faq-fit": {
+          "type": "question",
+          "settings": {
+            "question": "Will it fit my pillowcase?",
+            "answer": "<p>Standard fits standard cases, Queen fits queen and standard cases, King fits king cases.</p>"
+          }
+        },
+        "faq-lifespan": {
+          "type": "question",
+          "settings": {
+            "question": "How long does it last?",
+            "answer": "<p>It’s covered by our [Lifetime] warranty against defects. [Add expected lifespan if you have test data.]</p>"
+          }
+        }
+      },
+      "block_order": ["faq-firmness", "faq-smell", "faq-fit", "faq-lifespan"],
+      "settings": {
+        "heading": "CloudAlign Questions"
+      }
     },
     "recommended": {
       "type": "recommended-products",
       "settings": {
-        "heading": "You may also like",
-        "limit": 4
+        "heading": "Complete Your Sleep Stack",
+        "intent": "related",
+        "limit": 3
       }
     }
   },
-  "order": ["main", "reviews", "recommended"]
+  "order": ["main", "press", "features", "video", "reviews", "faq", "recommended"]
 }

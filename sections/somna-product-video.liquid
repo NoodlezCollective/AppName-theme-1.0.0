@@ -1,0 +1,106 @@
+{%- comment -%}
+  Product demo video (Product design): heading and a dark 16:9 frame with a
+  white play button. The frame shows the poster image (or the video's own
+  preview) until the button is pressed; assets/product.js then swaps in the
+  Shopify-hosted video or the YouTube/Vimeo embed. Without a video, the
+  design's labelled placeholder.
+{%- endcomment -%}
+{%- liquid
+  assign brand = settings.brand_name
+  assign heading = section.settings.heading | replace: '{AppName}', brand | replace: '{title}', product.title
+  assign video = section.settings.video
+  assign video_url = section.settings.video_url
+  assign poster = section.settings.poster
+  if poster == blank and video != blank
+    assign poster = video.preview_image
+  endif
+  assign has_video = false
+  if video != blank or video_url != blank
+    assign has_video = true
+  endif
+-%}
+{{ 'somna-product.css' | asset_url | stylesheet_tag }}
+<section class="sp-video" data-product-video>
+  <div class="sp-video__inner">
+    {%- if heading != blank -%}<h2 class="s-h2">{{ heading }}</h2>{%- endif -%}
+    <div class="sp-video__frame" data-video-frame>
+      {%- if poster != blank -%}
+        {{ poster | image_url: width: 2000 | image_tag: widths: '600, 900, 1200, 1600, 2000', sizes: '(min-width: 75em) 1136px, 100vw', loading: 'lazy', alt: '', class: 'sp-video__poster' }}
+      {%- endif -%}
+      <button type="button" class="sp-video__play" aria-label="{{ section.settings.play_label | escape }}"{% if has_video %} data-video-play{% else %} aria-disabled="true"{% endif %}>
+        <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>
+      </button>
+      {%- if poster == blank -%}
+        {%- if section.settings.code != blank -%}<span class="sp-video__code">{{ section.settings.code }}</span>{%- endif -%}
+        {%- if section.settings.brief != blank -%}<span class="sp-video__brief">{{ section.settings.brief }}</span>{%- endif -%}
+      {%- endif -%}
+      {%- if has_video -%}
+        <template data-video-template>
+          {%- if video != blank -%}
+            {{ video | video_tag: image_size: '1600x', controls: true, playsinline: true, autoplay: true, class: 'sp-video__media' }}
+          {%- elsif video_url.type == 'youtube' -%}
+            <iframe class="sp-video__media" src="https://www.youtube.com/embed/{{ video_url.id }}?autoplay=1&amp;rel=0&amp;playsinline=1" title="{{ heading | escape }}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+          {%- elsif video_url.type == 'vimeo' -%}
+            <iframe class="sp-video__media" src="https://player.vimeo.com/video/{{ video_url.id }}?autoplay=1" title="{{ heading | escape }}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+          {%- endif -%}
+        </template>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product video",
+  "tag": "div",
+  "class": "section-somna-product-video",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "See the CloudAlign in Action",
+      "info": "{title} is replaced with the product title."
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Video"
+    },
+    {
+      "type": "video_url",
+      "id": "video_url",
+      "label": "Or YouTube / Vimeo link",
+      "accept": ["youtube", "vimeo"]
+    },
+    {
+      "type": "image_picker",
+      "id": "poster",
+      "label": "Poster image"
+    },
+    {
+      "type": "text",
+      "id": "play_label",
+      "label": "Play button accessible name",
+      "default": "Play product video"
+    },
+    {
+      "type": "text",
+      "id": "code",
+      "label": "Placeholder code",
+      "default": "V-02 · PRODUCT DEMO (45–60s)"
+    },
+    {
+      "type": "text",
+      "id": "brief",
+      "label": "Placeholder brief",
+      "default": "Pillow rebound test, side-sleeper alignment overlay, cover unzip, wash and fluff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product video"
+    }
+  ]
+}
+{% endschema %}

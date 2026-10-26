@@ -1,5 +1,7 @@
 {%- comment -%}
-  Parses `mellow.pack_tiers` ("quantity|Label|Note" entries) the way
+  Parses `mellow.pack_tiers` ("quantity|Label|Note" entries, optionally
+  "quantity|Label|Note|Flag" where Flag is a corner badge such as "Most
+  popular"; the flag rides along at the end of the note) the way
   parsePackTiers does: entries without a whole-number quantity of at least 1
   are skipped, duplicates keep the first, the result is sorted by quantity and
   cut to 4. Echoes one tier per line as "000002|Label|Note" (zero-padded

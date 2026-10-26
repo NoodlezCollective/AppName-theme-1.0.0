@@ -1,0 +1,79 @@
+{%- comment -%}
+  "As featured in" indigo marquee (Product design). Outlets render as a logo
+  image when one is uploaded, otherwise as Outfit type. The list is drawn
+  twice for a seamless loop; the copy is hidden from assistive tech. The
+  track pauses on hover/focus and stops for reduced motion (somna.css).
+{%- endcomment -%}
+{%- assign brand = settings.brand_name -%}
+{{ 'somna-product.css' | asset_url | stylesheet_tag }}
+{%- if section.blocks.size > 0 -%}
+  {%- capture items -%}
+    {%- for block in section.blocks -%}
+      {%- assign name = block.settings.name | replace: '{AppName}', brand -%}
+      <li>
+        {%- if block.settings.logo != blank -%}
+          {{ block.settings.logo | image_url: height: 56 | image_tag: alt: name, height: 28, loading: 'lazy' }}
+        {%- else -%}
+          {{ name }}
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  {%- endcapture -%}
+  <section class="s-marquee sp-press" aria-label="{{ section.settings.label | escape }}">
+    <div class="s-marquee__track">
+      <ul class="s-marquee__list">{{ items }}</ul>
+      <ul class="s-marquee__list" aria-hidden="true">{{ items }}</ul>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Press marquee",
+  "tag": "div",
+  "class": "section-somna-product-press",
+  "max_blocks": 16,
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Accessible name",
+      "default": "As featured in"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "outlet",
+      "name": "Press outlet",
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name",
+          "default": "[Press outlet]"
+        },
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Logo"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Press marquee",
+      "blocks": [
+        { "type": "outlet" },
+        { "type": "outlet" },
+        { "type": "outlet" },
+        { "type": "outlet" },
+        { "type": "outlet" },
+        { "type": "outlet" },
+        { "type": "outlet" },
+        { "type": "outlet" }
+      ]
+    }
+  ]
+}
+{% endschema %}

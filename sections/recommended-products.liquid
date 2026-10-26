@@ -1,46 +1,57 @@
 {%- comment -%}
-  "You may also like" grid (app/components/product/RecommendedProducts.tsx).
-  Shopify's product recommendations load through the Section Rendering API:
-  the first render is the storefront's skeleton, product.js fetches this
-  section from routes.product_recommendations_url and swaps it in, or removes
-  it when there is nothing to recommend.
+  "Complete Your Sleep Stack" cross-sell (Product design): horizontal cards
+  with a square thumbnail, name, price and "+ Add" (quick add through
+  assets/somna.js). Products come from the "Products" setting when picked;
+  otherwise from Shopify's product recommendations, loaded through the
+  Section Rendering API: the first render is a skeleton, assets/product.js
+  fetches this section from routes.product_recommendations_url and swaps it
+  in, or removes it when there is nothing to recommend.
 {%- endcomment -%}
 {%- liquid
-  assign heading = section.settings.heading | default: 'You may also like'
+  assign heading = section.settings.heading | default: 'Complete Your Sleep Stack'
   assign heading = heading | replace: '{AppName}', settings.brand_name
-  assign limit = section.settings.limit | default: 4
+  assign limit = section.settings.limit | default: 3
+  assign manual = section.settings.products
+  assign heading_id = 'recommended-heading-' | append: section.id
 -%}
-{%- if recommendations.performed -%}
+{{ 'somna-product.css' | asset_url | stylesheet_tag }}
+{%- capture skeleton -%}
+  {%- for i in (1..limit) -%}
+    <div class="sp-cross__card sp-cross__card--skeleton" aria-hidden="true">
+      <span class="sp-cross__thumb"></span>
+      <span class="sp-cross__body"><span class="sp-cross__line"></span><span class="sp-cross__line sp-cross__line--short"></span></span>
+    </div>
+  {%- endfor -%}
+{%- endcapture -%}
+{%- if manual != blank and manual.count > 0 -%}
+  <section class="sp-cross" aria-labelledby="{{ heading_id }}" data-recommended>
+    <div class="sp-cross__inner">
+      <h2 id="{{ heading_id }}" class="s-h2">{{ heading }}</h2>
+      <div class="sp-cross__grid">
+        {%- for item in manual limit: limit -%}
+          {%- render 'product-cross-card', product: item, index: forloop.index -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+{%- elsif recommendations.performed -%}
   {%- if recommendations.products_count > 0 -%}
-    <section class="section section--tight recommended" aria-labelledby="recommended-heading" data-recommended>
-      <div class="container">
-        <div class="section-heading section-heading--center">
-          <h2 id="recommended-heading" class="section-heading__title">{{ heading }}</h2>
-        </div>
-        <div class="product-grid product-grid--4">
-          {%- for recommended_product in recommendations.products -%}
-            {%- render 'product-card', product: recommended_product, loading: 'lazy', sizes: '(min-width: 64em) 25vw, (min-width: 40em) 50vw, 100vw' -%}
+    <section class="sp-cross" aria-labelledby="{{ heading_id }}" data-recommended>
+      <div class="sp-cross__inner">
+        <h2 id="{{ heading_id }}" class="s-h2">{{ heading }}</h2>
+        <div class="sp-cross__grid">
+          {%- for item in recommendations.products limit: limit -%}
+            {%- render 'product-cross-card', product: item, index: forloop.index -%}
           {%- endfor -%}
         </div>
       </div>
     </section>
   {%- endif -%}
 {%- elsif product != blank -%}
-  <section class="section section--tight recommended" aria-label="{{ heading | escape }}" aria-busy="true" data-recommended data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ limit }}&intent=related">
-    <div class="container">
-      <div class="section-heading section-heading--center">
-        <h2 class="section-heading__title">{{ heading }}</h2>
-      </div>
-      <div class="product-grid product-grid--4">
-        {%- for i in (1..4) -%}
-          <div class="skeleton-card" aria-hidden="true">
-            <div class="skeleton skeleton--media"></div>
-            <div class="skeleton skeleton--line" style="width:55%"></div>
-            <div class="skeleton skeleton--line" style="width:80%"></div>
-            <div class="skeleton skeleton--line" style="width:35%"></div>
-          </div>
-        {%- endfor -%}
-      </div>
+  <section class="sp-cross" aria-label="{{ heading | escape }}" aria-busy="true" data-recommended data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&amp;product_id={{ product.id }}&amp;limit={{ limit }}&amp;intent={{ section.settings.intent }}">
+    <div class="sp-cross__inner">
+      <h2 class="s-h2">{{ heading }}</h2>
+      <div class="sp-cross__grid">{{ skeleton }}</div>
     </div>
   </section>
   <script src="{{ 'product.js' | asset_url }}" defer></script>
@@ -48,7 +59,7 @@
 
 {% schema %}
 {
-  "name": "Recommended products",
+  "name": "Cross-sell products",
   "tag": "div",
   "class": "section-recommended-products",
   "enabled_on": {
@@ -59,7 +70,24 @@
       "type": "text",
       "id": "heading",
       "label": "Heading",
-      "default": "You may also like"
+      "default": "Complete Your Sleep Stack"
+    },
+    {
+      "type": "product_list",
+      "id": "products",
+      "label": "Products",
+      "limit": 8,
+      "info": "Leave empty to use Shopify's product recommendations."
+    },
+    {
+      "type": "select",
+      "id": "intent",
+      "label": "Recommendations",
+      "options": [
+        { "value": "related", "label": "Related products" },
+        { "value": "complementary", "label": "Complementary products (Search & Discovery app)" }
+      ],
+      "default": "related"
     },
     {
       "type": "range",
@@ -68,12 +96,12 @@
       "min": 2,
       "max": 8,
       "step": 1,
-      "default": 4
+      "default": 3
     }
   ],
   "presets": [
     {
-      "name": "Recommended products"
+      "name": "Cross-sell products"
     }
   ]
 }

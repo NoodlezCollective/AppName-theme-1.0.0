@@ -1,0 +1,31 @@
+{%- comment -%}
+  Cross-sell card (Product design "Complete Your Sleep Stack"): 96px
+  thumbnail, name, price and a "+ Add" quick-add form (assets/somna.js).
+  {% render 'product-cross-card', product: product, index: 1 %}
+{%- endcomment -%}
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign shot = index | default: 1 | plus: 1 | prepend: '0' | slice: -2, 2 | prepend: 'P-'
+-%}
+<article class="sp-cross__card" data-recommended-item>
+  <a class="sp-cross__thumb" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+    {%- if product.featured_media -%}
+      {{ product.featured_media.preview_image | image_url: width: 192, height: 192, crop: 'center' | image_tag: alt: '', width: 96, height: 96, loading: 'lazy' }}
+    {%- else -%}
+      {{ shot }}
+    {%- endif -%}
+  </a>
+  <div class="sp-cross__body">
+    <h3 class="sp-cross__name"><a href="{{ product.url }}">{{ product.title }}</a></h3>
+    <span class="sp-cross__price">{% if product.price_varies %}From {% endif %}{{ product.price_min | money }}</span>
+    {%- if variant.available -%}
+      <form action="{{ routes.cart_add_url }}" method="post" data-somna-quick-add>
+        <input type="hidden" name="id" value="{{ variant.id }}">
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="sp-cross__add" aria-label="Add {{ product.title | escape }} to cart">+ Add</button>
+      </form>
+    {%- else -%}
+      <button type="button" class="sp-cross__add" disabled>Sold Out</button>
+    {%- endif -%}
+  </div>
+</article>

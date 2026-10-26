@@ -1,30 +1,21 @@
 {%- comment -%}
-  Product page (app/routes/products.$handle.tsx): gallery, buy box, trust
-  badges, proof strip, accordions and the featured reviews carousel inside
-  the product grid. Product data comes from the mellow.* and reviews.*
-  metafields documented in docs/shopify-setup.md; every block hides when its
-  data is missing, like the storefront.
+  Somna product page, above the fold (Product design): breadcrumb, gallery,
+  buy box (rating, title, one-liner, price + save badge, benefits, option
+  pills, "Bundle & save" tiers, free-gift progress, quantity + add to cart,
+  trust cards, detail accordions) and the sticky add-to-cart bar.
+  Product data: mellow.badge, mellow.short_description, mellow.features,
+  mellow.materials, mellow.care, mellow.size_guide, mellow.pack_tiers,
+  mellow.addon, mellow.swatch_groups, reviews.rating, reviews.rating_count.
+  Behaviour: assets/product.js.
 {%- endcomment -%}
 {%- capture newline %}
 {% endcapture -%}
 {%- liquid
+  assign brand = settings.brand_name
   assign current = product.selected_or_first_available_variant
   if current == blank
     assign current = product.variants.first
   endif
-
-  assign reviews = product.metafields.mellow.featured_reviews.value
-  assign first_review = nil
-  assign review_count = 0
-  for review in reviews
-    assign review_body = review.body.value | strip
-    if review_body != blank
-      assign review_count = review_count | plus: 1
-      if first_review == nil
-        assign first_review = review
-      endif
-    endif
-  endfor
 
   assign rating = nil
   assign rating_field = product.metafields.reviews.rating
@@ -36,11 +27,23 @@
       assign rating = nil
     endif
   endif
-  assign rating_count = product.metafields.reviews.rating_count.value
+  assign rating_count = product.metafields.reviews.rating_count.value | plus: 0
 
-  assign on_sale = false
-  if current.compare_at_price != blank and current.compare_at_price > current.price
-    assign on_sale = true
+  assign badge = product.metafields.mellow.badge.value | strip
+  assign subtitle = product.metafields.mellow.short_description.value | strip
+  if subtitle == blank
+    assign clean = product.description | strip_html | strip_newlines | strip
+    if clean != blank
+      assign subtitle = clean | split: '. ' | first | truncate: 160
+      unless subtitle contains '.' or subtitle contains '…'
+        assign subtitle = subtitle | append: '.'
+      endunless
+    endif
+  endif
+
+  assign crumb_collection = collection
+  if crumb_collection == blank
+    assign crumb_collection = product.collections.first
   endif
 
   capture tiers
@@ -48,58 +51,226 @@
   endcapture
   assign tiers = tiers | strip
   assign tier_rows = tiers | split: newline
+  assign has_tiers = false
   assign quantity = 1
+  assign tier_label = ''
   if tier_rows.size > 1
-    assign first_tier = tier_rows[0] | split: '|'
-    assign quantity = first_tier[0] | plus: 0
+    assign has_tiers = true
+    assign tier_index = section.settings.default_tier | minus: 1
+    if tier_index >= tier_rows.size or tier_index < 0
+      assign tier_index = 0
+    endif
+    assign tier_parts = tier_rows[tier_index] | split: '|'
+    assign quantity = tier_parts[0] | plus: 0
+    assign tier_label = tier_parts[1]
   endif
+
+  assign price_qty = 1
+  if has_tiers
+    assign price_qty = quantity
+  endif
+  assign price_total = current.price | times: price_qty
+  assign compare_total = current.compare_at_price | times: price_qty
+  assign on_sale = false
+  if current.compare_at_price != blank and current.compare_at_price > current.price
+    assign on_sale = true
+  endif
+  assign save_text = ''
+  if on_sale
+    if price_qty > 1
+      assign save_pct = current.compare_at_price | minus: current.price | times: 100.0 | divided_by: current.compare_at_price | round
+      assign save_text = 'Save ' | append: save_pct | append: '%'
+    else
+      assign save_amount = current.compare_at_price | minus: current.price | money_without_trailing_zeros
+      assign save_text = 'Save ' | append: save_amount
+    endif
+  endif
+  assign atc_total = current.price | times: quantity
+
+  assign benefits = product.metafields.mellow.features.value
+  if benefits == blank or benefits.size == 0
+    assign benefits = section.settings.benefits | replace: '{AppName}', brand | newline_to_br | split: '<br />'
+  endif
+  assign known_icons = '|snowflake|heat|couch|wash|feather|moon|sparkle|leaf|shield|truck|check|'
 
   assign form_id = 'product-form-' | append: section.id
-  assign show_reviews = section.settings.show_reviews
-  if show_reviews == nil
-    assign show_reviews = true
+  assign atc_label = section.settings.atc_label | default: 'Add to Cart'
+
+  assign gift_min = section.settings.gift_min_qty
+  assign show_gift = false
+  if section.settings.show_gift and has_tiers and gift_min > 0
+    assign show_gift = true
+  endif
+
+  assign variant_summary = ''
+  unless product.has_only_default_variant
+    assign variant_summary = current.options | join: ' · '
+  endunless
+  if tier_label != blank
+    if variant_summary != blank
+      assign variant_summary = variant_summary | append: ' · '
+    endif
+    assign variant_summary = variant_summary | append: tier_label
   endif
 -%}
-<div class="product-page" data-product-page data-section-id="{{ section.id }}">
-  <div class="container container--narrow product-layout">
-    <div class="product-layout__media">
-      {%- render 'product-gallery', product: product -%}
-    </div>
-
-    <div class="product-layout__info">
-      <div class="product-info">
-        {%- if first_review != nil -%}
-          {%- render 'product-featured-quote', review: first_review -%}
-        {%- endif -%}
-        {%- if rating != nil -%}
-          {%- render 'stars', rating: rating, count: rating_count, size: 'md', class: 'product-info__stars' -%}
-        {%- endif -%}
-        <h1 class="product-info__title">{{ product.title }}</h1>
-        {%- render 'price', price: current.price, compare_at_price: current.compare_at_price, size: 'lg', class: 'product-info__price' -%}
-        {%- render 'product-savings-note', product: product, on_sale: on_sale, id: 'savings-note-panel' -%}
-        {%- render 'product-velocity-badge', count: product.metafields.mellow.sold_recently.value -%}
-        <div class="product-form" data-product-form-root>
-          {%- render 'product-variant-selector', product: product, id_prefix: 'product-option' -%}
-          {%- render 'product-pack-tiers', tiers: tiers, quantity: quantity, variant: current, id_prefix: 'pack-tier' -%}
-          {%- render 'product-addon-offer', product: product, id: 'product-addon' -%}
-          {%- render 'product-features', product: product -%}
-          <div class="product-buy">
-            {%- render 'product-quantity', value: quantity, id: 'product-quantity', form_id: form_id -%}
-            {%- render 'product-add-to-cart', variant: current, form_id: form_id -%}
-          </div>
+{{ 'somna-product.css' | asset_url | stylesheet_tag }}
+<div class="sp-page" data-product-page data-section-id="{{ section.id }}">
+  <section class="sp-top">
+    <div class="sp-top__inner">
+      {%- if section.settings.show_breadcrumb -%}
+        <nav class="s-crumbs sp-crumbs" aria-label="Breadcrumb">
+          <a href="{{ routes.root_url }}">Home</a> <span aria-hidden="true">/</span>
+          {%- if crumb_collection != blank %} <a href="{{ crumb_collection.url }}">{{ crumb_collection.title }}</a> <span aria-hidden="true">/</span>{% endif %}
+          <span aria-current="page">{{ product.title }}</span>
+        </nav>
+      {%- endif -%}
+      <div class="sp-top__grid">
+        <div class="sp-top__media">
+          {%- render 'product-gallery', product: product, badge: badge -%}
         </div>
-        {%- render 'product-trust-badges' -%}
-        {%- render 'product-proof-strip', product: product -%}
-        {%- render 'product-accordions', product: product -%}
+
+        <div class="sp-buybox">
+          <div class="sp-buybox__head">
+            {%- if rating != nil -%}
+              <a class="sp-rating" href="#reviews">
+                {%- render 'product-stars', rating: rating, size: 16 -%}
+                <span><strong>{{ rating | round: 1 }}</strong>{% if rating_count > 0 %} · {% render 'number', value: rating_count %} Reviews{% endif %}</span>
+              </a>
+            {%- endif -%}
+            <h1 class="s-h1">{{ product.title }}</h1>
+            {%- if subtitle != blank -%}<p class="s-lead">{{ subtitle }}</p>{%- endif -%}
+          </div>
+
+          <div class="sp-price" data-price data-price-multiply="{{ has_tiers }}">
+            <div class="sp-price__row">
+              <span class="sp-price__now" data-price-now>{{ price_total | money }}</span>
+              <s class="sp-price__was" data-price-was{% unless on_sale %} hidden{% endunless %}><span class="s-sr">Regular price </span><span data-price-was-amount>{% if on_sale %}{{ compare_total | money_without_trailing_zeros }}{% endif %}</span></s>
+              <span class="sp-price__save" data-price-save{% unless on_sale %} hidden{% endunless %}>{{ save_text }}</span>
+            </div>
+            {%- if section.settings.payment_note != blank -%}<span class="sp-price__note">{{ section.settings.payment_note | replace: '{AppName}', brand }}</span>{%- endif -%}
+          </div>
+
+          {%- capture benefit_rows -%}
+            {%- for entry in benefits -%}
+              {%- liquid
+                assign text = entry | strip
+                if entry contains '|'
+                  assign parts = entry | split: '|'
+                  assign key = parts[0] | strip | downcase
+                  assign probe = '|' | append: key | append: '|'
+                  if key != '' and known_icons contains probe
+                    assign text = entry | remove_first: parts[0] | remove_first: '|' | strip
+                  endif
+                endif
+              -%}
+              {%- if text != blank -%}
+                <li><span class="sp-benefits__icon">{% render 'somna-icon', name: 'check', size: 14, stroke_width: 2.5 %}</span>{{ text | escape }}</li>
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endcapture -%}
+          {%- if benefit_rows != blank -%}<ul class="sp-benefits">{{ benefit_rows }}</ul>{%- endif -%}
+
+          {%- render 'product-variant-selector', product: product, id_prefix: 'product-option', hint_option: section.settings.hint_option, hint: section.settings.hint -%}
+          {%- render 'product-pack-tiers', tiers: tiers, quantity: quantity, variant: current, id_prefix: 'pack-tier', legend: section.settings.tiers_legend -%}
+          {%- render 'product-addon-offer', product: product, id: 'product-addon' -%}
+
+          {%- if show_gift -%}
+            {%- liquid
+              assign remaining = gift_min | minus: quantity
+              if remaining > 0
+                assign gift_text = section.settings.gift_locked | replace: '{remaining}', remaining
+                assign gift_pct = quantity | times: 100 | divided_by: gift_min | plus: 5
+              else
+                assign gift_text = section.settings.gift_unlocked
+                assign gift_pct = 100
+              endif
+            -%}
+            <div class="sp-gift" data-gift data-gift-min="{{ gift_min }}" data-gift-locked="{{ section.settings.gift_locked | escape }}" data-gift-unlocked="{{ section.settings.gift_unlocked | escape }}">
+              <div class="sp-gift__label">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f29a82" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13"/><path d="M12 7c-2-4-6-3-5-1s5 1 5 1 4 1 5-1-3-3-5 1"/></svg>
+                <span aria-live="polite" data-gift-label>{{ gift_text }}</span>
+              </div>
+              <div class="sp-gift__track"><div class="sp-gift__bar" style="width: {{ gift_pct }}%;" data-gift-bar></div></div>
+            </div>
+          {%- endif -%}
+
+          <div class="sp-buy">
+            {%- render 'product-quantity', value: quantity, id: 'product-quantity', form_id: form_id -%}
+            {%- render 'product-add-to-cart', variant: current, form_id: form_id, label: atc_label, total: atc_total -%}
+          </div>
+
+          {%- capture trust -%}
+            {%- if section.settings.trust_1 != blank -%}
+              <div class="sp-trust__item"><svg width="22" height="22" viewBox="0 0 24 24" fill="#a39bd4" aria-hidden="true" focusable="false"><path d="M2 6h12v10H2zM14 9h4.5l3.5 3.5V16h-8z"/><circle cx="6.5" cy="17.5" r="2" fill="#4c4184"/><circle cx="17.5" cy="17.5" r="2" fill="#4c4184"/></svg>{{ section.settings.trust_1 | replace: '{AppName}', brand }}</div>
+            {%- endif -%}
+            {%- if section.settings.trust_2 != blank -%}
+              <div class="sp-trust__item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a39bd4" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>{{ section.settings.trust_2 | replace: '{AppName}', brand }}</div>
+            {%- endif -%}
+            {%- if section.settings.trust_3 != blank -%}
+              <div class="sp-trust__item"><svg width="22" height="22" viewBox="0 0 24 24" fill="#a39bd4" aria-hidden="true" focusable="false"><path d="M12 2l9 3.4V12c0 5-3.8 8.9-9 10-5.2-1.1-9-5-9-10V5.4z"/></svg>{{ section.settings.trust_3 | replace: '{AppName}', brand }}</div>
+            {%- endif -%}
+          {%- endcapture -%}
+          {%- if trust != blank -%}<div class="sp-trust">{{ trust }}</div>{%- endif -%}
+
+          {%- capture details -%}
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign content = ''
+                case block.settings.source
+                  when 'description'
+                    assign content = product.description | strip
+                  when 'materials_care'
+                    capture content
+                      render 'product-accordion-paragraphs', field: product.metafields.mellow.materials
+                      render 'product-accordion-paragraphs', field: product.metafields.mellow.care
+                    endcapture
+                  when 'materials'
+                    capture content
+                      render 'product-accordion-paragraphs', field: product.metafields.mellow.materials
+                    endcapture
+                  when 'care'
+                    capture content
+                      render 'product-accordion-paragraphs', field: product.metafields.mellow.care
+                    endcapture
+                  when 'size_guide'
+                    capture content
+                      render 'product-accordion-paragraphs', field: product.metafields.mellow.size_guide
+                    endcapture
+                endcase
+                assign content = content | strip
+                if content == blank
+                  assign content = block.settings.content | replace: '{AppName}', brand
+                endif
+              -%}
+              {%- if content != blank and block.settings.title != blank -%}
+                <details class="sp-detail"{% if block.settings.open %} open{% endif %} {{ block.shopify_attributes }}>
+                  <summary class="sp-detail__q">{{ block.settings.title | replace: '{AppName}', brand }}<span class="sp-detail__icon" aria-hidden="true"></span></summary>
+                  <div class="sp-detail__a">{{ content }}</div>
+                </details>
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endcapture -%}
+          {%- if details != blank -%}<div class="sp-details">{{ details }}</div>{%- endif -%}
+        </div>
       </div>
     </div>
+  </section>
 
-    {%- if show_reviews and review_count > 0 -%}
-      <div class="product-layout__reviews">
-        {%- render 'product-reviews-carousel', product: product, id_prefix: 'reviews' -%}
+  {%- if section.settings.show_sticky -%}
+    <div class="sp-sticky" data-sticky-atc data-sticky-mode="{{ section.settings.sticky_mode }}" aria-hidden="true" inert>
+      <div class="sp-sticky__inner">
+        <div class="sp-sticky__product">
+          {%- if product.featured_media -%}
+            {{ product.featured_media.preview_image | image_url: width: 96, height: 96, crop: 'center' | image_tag: class: 'sp-sticky__thumb', alt: '', width: 48, height: 48, loading: 'lazy' }}
+          {%- else -%}
+            <span class="sp-sticky__thumb" aria-hidden="true"></span>
+          {%- endif -%}
+          <span class="sp-sticky__text"><strong>{{ product.title }}</strong>{% if variant_summary != blank %}<span data-sticky-summary>{{ variant_summary }}</span>{% endif %}</span>
+        </div>
+        <button type="submit" class="sp-sticky__btn" form="{{ form_id }}"{% unless current.available %} disabled{% endunless %} data-sticky-submit><span data-sticky-label>{% if current.available %}{{ atc_label | escape }}{% else %}Sold Out{% endif %}</span><span data-sticky-price{% unless current.available %} hidden{% endunless %}> · {{ atc_total | money }}</span></button>
       </div>
-    {%- endif -%}
-  </div>
+    </div>
+  {%- endif -%}
 
   <script type="application/json" data-product-json>
     {
@@ -107,6 +278,7 @@
       "handle": {{ product.handle | json }},
       "url": {{ product.url | json }},
       "selectedVariantId": {{ current.id | json }},
+      "hasOnlyDefaultVariant": {{ product.has_only_default_variant | json }},
       "options": {{ product.options | json }},
       "variants": {{ product.variants | json }}
     }
@@ -161,10 +333,172 @@
   "settings": [
     {
       "type": "checkbox",
-      "id": "show_reviews",
-      "label": "Show the featured reviews carousel under the gallery",
+      "id": "show_breadcrumb",
+      "label": "Show breadcrumb",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "payment_note",
+      "label": "Note under the price",
+      "default": "Or 4 interest-free payments with Shop Pay"
+    },
+    {
+      "type": "textarea",
+      "id": "benefits",
+      "label": "Benefits",
+      "default": "Contoured shape supports your neck in any position\nBreathable cover that stays cool through the night\n[Key material or certification, e.g. OEKO-TEX® foam]\nMachine-washable cover",
+      "info": "One per line. Used when the product has no mellow.features metafield."
+    },
+    {
+      "type": "header",
+      "content": "Options"
+    },
+    {
+      "type": "text",
+      "id": "hint_option",
+      "label": "Option with a hint",
+      "default": "Firmness"
+    },
+    {
+      "type": "richtext",
+      "id": "hint",
+      "label": "Hint",
+      "default": "<p>Side sleeper? Most choose Medium or Firm. <a href=\"/\" title=\"Take the quiz\">Take the quiz</a></p>"
+    },
+    {
+      "type": "header",
+      "content": "Bundle & save",
+      "info": "Tiers come from the mellow.pack_tiers metafield: quantity|Label|Note|Flag per entry."
+    },
+    {
+      "type": "text",
+      "id": "tiers_legend",
+      "label": "Heading",
+      "default": "Bundle & save"
+    },
+    {
+      "type": "range",
+      "id": "default_tier",
+      "label": "Tier selected by default",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "checkbox",
+      "id": "show_gift",
+      "label": "Show free-gift progress",
       "default": true,
-      "info": "Reviews come from the product's mellow.featured_reviews metafield."
+      "info": "Shown on products with tiers. Set up the gift itself with an automatic discount."
+    },
+    {
+      "type": "range",
+      "id": "gift_min_qty",
+      "label": "Quantity that unlocks the gift",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "text",
+      "id": "gift_locked",
+      "label": "Locked message",
+      "default": "Add {remaining} more pillow to unlock a free Silk Sleep Mask",
+      "info": "{remaining} is replaced with the missing quantity."
+    },
+    {
+      "type": "text",
+      "id": "gift_unlocked",
+      "label": "Unlocked message",
+      "default": "You’ve unlocked a free Silk Sleep Mask"
+    },
+    {
+      "type": "header",
+      "content": "Add to cart"
+    },
+    {
+      "type": "text",
+      "id": "atc_label",
+      "label": "Button label",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "text",
+      "id": "trust_1",
+      "label": "Trust card 1 (truck)",
+      "default": "Free shipping over $[X]"
+    },
+    {
+      "type": "text",
+      "id": "trust_2",
+      "label": "Trust card 2 (moon)",
+      "default": "[100]-night trial"
+    },
+    {
+      "type": "text",
+      "id": "trust_3",
+      "label": "Trust card 3 (shield)",
+      "default": "[Lifetime] warranty"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sticky",
+      "label": "Show sticky add-to-cart bar",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "sticky_mode",
+      "label": "Sticky bar",
+      "options": [
+        { "value": "always", "label": "Always visible" },
+        { "value": "scroll", "label": "After scrolling past the button" }
+      ],
+      "default": "always"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "detail",
+      "name": "Detail accordion",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Details & Dimensions"
+        },
+        {
+          "type": "select",
+          "id": "source",
+          "label": "Content",
+          "options": [
+            { "value": "custom", "label": "Text below" },
+            { "value": "description", "label": "Product description" },
+            { "value": "materials_care", "label": "Materials + care metafields" },
+            { "value": "materials", "label": "Materials metafield" },
+            { "value": "care", "label": "Care metafield" },
+            { "value": "size_guide", "label": "Size guide metafield" }
+          ],
+          "default": "custom"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Text",
+          "default": "<p>Standard [W × L × H], Queen [W × L × H], King [W × L × H]. Weight [X]. Fill [material].</p>",
+          "info": "Shown when the selected product content is empty."
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "Open by default",
+          "default": false
+        }
+      ]
     }
   ]
 }

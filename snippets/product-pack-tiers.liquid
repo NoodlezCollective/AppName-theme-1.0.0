@@ -1,13 +1,19 @@
 {%- comment -%}
-  Quantity tiers as a radio group (app/components/product/PackTiers.tsx).
-  `tiers` is the output of product-pack-tier-list; `quantity` the selected
-  quantity. Renders nothing with fewer than two tiers or without a price.
-  {% render 'product-pack-tiers', tiers: tiers, quantity: 1, variant: variant, id_prefix: 'pack-tier' %}
+  "Bundle & save" quantity tiers (Product design): radio cards with a round
+  indicator, label + note, tier total + struck compare-at total and an
+  optional corner flag ("Most popular"). `tiers` is the output of
+  product-pack-tier-list ("000002|Label|Note|Flag" per line); `quantity` the
+  selected quantity. Renders nothing with fewer than two tiers or without a
+  variant. Hooks for assets/product.js: [data-pack-tiers], [data-pack-tier],
+  [data-pack-input], [data-pack-total], [data-pack-compare],
+  [data-pack-compare-amount], data-pack-label.
+  {% render 'product-pack-tiers', tiers: tiers, quantity: 2, variant: variant, id_prefix: 'pack-tier', legend: 'Bundle & save' %}
 {%- endcomment -%}
 {%- capture newline %}
 {% endcapture -%}
 {%- liquid
   assign id_prefix = id_prefix | default: 'pack-tier'
+  assign legend = legend | default: 'Bundle & save'
   assign rows = tiers | strip | split: newline
   assign price = variant.price
   assign compare = variant.compare_at_price
@@ -17,31 +23,37 @@
   endif
 -%}
 {%- if rows.size > 1 and variant != blank -%}
-<fieldset class="pack-tiers" data-pack-tiers>
-  <legend class="pack-tiers__legend">Choose your pack</legend>
-  <div class="pack-tiers__list">
-    {%- for row in rows -%}
-      {%- liquid
-        assign parts = row | split: '|'
-        assign qty = parts[0] | plus: 0
-        assign label = parts[1]
-        assign note = row | remove_first: parts[0] | remove_first: '|' | remove_first: parts[1] | remove_first: '|' | strip
-        assign input_id = id_prefix | append: '-' | append: qty
-        assign total = price | times: qty
-        assign compare_total = compare | times: qty
-      -%}
-      <label class="pack-tier{% if qty == quantity %} is-selected{% endif %}" for="{{ input_id }}" data-pack-tier>
-        <input class="pack-tier__input" id="{{ input_id }}" type="radio" name="{{ id_prefix }}-pack" value="{{ qty }}"{% if qty == quantity %} checked{% endif %}>
-        <span class="pack-tier__body">
-          <span class="pack-tier__label">{{ label | escape }}</span>
-          {%- if note != blank -%}<span class="pack-tier__note">{{ note | escape }}</span>{%- endif -%}
-        </span>
-        <span class="pack-tier__price">
-          <span class="pack-tier__total" data-pack-total>{{ total | money }}</span>
-          <s class="pack-tier__compare" data-pack-compare{% unless has_compare %} hidden{% endunless %}><span class="sr-only">Comparable value </span><span data-pack-compare-amount>{% if has_compare %}{{ compare_total | money_without_trailing_zeros }}{% endif %}</span></s>
-        </span>
-      </label>
-    {%- endfor -%}
-  </div>
+<fieldset class="sp-tiers" data-pack-tiers>
+  <legend class="sp-option__legend">{{ legend | escape }}</legend>
+  {%- for row in rows -%}
+    {%- liquid
+      assign parts = row | split: '|'
+      assign qty = parts[0] | plus: 0
+      assign label = parts[1]
+      assign rest = row | remove_first: parts[0] | remove_first: '|' | remove_first: parts[1] | remove_first: '|' | strip
+      assign rest_parts = rest | split: '|'
+      assign note = rest_parts[0] | strip
+      assign flag = ''
+      if rest_parts.size > 1
+        assign flag = rest_parts | last | strip
+      endif
+      assign input_id = id_prefix | append: '-' | append: qty
+      assign total = price | times: qty
+      assign compare_total = compare | times: qty
+    -%}
+    <label class="sp-tier{% if qty == quantity %} is-selected{% endif %}" for="{{ input_id }}" data-pack-tier data-pack-label="{{ label | escape }}">
+      <input class="sp-tier__input" id="{{ input_id }}" type="radio" name="{{ id_prefix }}-pack" value="{{ qty }}"{% if qty == quantity %} checked{% endif %} data-pack-input>
+      <span class="sp-tier__radio" aria-hidden="true"></span>
+      <span class="sp-tier__body">
+        <strong class="sp-tier__label">{{ label | escape }}</strong>
+        {%- if note != blank -%}<span class="sp-tier__note">{{ note | escape }}</span>{%- endif -%}
+      </span>
+      <span class="sp-tier__price">
+        <strong class="sp-tier__total" data-pack-total>{{ total | money }}</strong>
+        <s class="sp-tier__compare" data-pack-compare{% unless has_compare %} hidden{% endunless %}><span class="s-sr">Comparable value </span><span data-pack-compare-amount>{% if has_compare %}{{ compare_total | money_without_trailing_zeros }}{% endif %}</span></s>
+      </span>
+      {%- if flag != blank -%}<span class="sp-tier__flag">{{ flag | escape }}</span>{%- endif -%}
+    </label>
+  {%- endfor -%}
 </fieldset>
 {%- endif -%}

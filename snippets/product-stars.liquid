@@ -1,0 +1,24 @@
+{%- comment -%}
+  Five peach stars for the Somna product page; stars past the rounded rating
+  are drawn in the pale track colour. Without a rating, five full stars.
+  {% render 'product-stars', rating: 4.8, size: 16, label: '' %}
+{%- endcomment -%}
+{%- liquid
+  assign size = size | default: 16
+  assign filled = 5
+  assign label = label | default: 'Rated 5 out of 5'
+  if rating != blank
+    assign r = rating | plus: 0.0 | round: 1
+    assign filled = r | round
+    assign label = 'Rated ' | append: r | append: ' out of 5'
+  endif
+-%}
+<span class="s-stars sp-stars{% if class %} {{ class }}{% endif %}" role="img" aria-label="{{ label | escape }}">
+  {%- for i in (1..5) -%}
+    {%- if i <= filled -%}
+      {%- render 'somna-icon', name: 'star', size: size -%}
+    {%- else -%}
+      {%- render 'somna-icon', name: 'star', size: size, class: 'sp-stars__off' -%}
+    {%- endif -%}
+  {%- endfor -%}
+</span>

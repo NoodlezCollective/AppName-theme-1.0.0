@@ -1,10 +1,8 @@
 {%- comment -%}
-  One-click companion product inside the buy box
-  (app/components/product/AddonOffer.tsx, mapAddon in products.$handle.tsx).
-  `mellow.addon` is a product reference; its first available variant is the
-  line added with the product. Hidden when the reference is missing or the
-  variant is sold out. The add-on is added by product.js: a plain form post
-  only adds the main product.
+  One-click companion product inside the buy box. `mellow.addon` is a
+  product reference; its first available variant is added with the product
+  (assets/product.js: [data-addon], [data-addon-input]). Hidden when the
+  reference is missing or sold out. Styled like the design's tier cards.
   {% render 'product-addon-offer', product: product, id: 'product-addon' %}
 {%- endcomment -%}
 {%- liquid
@@ -14,15 +12,16 @@
   assign note = product.metafields.mellow.addon_note.value | strip
 -%}
 {%- if addon != blank and addon_variant != blank and addon_variant.available -%}
-<label class="addon" for="{{ id }}" data-addon>
-  <input class="addon__input" id="{{ id }}" type="checkbox" data-addon-input data-variant-id="{{ addon_variant.id }}">
-  <span class="addon__check" aria-hidden="true">{% render 'icon', name: 'plus', size: 14, stroke_width: 2 %}</span>
+<label class="sp-addon" for="{{ id }}" data-addon>
+  <input class="sp-addon__input" id="{{ id }}" type="checkbox" data-addon-input data-variant-id="{{ addon_variant.id }}">
+  <span class="sp-addon__check" aria-hidden="true">{% render 'somna-icon', name: 'check', size: 14, stroke_width: 2.5 %}</span>
   {%- if addon.featured_image -%}
-    <img class="addon__image" src="{{ addon.featured_image | image_url: width: 112, height: 112, crop: 'center' }}" alt="" width="56" height="56" loading="lazy">
+    {{ addon.featured_image | image_url: width: 112, height: 112, crop: 'center' | image_tag: class: 'sp-addon__image', alt: '', width: 56, height: 56, loading: 'lazy' }}
   {%- endif -%}
-  <span class="addon__body">
-    <span class="addon__title">Add {{ addon.title | escape }} <span class="addon__price">{{ addon_variant.price | money }}</span></span>
-    {%- if note != blank -%}<span class="addon__note">{{ note | escape }}</span>{%- endif -%}
+  <span class="sp-addon__body">
+    <strong class="sp-addon__title">Add {{ addon.title | escape }}</strong>
+    {%- if note != blank -%}<span class="sp-addon__note">{{ note | escape }}</span>{%- endif -%}
   </span>
+  <strong class="sp-addon__price">{{ addon_variant.price | money }}</strong>
 </label>
 {%- endif -%}

@@ -1,0 +1,93 @@
+{%- comment -%}
+  Product questions (Product design): centred heading and a native
+  details/summary accordion (.s-faq in somna.css).
+{%- endcomment -%}
+{%- liquid
+  assign brand = settings.brand_name
+  assign heading = section.settings.heading | replace: '{AppName}', brand | replace: '{title}', product.title
+-%}
+{{ 'somna-product.css' | asset_url | stylesheet_tag }}
+<section class="sp-faq">
+  <div class="sp-faq__inner">
+    {%- if heading != blank -%}<h2 class="s-h2 sp-faq__title">{{ heading }}</h2>{%- endif -%}
+    {%- if section.blocks.size > 0 -%}
+      <div class="s-faq">
+        {%- for block in section.blocks -%}
+          <details class="s-faq__item" {{ block.shopify_attributes }}>
+            <summary class="s-faq__q">{{ block.settings.question | replace: '{AppName}', brand }}<span class="s-faq__icon" aria-hidden="true"></span></summary>
+            <div class="s-faq__a">{{ block.settings.answer | replace: '{AppName}', brand }}</div>
+          </details>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product questions",
+  "tag": "div",
+  "class": "section-somna-product-faq",
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "CloudAlign Questions",
+      "info": "{title} is replaced with the product title."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "Which firmness should I choose?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>Side sleepers usually prefer Medium or Firm, back sleepers Medium, and stomach sleepers Soft. You can exchange within your trial.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product questions",
+      "blocks": [
+        {
+          "type": "question"
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Does it smell when I unbox it?",
+            "answer": "<p>[Describe any off-gassing and how long to air it out, or remove this question if it doesn’t apply.]</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Will it fit my pillowcase?",
+            "answer": "<p>Standard fits standard cases, Queen fits queen and standard cases, King fits king cases.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "How long does it last?",
+            "answer": "<p>It’s covered by our [Lifetime] warranty against defects. [Add expected lifespan if you have test data.]</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,10 +1,11 @@
 {%- comment -%}
-  Product media gallery (app/components/product/ProductGallery.tsx).
-  {% render 'product-gallery', product: product %}
-  Slides are every product media item's preview image (a bare product falls
-  back to its featured image). The selected variant's image is the active
-  slide, so the server render already shows it; product.js drives the arrows,
-  thumbnails, the mobile scroll-snap strip and variant changes.
+  Somna product gallery (Product design): one square frame with the badge,
+  then a six-column thumbnail grid. Slides are every product media item
+  (images, Shopify videos, YouTube/Vimeo); the selected variant's media is
+  the active slide. assets/product.js drives the thumbnails, variant changes
+  and the mobile scroll-snap strip. Without media: the design's labelled
+  placeholder.
+  {% render 'product-gallery', product: product, badge: 'Bestseller' %}
 {%- endcomment -%}
 {%- liquid
   assign current = product.selected_or_first_available_variant
@@ -17,56 +18,57 @@
       endif
     endfor
   endif
-  if count == 0 and product.featured_image
-    assign count = 1
-  endif
-  assign label = product.title | append: ' images'
-  assign strip_label = product.title | append: ' image strip'
+  assign label = product.title | append: ' media'
+  assign sizes = '(min-width: 75em) 620px, (min-width: 64em) 52vw, 100vw'
 -%}
-{%- if count == 0 -%}
-<div class="gallery gallery--empty" data-gallery>
-  <div class="product-image product-image--empty" aria-hidden="true"></div>
-</div>
-{%- else -%}
-<section class="gallery" aria-roledescription="carousel" aria-label="{{ label | escape }}" data-gallery>
-  <div class="gallery__viewport">
-    <div class="gallery__track" role="group" aria-label="{{ strip_label | escape }}" tabindex="0" style="--gallery-index:{{ active_index }}" data-gallery-track>
-      {%- if product.media.size > 0 -%}
+<div class="sp-gallery" data-gallery>
+  <div class="sp-gallery__main">
+    {%- if badge != blank -%}<span class="s-badge sp-gallery__badge">{{ badge }}</span>{%- endif -%}
+    {%- if count == 0 -%}
+      <div class="sp-gallery__ph" role="img" aria-label="Media placeholder P-01">
+        {%- render 'somna-icon', name: 'camera', size: 34 -%}
+        <span class="s-ph__code">P-01 · Packshot</span>
+        <span class="sp-gallery__ph-brief">{{ product.title }}</span>
+      </div>
+    {%- else -%}
+      <div class="sp-gallery__track" role="group" aria-label="{{ label | escape }}" tabindex="0" data-gallery-track>
         {%- for media in product.media -%}
           {%- liquid
             assign index = forloop.index0
             assign alt = media.alt | default: product.title
             assign loading = 'lazy'
-            if index == active_index or index == 0
+            if index == active_index
               assign loading = 'eager'
             endif
           -%}
-          <div class="gallery__slide{% if index == active_index %} is-active{% endif %}" role="group" aria-roledescription="slide" aria-label="{{ forloop.index }} of {{ count }}" data-media-id="{{ media.id }}">
-            <div class="product-image">{% render 'image', image: media.preview_image, alt: alt, aspect_ratio: '1/1', loading: loading, sizes: '(min-width: 64em) 600px, 100vw' %}</div>
+          <div class="sp-gallery__slide{% if index == active_index %} is-active{% endif %}" role="group" aria-roledescription="slide" aria-label="{{ forloop.index }} of {{ count }}" data-gallery-slide data-media-id="{{ media.id }}">
+            {%- case media.media_type -%}
+              {%- when 'video' -%}
+                {{ media | video_tag: image_size: '1200x', controls: true, muted: true, loop: true, playsinline: true, preload: 'metadata' }}
+              {%- when 'external_video' -%}
+                {{ media | external_video_tag: loading: 'lazy' }}
+              {%- else -%}
+                {{ media.preview_image | image_url: width: 1600 | image_tag: widths: '400, 600, 800, 1000, 1200, 1600', sizes: sizes, loading: loading, alt: alt }}
+            {%- endcase -%}
           </div>
         {%- endfor -%}
-      {%- else -%}
-        {%- assign alt = product.featured_image.alt | default: product.title -%}
-        <div class="gallery__slide is-active" role="group" aria-roledescription="slide" aria-label="1 of 1" data-media-id="{{ product.featured_image.id }}">
-          <div class="product-image">{% render 'image', image: product.featured_image, alt: alt, aspect_ratio: '1/1', loading: 'eager', sizes: '(min-width: 64em) 600px, 100vw' %}</div>
-        </div>
-      {%- endif -%}
-    </div>
-    {%- if count > 1 -%}
-      <button type="button" class="gallery__arrow gallery__arrow--prev" aria-label="Previous image" data-gallery-prev>{% render 'icon', name: 'chevron-left', size: 18 %}</button>
-      <button type="button" class="gallery__arrow gallery__arrow--next" aria-label="Next image" data-gallery-next>{% render 'icon', name: 'chevron-right', size: 18 %}</button>
+      </div>
     {%- endif -%}
   </div>
   {%- if count > 1 -%}
-    <div class="gallery__thumbs" data-gallery-thumbs>
+    <div class="sp-gallery__thumbs" role="group" aria-label="Product media" data-gallery-thumbs>
       {%- for media in product.media -%}
-        {%- liquid
-          assign index = forloop.index0
-          assign alt = media.alt | default: product.title
-        -%}
-        <button type="button" class="gallery__thumb{% if index == active_index %} is-active{% endif %}" aria-label="View image {{ forloop.index }} of {{ count }}" aria-pressed="{% if index == active_index %}true{% else %}false{% endif %}" data-index="{{ index }}">{% render 'image', image: media.preview_image, alt: alt, aspect_ratio: '1/1', loading: 'lazy', sizes: '88px' %}</button>
+        <button type="button" class="sp-gallery__thumb{% if forloop.index0 == active_index %} is-active{% endif %}" aria-pressed="{% if forloop.index0 == active_index %}true{% else %}false{% endif %}" aria-label="Show media {{ forloop.index }} of {{ count }}" data-gallery-thumb>
+          {%- if media.preview_image -%}
+            {{ media.preview_image | image_url: width: 240, height: 240, crop: 'center' | image_tag: loading: 'lazy', alt: '', width: 120, height: 120 }}
+          {%- else -%}
+            <span>{{ forloop.index }}</span>
+          {%- endif -%}
+          {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+            <span class="sp-gallery__thumb-play" aria-hidden="true">{%- render 'somna-icon', name: 'play', size: 14 -%}</span>
+          {%- endif -%}
+        </button>
       {%- endfor -%}
     </div>
   {%- endif -%}
-</section>
-{%- endif -%}
+</div>
