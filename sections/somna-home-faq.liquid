@@ -15,7 +15,7 @@
     {%- if section.blocks.size > 0 -%}
       <div class="s-faq">
         {%- for block in section.blocks -%}
-          <details class="s-faq__item{% if forloop.index > section.settings.mobile_limit %} sh-faq__extra{% endif %}"{% if block.settings.open %} open{% endif %} {{ block.shopify_attributes }}>
+          <details name="faq-{{ section.id }}" data-s-exclusive="faq-{{ section.id }}" class="s-faq__item{% if forloop.index > section.settings.mobile_limit %} sh-faq__extra{% endif %}"{% if block.settings.open %} open{% endif %} {{ block.shopify_attributes }}>
             <summary class="s-faq__q">{% echo block.settings.question | replace: '{AppName}', brand %}<span class="s-faq__icon" aria-hidden="true"></span></summary>
             <div class="s-faq__a">{% echo block.settings.answer | replace: '{AppName}', brand %}</div>
           </details>

@@ -243,6 +243,26 @@
       dots.appendChild(dot);
     });
     row.parentNode.insertBefore(dots, row.nextSibling);
+
+    // A scrolling row must be reachable by keyboard (arrow keys scroll it)
+    // and named for screen readers; only while it actually scrolls.
+    var section = row.closest('section');
+    var heading = section && section.querySelector('h2');
+    var name = (heading ? heading.textContent.trim() + ': ' : '') + slides.length + ' items, scroll sideways';
+    var isList = row.tagName === 'UL' || row.tagName === 'OL';
+    function syncFocusable() {
+      if (isMobile()) {
+        row.setAttribute('tabindex', '0');
+        row.setAttribute('aria-label', name);
+        if (!isList) row.setAttribute('role', 'region');
+      } else {
+        row.removeAttribute('tabindex');
+        row.removeAttribute('aria-label');
+        if (!isList) row.removeAttribute('role');
+      }
+    }
+    syncFocusable();
+    window.addEventListener('resize', syncFocusable);
     var frame = 0;
     function update() {
       frame = 0;

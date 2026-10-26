@@ -224,7 +224,7 @@
     width: 24px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
   }
-  .sh-dot::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--s-border); opacity: 0.45; transition: width 200ms ease, opacity 200ms ease; }
+  .sh-dot::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--s-border); transition: width 200ms ease; }
   .sh-dot[aria-current='true']::before { width: 22px; background: var(--s-indigo); opacity: 1; }
 
   /* Comparison table collapses behind a toggle */
@@ -286,4 +286,12 @@
 }
 @media (max-width: 749px) {
   .sh-hero__review { position: relative; left: auto; bottom: auto; max-width: none; margin: -40px 16px 0; }
+}
+
+/* Hero: separate, shorter headline on phones */
+.sh-hero__title-mobile { display: none; }
+@media (max-width: 749px) {
+  .sh-hero__title-desktop { display: none; }
+  .sh-hero__title-mobile { display: inline; }
+  p.sh-hero__title-mobile { display: block; }
 }

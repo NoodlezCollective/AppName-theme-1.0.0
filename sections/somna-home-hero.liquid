@@ -17,7 +17,9 @@
   assign store_rating = store_rating | strip
   assign rating_aria = section.settings.rating_aria | replace: '{AppName}', brand
   assign heading = section.settings.heading | replace: '{AppName}', brand
+  assign mobile_heading = section.settings.mobile_heading | replace: '{AppName}', brand | strip
   assign subheading = section.settings.subheading | replace: '{AppName}', brand
+  assign mobile_subheading = section.settings.mobile_subheading | replace: '{AppName}', brand | strip
   assign primary_label = section.settings.primary_label | replace: '{AppName}', brand
   assign primary_url = section.settings.primary_url | default: routes.all_products_collection_url
   assign secondary_label = section.settings.secondary_label | replace: '{AppName}', brand
@@ -37,8 +39,15 @@
           <strong>{{ rating_label }}</strong>
         </div>
       {%- endif -%}
-      <h1 id="SomnaHeroTitle-{{ section.id }}" class="sh-hero__title">{{ heading }}</h1>
-      {%- if subheading != blank -%}<p class="sh-hero__sub">{{ subheading }}</p>{%- endif -%}
+      <h1 id="SomnaHeroTitle-{{ section.id }}" class="sh-hero__title">
+        {%- if mobile_heading != blank -%}
+          <span class="sh-hero__title-desktop">{{ heading }}</span><span class="sh-hero__title-mobile">{{ mobile_heading }}</span>
+        {%- else -%}
+          {{ heading }}
+        {%- endif -%}
+      </h1>
+      {%- if subheading != blank -%}<p class="sh-hero__sub{% if mobile_subheading != blank %} sh-hero__title-desktop{% endif %}">{{ subheading }}</p>{%- endif -%}
+      {%- if mobile_subheading != blank -%}<p class="sh-hero__sub sh-hero__title-mobile">{{ mobile_subheading }}</p>{%- endif -%}
       {%- if primary_label != blank or secondary_label != blank -%}
         <div class="sh-hero__ctas" data-sh-sticky-anchor>
           {%- if primary_label != blank -%}<a class="s-btn s-btn--lg" href="{{ primary_url }}">{{ primary_label }}</a>{%- endif -%}
@@ -108,6 +117,8 @@
     {"type": "header", "content": "Text"},
     {"type": "text", "id": "heading", "label": "Heading", "default": "Sleep Cooler. Wake Softer. Cloud-Like Comfort for Every Kind of Sleeper."},
     {"type": "textarea", "id": "subheading", "label": "Subheading", "default": "Pillows that align and comforters that adapt, designed around the way you actually sleep. Try any of them for [100] nights."},
+    {"type": "text", "id": "mobile_heading", "label": "Mobile heading", "default": "Sleep Cooler. Wake Softer.", "info": "Shown on phones (under 750px) instead of the heading. Keep it to 2 lines; blank uses the heading."},
+    {"type": "textarea", "id": "mobile_subheading", "label": "Mobile subheading", "default": "Cloud-like pillows and comforters for every kind of sleeper. Try them for [100] nights.", "info": "Blank uses the subheading."},
     {"type": "header", "content": "Buttons"},
     {"type": "text", "id": "primary_label", "label": "Primary button label", "default": "Shop Bestsellers"},
     {"type": "url", "id": "primary_url", "label": "Primary button link", "default": "/collections/all"},

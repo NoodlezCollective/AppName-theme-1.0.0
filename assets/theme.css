@@ -3785,9 +3785,8 @@ body a.s-btn, body a.s-btn:hover, body a.s-chip, body a.s-chip:hover, body a.s-l
   width: 28px; height: 28px; margin: 0; border-radius: 999px; opacity: 1;
   background: #4c4184; color: #ffffff; display: flex; align-items: center; justify-content: center;
 }
-.sc-announce .sc-announce__toggle:not(:focus-visible) {
-  width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
-}
+.sc-announce .sc-announce__toggle { box-shadow: -16px 0 12px 4px #4c4184; cursor: pointer; border: 0; }
+.sc-announce .sc-announce__toggle:hover { background: #3d3470; }
 .sc-announce .sc-announce__toggle:focus-visible { outline: 2px solid #ffffff; outline-offset: -2px; }
 @media (prefers-reduced-motion: reduce) {
   .announcement-bar.sc-announce { min-height: 0; padding-block: 0; }
@@ -4389,3 +4388,36 @@ body a.s-btn, body a.s-btn:hover, body a.s-chip, body a.s-chip:hover, body a.s-l
 .s-guarantee--center { align-items: center; text-align: center; }
 .s-guarantee--center .s-guarantee__row { justify-content: center; }
 .sc-guarantee { margin-top: 2px; }
+
+/* ===== Accessibility ===== */
+/* Moving content can be paused (WCAG 2.2.2): every press marquee gets a
+   pause/play toggle (assets/somna.js) and pauses on hover and keyboard focus. */
+.s-marquee { position: relative; }
+.s-marquee:hover .s-marquee__track, .s-marquee:focus-within .s-marquee__track,
+.s-marquee.is-paused .s-marquee__track { animation-play-state: paused; }
+.s-marquee__toggle {
+  position: absolute; top: 50%; right: 12px; transform: translateY(-50%); z-index: 1;
+  width: 36px; height: 36px; padding: 0; border: 0; border-radius: 999px; cursor: pointer;
+  background: var(--s-white); color: var(--s-indigo); display: flex; align-items: center; justify-content: center;
+  box-shadow: -20px 0 16px 6px var(--s-indigo);
+}
+.s-marquee__toggle:hover { background: var(--s-lavender); }
+@media (prefers-reduced-motion: reduce) { .s-marquee__toggle { display: none; } }
+
+/* Visible focus everywhere: a two-tone ring (indigo + white halo) reads on
+   light, lavender and dark backgrounds alike. */
+:focus-visible {
+  outline: 3px solid var(--s-indigo);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--s-white);
+}
+.s-marquee :focus-visible, .sc-footer :focus-visible, .sc-announce :focus-visible,
+.sh-film :focus-visible, .sh-ugc__card :focus-visible, .s-bg-indigo :focus-visible {
+  outline-color: var(--s-white);
+  box-shadow: 0 0 0 5px var(--s-indigo);
+}
+#main-content:focus-visible { box-shadow: none; }
+/* Search fields hide the input's own ring; show it on the field instead. */
+.search-form__field:focus-within, .predictive-search__field:focus-within {
+  outline: 3px solid var(--s-indigo); outline-offset: 2px;
+}
