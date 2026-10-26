@@ -1,7 +1,8 @@
 {%- comment -%}
   Mobile menu drawer (opened by the header's menu toggle below 768px), in
   the Somna drawer look: Outfit links on white, search / account shortcuts
-  and the "Shop All" button. Same menu source and fallback as
+  and the "Shop All" button, with image tiles for the main collections on
+  top (styles in assets/somna-menu.css, loaded by the header). Same menu source and fallback as
   sections/header.liquid.
 {%- endcomment -%}
 {%- liquid
@@ -24,11 +25,36 @@
     assign home_active = true
   endif
   assign fallback_titles = 'Shop All|Pillows|Comforters|Bundles|Support' | split: '|'
+  assign fallback_handles = 'pillows,comforters,bundles' | split: ','
   assign pillows_url = routes.collections_url | append: '/pillows'
   assign comforters_url = routes.collections_url | append: '/comforters'
   assign bundles_url = routes.collections_url | append: '/bundles'
   assign support_url = base | append: '/pages/support'
   assign fallback_urls = routes.all_products_collection_url | append: '|' | append: pillows_url | append: '|' | append: comforters_url | append: '|' | append: bundles_url | append: '|' | append: support_url | split: '|'
+
+  # Quick-link tiles: the menu's collection links (up to 4), else the
+  # design's Pillows / Comforters / Bundles collections.
+  assign quick_handles = ''
+  if section.settings.show_quick_links
+    if menu != blank and menu.links.size > 0
+      for link in menu.links
+        if link.type == 'collection_link' and link.object != blank
+          assign quick_handles = quick_handles | append: link.object.handle | append: ','
+        endif
+      endfor
+    else
+      for handle in fallback_handles
+        if collections[handle] != blank
+          assign quick_handles = quick_handles | append: handle | append: ','
+        endif
+      endfor
+    endif
+  endif
+  assign quick_handles = quick_handles | split: ',' | uniq
+  assign quick_count = quick_handles.size
+  if quick_count > 4
+    assign quick_count = 4
+  endif
 -%}
 <div aria-hidden="true" class="overlay sc-overlay" data-drawer="mobile" data-section-id="{{ section.id }}">
   <button class="close-outside" aria-label="Close menu" tabindex="-1" data-drawer-close></button>
@@ -38,6 +64,35 @@
       <button type="button" class="drawer__close sc-drawer__close" aria-label="Close menu" data-drawer-close>{% render 'somna-icon', name: 'close', size: 20 %}</button>
     </div>
     <div class="sc-drawer__body">
+      {%- if quick_count > 0 -%}
+        <ul class="sc-mquick{% if quick_count == 3 %} sc-mquick--3{% endif %}" role="list" aria-label="Shop by collection">
+          {%- for handle in quick_handles limit: 4 -%}
+            {%- liquid
+              assign quick = collections[handle]
+              assign quick_image = quick.featured_image
+              if quick_image == blank
+                assign quick_image = quick.products.first.featured_media.preview_image
+              endif
+              assign quick_current = false
+              if request.path == quick.url
+                assign quick_current = true
+              endif
+            -%}
+            <li>
+              <a class="sc-mquick__tile" href="{{ quick.url }}"{% if quick_current %} aria-current="page"{% endif %}>
+                <span class="sc-mquick__media">
+                  {%- if quick_image != blank -%}
+                    {{ quick_image | image_url: width: 320, height: 320, crop: 'center' | image_tag: widths: '160, 240, 320', sizes: '(min-width: 440px) 130px, 30vw', loading: 'lazy', decoding: 'async', alt: '' }}
+                  {%- else -%}
+                    {%- render 'somna-icon', name: 'moon', size: 24 -%}
+                  {%- endif -%}
+                </span>
+                <span class="sc-mquick__title">{{ quick.title }}</span>
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
       <nav class="sc-mnav" aria-label="Main">
         <a class="sc-mnav__link" href="{{ routes.root_url }}"{% if home_active %} aria-current="page"{% endif %}>Home</a>
         {%- if menu != blank and menu.links.size > 0 -%}
@@ -74,6 +129,13 @@
       "label": "Menu",
       "default": "main-menu",
       "info": "Use the same menu as the header. Without one the design's links are shown."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quick_links",
+      "label": "Show collection tiles",
+      "default": true,
+      "info": "Image tiles for the menu's collection links (up to 4) above the links. Without a menu: Pillows, Comforters and Bundles."
     }
   ]
 }

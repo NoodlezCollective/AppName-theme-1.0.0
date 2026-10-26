@@ -1,0 +1,62 @@
+{%- comment -%}
+  Desktop dropdown panel for one main-nav item (sections/header.liquid).
+  {% render 'somna-menu-panel', panel_id: 'MenuPanel-header-2', title: 'Pillows', url: '/collections/pillows', collection: collection, links: link.links, limit: 4, brand: 'Somna' %}
+  collection: shows up to `limit` of its products as small cards (image,
+  title, price, struck compare-at price and "Save $X" pill).
+  links: the menu link's child links, listed in a column.
+  Opened and closed by assets/somna-menu.js; styled in assets/somna-menu.css.
+{%- endcomment -%}
+{%- liquid
+  assign limit = limit | default: 4
+  assign product_total = 0
+  if collection != blank
+    assign product_total = collection.products_count | default: 0
+  endif
+-%}
+<div class="sc-mega" id="{{ panel_id }}" data-menu-panel>
+  <div class="sc-mega__inner{% if product_total == 0 %} sc-mega__inner--links{% endif %}">
+    <div class="sc-mega__aside">
+      <p class="sc-mega__title">{{ title }}</p>
+      {%- if product_total > 0 -%}
+        <p class="sc-mega__count">{{ product_total }} {% if product_total == 1 %}product{% else %}products{% endif %}</p>
+      {%- endif -%}
+      {%- if links != blank and links.size > 0 -%}
+        <ul class="sc-mega__links" role="list">
+          {%- for child in links -%}
+            <li><a class="sc-mega__link" href="{{ child.url }}"{% if child.current %} aria-current="page"{% endif %}>{% echo child.title | replace: '{AppName}', brand %}</a></li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+      <a class="s-link-arrow sc-mega__all" href="{{ url }}">Shop all {{ title }}{% render 'somna-icon', name: 'arrow-right', size: 18 %}</a>
+    </div>
+    {%- if product_total > 0 -%}
+      <ul class="sc-mega__products" role="list" style="--sc-mega-cols: {{ limit }};">
+        {%- for item in collection.products limit: limit -%}
+          {%- liquid
+            assign price = item.price_min
+            assign compare_at = item.compare_at_price_min | default: 0
+          -%}
+          <li>
+            <a class="sc-mega__card" href="{{ item.url }}">
+              <span class="sc-mega__media">
+                {%- if item.featured_media != blank -%}
+                  {{ item.featured_media.preview_image | image_url: width: 320, height: 320, crop: 'center' | image_tag: widths: '160, 240, 320', sizes: '160px', loading: 'lazy', decoding: 'async', alt: '' }}
+                {%- else -%}
+                  <span class="sc-mega__ph" aria-hidden="true">{% render 'somna-icon', name: 'camera', size: 24 %}</span>
+                {%- endif -%}
+              </span>
+              <span class="sc-mega__name">{{ item.title }}</span>
+              <span class="s-price sc-mega__price">
+                <span class="s-price__now">{% if item.price_varies %}From {% endif %}{{ price | money }}</span>
+                {%- if compare_at > price -%}
+                  <s class="s-price__was"><span class="s-sr">Regular price </span>{{ compare_at | money }}</s>
+                  <span class="s-save">Save {{ compare_at | minus: price | money_without_trailing_zeros }}</span>
+                {%- endif -%}
+              </span>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</div>

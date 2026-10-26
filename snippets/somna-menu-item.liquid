@@ -1,0 +1,26 @@
+{%- comment -%}
+  One main-nav item (sections/header.liquid): the link, and when it has a
+  dropdown (a collection with products, or child links) a separate chevron
+  disclosure button plus the panel (snippets/somna-menu-panel.liquid).
+  {% render 'somna-menu-item', title: 'Pillows', url: '/collections/pillows', current: false, collection: collection, links: link.links, panel_id: 'MenuPanel-header-2', dropdowns: true, limit: 4, brand: 'Somna' %}
+{%- endcomment -%}
+{%- liquid
+  assign has_panel = false
+  if dropdowns
+    if collection != blank and collection.products_count > 0
+      assign has_panel = true
+    endif
+    if links != blank and links.size > 0
+      assign has_panel = true
+    endif
+  endif
+-%}
+<li class="sc-nav__item{% if has_panel %} sc-nav__item--panel{% endif %}"{% if has_panel %} data-menu-item{% endif %}>
+  <a class="sc-nav__link" href="{{ url }}"{% if current %} aria-current="page"{% endif %}>{{ title }}</a>
+  {%- if has_panel -%}
+    <button type="button" class="sc-nav__toggle" aria-expanded="false" aria-controls="{{ panel_id }}" aria-label="{{ title | escape }} menu" data-menu-toggle>
+      {%- render 'somna-icon', name: 'chevron-down', size: 16 -%}
+    </button>
+    {%- render 'somna-menu-panel', panel_id: panel_id, title: title, url: url, collection: collection, links: links, limit: limit, brand: brand -%}
+  {%- endif -%}
+</li>

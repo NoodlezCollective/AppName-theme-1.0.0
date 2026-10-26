@@ -3,6 +3,9 @@
   navigation and the search / account / cart icons. The menu comes from the
   link list picked in the section settings (default "main-menu"), otherwise
   the design's menu (Shop All, Pillows, Comforters, Bundles, Support).
+  From 990px, items linking to a collection (or with child links) get a
+  dropdown panel (snippets/somna-menu-item.liquid, somna-menu-panel.liquid,
+  assets/somna-menu.js / somna-menu.css).
   Below 768px the navigation moves into the mobile drawer
   (sections/mobile-menu.liquid). The cart toggle is re-rendered through the
   Section Rendering API (?sections=header) by assets/theme.js.
@@ -13,6 +16,8 @@
     assign menu = linklists['main-menu']
   endif
   assign brand = settings.brand_name | default: 'Somna'
+  assign dropdowns = section.settings.enable_dropdowns
+  assign per_panel = section.settings.products_per_panel | default: 4
   assign wordmark = brand | downcase
   assign cart_count = cart.item_count
   if cart_count == 1
@@ -36,6 +41,8 @@
   assign support_url = base | append: '/pages/support'
   assign fallback_urls = routes.all_products_collection_url | append: '|' | append: pillows_url | append: '|' | append: comforters_url | append: '|' | append: bundles_url | append: '|' | append: support_url | split: '|'
 -%}
+{{ 'somna-menu.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'somna-menu.js' | asset_url }}" defer></script>
 <header class="site-header sc-header" data-section-id="{{ section.id }}" data-section-type="header">
   <div class="sc-header__inner">
     <div class="sc-header__brand">
@@ -50,18 +57,61 @@
         {%- endif -%}
       </a>
     </div>
-    <nav class="sc-nav" aria-label="Main">
-      {%- if menu != blank and menu.links.size > 0 -%}
-        {%- for link in menu.links -%}
-          {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
-          <a class="sc-nav__link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{% echo link.title | replace: '{AppName}', brand %}</a>
-        {%- endfor -%}
-      {%- else -%}
-        {%- for title in fallback_titles -%}
-          {%- assign url = fallback_urls[forloop.index0] -%}
-          <a class="sc-nav__link" href="{{ url }}"{% if request.path == url %} aria-current="page"{% endif %}>{{ title }}</a>
-        {%- endfor -%}
-      {%- endif -%}
+    <nav class="sc-nav" aria-label="Main"{% if dropdowns %} data-somna-menu{% endif %}>
+      <ul class="sc-nav__list" role="list">
+        {%- if menu != blank and menu.links.size > 0 -%}
+          {%- for link in menu.links -%}
+            {%- liquid
+              assign link_collection = nil
+              if link.type == 'collection_link'
+                assign link_collection = link.object
+              else
+                for child in link.links
+                  if child.type == 'collection_link'
+                    assign link_collection = child.object
+                    break
+                  endif
+                endfor
+              endif
+              assign href = link.url
+              if href == blank or href == '#'
+                if link_collection != blank
+                  assign href = link_collection.url
+                elsif link.links.size > 0
+                  assign href = link.links.first.url
+                endif
+              endif
+              if href == blank or href == '#'
+                continue
+              endif
+              assign link_title = link.title | replace: '{AppName}', brand
+              assign panel_id = 'MenuPanel-' | append: section.id | append: '-' | append: forloop.index
+            -%}
+            {%- render 'somna-menu-item', title: link_title, url: href, current: link.current, collection: link_collection, links: link.links, panel_id: panel_id, dropdowns: dropdowns, limit: per_panel, brand: brand -%}
+          {%- endfor -%}
+        {%- else -%}
+          {%- for title in fallback_titles -%}
+            {%- liquid
+              assign url = fallback_urls[forloop.index0]
+              assign fallback_collection = nil
+              case forloop.index
+                when 2
+                  assign fallback_collection = collections['pillows']
+                when 3
+                  assign fallback_collection = collections['comforters']
+                when 4
+                  assign fallback_collection = collections['bundles']
+              endcase
+              assign is_current = false
+              if request.path == url
+                assign is_current = true
+              endif
+              assign panel_id = 'MenuPanel-' | append: section.id | append: '-' | append: forloop.index
+            -%}
+            {%- render 'somna-menu-item', title: title, url: url, current: is_current, collection: fallback_collection, links: nil, panel_id: panel_id, dropdowns: dropdowns, limit: per_panel, brand: brand -%}
+          {%- endfor -%}
+        {%- endif -%}
+      </ul>
     </nav>
     <div class="sc-header__icons">
       <button type="button" class="sc-iconbtn" aria-label="Search" aria-haspopup="dialog" data-drawer-open="search">
@@ -109,6 +159,26 @@
       "label": "Menu",
       "default": "main-menu",
       "info": "Without a menu the design's links are shown: Shop All, Pillows, Comforters, Bundles, Support."
+    },
+    {
+      "type": "header",
+      "content": "Dropdown menus"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_dropdowns",
+      "label": "Show dropdowns on desktop",
+      "default": true,
+      "info": "From 990px wide, menu items that link to a collection or have child links open a panel with the collection's top products."
+    },
+    {
+      "type": "range",
+      "id": "products_per_panel",
+      "label": "Products per dropdown",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 4
     }
   ]
 }
