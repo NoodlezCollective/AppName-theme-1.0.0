@@ -20,33 +20,88 @@
 .sh-play:hover { transform: scale(1.05); }
 .sh-play--sm { width: 60px; height: 60px; box-shadow: none; }
 
-/* ---------- Hero ---------- */
-.sh-hero { background: var(--s-soft); }
-.sh-hero__inner { padding: 64px var(--s-pad-x); display: flex; flex-wrap: wrap; align-items: center; gap: 48px; }
-.sh-hero__copy { flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+/* ---------- Hero ----------
+   Desktop/tablet: full-width photo, copy on a soft left-hand fade.
+   Phones: photo first, then copy; one solid button + text link. */
+.sh-hero { position: relative; background: var(--s-soft); overflow: hidden; isolation: isolate; }
+.sh-hero__media { position: absolute; inset: 0; z-index: -1; }
+.sh-hero__media picture, .sh-hero__img { display: block; width: 100%; height: 100%; }
+.sh-hero__img { object-fit: cover; object-position: var(--sh-hero-pos, 70% 50%); }
+.sh-hero__media::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(243, 241, 251, 0.97) 0%, rgba(243, 241, 251, 0.9) 32%, rgba(243, 241, 251, 0.55) 50%, rgba(243, 241, 251, 0) 68%);
+}
+.sh-hero--placeholder .sh-hero__media::after { display: none; }
+.sh-hero__ph.s-ph { position: absolute; inset: 0; padding: 24px 24px 24px 52%; border-radius: 0; background: linear-gradient(90deg, var(--s-soft) 0%, var(--s-soft) 42%, var(--s-mist) 42%); }
+.sh-hero__inner {
+  position: relative; min-height: clamp(520px, calc(100vh - 230px), 680px);
+  padding: 56px var(--s-pad-x); display: flex; align-items: center;
+}
+.sh-hero__copy { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 18px; }
 .sh-hero__rating {
   align-self: flex-start; display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px;
-  background: var(--s-mist); border-radius: 999px; padding: 8px 16px; font-size: 14px; color: var(--s-ink);
+  background: rgba(255, 255, 255, 0.85); border-radius: 999px; padding: 8px 16px; font-size: 14px; color: var(--s-ink);
+  box-shadow: 0 1px 2px rgba(45, 36, 92, 0.06);
 }
 .sh-hero__rating strong { font-weight: 600; }
 .sh .sh-hero__title {
-  margin: 0; font-family: var(--s-font-display); font-weight: 500; font-size: 40px; line-height: 1.15;
-  letter-spacing: -0.015em; color: var(--s-ink); text-wrap: balance; max-width: 620px;
+  margin: 0; font-family: var(--s-font-display); font-weight: 600; font-size: clamp(44px, 3.7vw, 54px); line-height: 1.07;
+  letter-spacing: -0.025em; color: var(--s-ink); text-wrap: balance; max-width: 13em;
 }
-.sh-hero__sub { margin: 0; font-size: 18px; line-height: 1.6; font-weight: 500; letter-spacing: 0.02em; color: var(--s-muted); max-width: 540px; }
-.sh-hero__ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
-.sh-hero__ctas .sh-btn-px32 { padding: 0 32px; }
-.sh-hero__trust { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 28px; font-size: 14px; color: var(--s-ink); }
+.sh-hero__sub { margin: 0; font-size: 17px; line-height: 1.55; font-weight: 500; letter-spacing: 0; color: var(--s-body); max-width: 30em; }
+.sh-hero__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin-top: 6px; }
+.sh-hero__primary { min-width: 220px; }
+.sh a.sh-hero__secondary { font-size: 17px; color: var(--s-indigo); }
+.sh a.sh-hero__secondary:hover { color: var(--s-indigo-hover); text-decoration: underline; text-underline-offset: 4px; }
+.sh-hero__trust { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 24px; font-size: 14px; font-weight: 500; color: var(--s-ink); }
 .sh-hero__trust li { display: flex; align-items: center; gap: 8px; }
-.sh-hero__trust .s-icon { color: var(--s-dusk); }
-.sh-hero__media { flex: 1 1 520px; min-width: 0; position: relative; }
-.sh-hero__media .s-ph__brief { max-width: 360px; }
+.sh-hero__trust .s-icon { color: var(--s-indigo); }
+.sh-hero__trust-short { display: none; }
 .sh-hero__review {
-  position: absolute; left: 24px; bottom: -28px; max-width: 320px; background: var(--s-white); border-radius: 20px;
-  padding: 18px 20px; box-shadow: var(--s-shadow); display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;
+  position: absolute; right: max(var(--s-pad-x), calc((100% - 1400px) / 2 + var(--s-pad-x))); bottom: 32px; z-index: 1;
+  max-width: 300px; background: var(--s-white); border-radius: 20px; padding: 16px 18px;
+  box-shadow: var(--s-shadow); display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;
 }
-.sh-hero__review p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--s-ink); }
+.sh-hero__review p { margin: 0; font-size: 14px; line-height: 1.45; color: var(--s-ink); }
 .sh-hero__review-by { font-size: 12px; color: var(--s-muted); }
+.sh-hero__title-mobile { display: none; }
+
+/* Tablet: same composition, narrower copy, a wider fade so text stays readable */
+@media (min-width: 750px) and (max-width: 989px) {
+  .sh-hero__inner { min-height: 520px; padding-top: 48px; padding-bottom: 48px; }
+  .sh-hero__copy { max-width: 420px; gap: 16px; }
+  .sh .sh-hero__title { font-size: 40px; }
+  .sh-hero__sub { font-size: 16px; }
+  .sh-hero__media::after { background: linear-gradient(90deg, rgba(243, 241, 251, 0.97) 0%, rgba(243, 241, 251, 0.92) 42%, rgba(243, 241, 251, 0.5) 62%, rgba(243, 241, 251, 0) 80%); }
+  .sh-hero__review { display: none; }
+}
+
+/* Phones: photo first, then the copy */
+@media (max-width: 749px) {
+  .sh-hero { --sh-hero-mh: clamp(260px, 38vh, 340px); display: flex; flex-direction: column; }
+  .sh-hero__media { position: relative; inset: auto; z-index: 0; height: var(--sh-hero-mh); }
+  .sh-hero__img { object-position: var(--sh-hero-pos-m, 50% 40%); }
+  .sh-hero__media::after { background: linear-gradient(180deg, rgba(243, 241, 251, 0) 70%, rgba(243, 241, 251, 1) 100%); }
+  .sh-hero__ph.s-ph { padding: 20px; background: var(--s-mist); }
+  .sh-hero__review { display: none; }
+  .sh-hero__inner { position: static; min-height: 0; padding: 18px var(--s-pad-x) 28px; }
+  .sh-hero__copy { gap: 14px; }
+  .sh-hero__rating { position: absolute; z-index: 1; left: var(--s-pad-x); top: calc(var(--sh-hero-mh) - 46px); padding: 6px 12px; font-size: 13px; background: rgba(255, 255, 255, 0.92); }
+  .sh .sh-hero__title { font-size: 34px; line-height: 1.1; }
+  .sh-hero__sub { font-size: 16px; }
+  .sh-hero__ctas { flex-direction: column; align-items: stretch; gap: 12px; margin-top: 4px; }
+  .sh-hero__primary { width: 100%; min-height: 56px; }
+  .sh a.sh-hero__secondary { align-self: center; min-height: 40px; font-size: 16px; }
+  .sh-hero__ctas { gap: 4px; }
+  .sh-hero__trust { justify-content: space-between; gap: 6px 8px; font-size: 12.5px; }
+  .sh-hero__trust li { gap: 5px; white-space: nowrap; }
+  .sh-hero__trust .s-icon { width: 16px; height: 16px; }
+  .sh-hero__trust-full { display: none; }
+  .sh-hero__trust-short { display: inline; }
+  .sh-hero__title-desktop { display: none; }
+  .sh-hero__title-mobile { display: inline; }
+  p.sh-hero__title-mobile { display: block; }
+}
 
 /* ---------- Bestsellers ---------- */
 .sh-products__all { color: var(--s-indigo); }
@@ -162,18 +217,6 @@
 .sh-ring__track { stroke: var(--s-lavender); }
 .sh-ring__arc { stroke: var(--s-peach); }
 
-/* Compact hero: keep the next section (press bar) in view on first load so
-   shoppers can see there is more below. */
-.sh-hero__inner { padding-top: 40px; padding-bottom: 40px; gap: 40px; }
-.sh-hero__copy { gap: 16px; }
-.sh-hero__media > .s-ph, .sh-hero__media > .s-media { aspect-ratio: 16 / 10 !important; }
-.sh-hero__review { bottom: 20px; }
-@media (min-width: 990px) {
-  .sh-hero__media > .s-ph, .sh-hero__media > .s-media {
-    aspect-ratio: auto !important;
-    height: clamp(340px, calc(100vh - 320px), 460px);
-  }
-}
 
 /* ---------- Comparison: toggle (only visible on phones) ---------- */
 .sh-compare__details > summary { display: none; }
@@ -284,14 +327,4 @@
   .sh-reviews { padding-top: 40px; }
   .sh-reviews__list { display: flex; }
 }
-@media (max-width: 749px) {
-  .sh-hero__review { position: relative; left: auto; bottom: auto; max-width: none; margin: -40px 16px 0; }
-}
 
-/* Hero: separate, shorter headline on phones */
-.sh-hero__title-mobile { display: none; }
-@media (max-width: 749px) {
-  .sh-hero__title-desktop { display: none; }
-  .sh-hero__title-mobile { display: inline; }
-  p.sh-hero__title-mobile { display: block; }
-}

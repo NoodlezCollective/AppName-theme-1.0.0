@@ -7,21 +7,24 @@
           "type": "trust",
           "settings": {
             "icon": "truck",
-            "text": "Free shipping over $[X]"
+            "text": "Free shipping over $[X]",
+            "short_text": "Free shipping"
           }
         },
         "trust_trial": {
           "type": "trust",
           "settings": {
             "icon": "moon",
-            "text": "[100]-night trial"
+            "text": "[100]-night trial",
+            "short_text": "[100] nights"
           }
         },
         "trust_warranty": {
           "type": "trust",
           "settings": {
             "icon": "shield-check",
-            "text": "[Lifetime] warranty"
+            "text": "[Lifetime] warranty",
+            "short_text": "[Lifetime] warranty"
           }
         }
       },
@@ -33,19 +36,20 @@
       "settings": {
         "rating_label": "{count}+ Happy Sleepers",
         "rating_aria": "Rated [4.8] out of 5",
-        "heading": "Sleep Cooler. Wake Softer. Cloud-Like Comfort for Every Kind of Sleeper.",
-        "subheading": "Pillows that align and comforters that adapt, designed around the way you actually sleep. Try any of them for [100] nights.",
+        "heading": "Sleep Cooler. Wake Softer.",
+        "subheading": "Cloud-like pillows and comforters for every kind of sleeper. Try them for [100] nights.",
         "primary_label": "Shop Bestsellers",
         "primary_url": "/collections/all",
         "secondary_label": "Find My Match",
-        "image_alt": "Woman asleep on a {AppName} pillow under a {AppName} comforter",
+        "image_alt": "Friends laughing in a lavender-lit bed with {AppName} pillows and comforter",
         "shot_code": "H-01 · Hero lifestyle",
-        "shot_brief": "Woman asleep on CloudAlign Pillow under the CloudCool Comforter, warm sunset light through sheer curtains, lavender bedding",
+        "shot_brief": "Two or three people laughing in bed under the CloudCool Comforter on CloudAlign Pillows, soft dusk light, lavender bedding, calm space on the left",
         "placeholder_label": "Photo placeholder H-01",
         "show_review": true,
         "review_quote": "\"[Short verified review about sleeping cooler, from your review app]\"",
         "review_name": "[Reviewer name]",
-        "review_verified": "✓ Verified Buyer"
+        "review_verified": "✓ Verified Buyer",
+        "secondary_style": "link"
       }
     },
     "press": {
