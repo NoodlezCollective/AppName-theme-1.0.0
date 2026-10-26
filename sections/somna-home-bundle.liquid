@@ -1,0 +1,405 @@
+{%- comment -%}
+  Somna "Bundle & save" builder. Shoppers pick a pillow (quantity 1 or 2), a
+  comforter and an optional add-on; assets/somna-bundle.js keeps the summary
+  current and adds every chosen variant to the cart in one request
+  (window.theme.cart.add). Without JavaScript the form posts the default picks
+  to /cart/add as items[][id] / items[][quantity].
+
+  The theme cannot discount the cart itself. Savings are only shown when
+  "Discount is live" is ticked, which the merchant does after creating the
+  matching automatic discount in Shopify Admin (see the schema info).
+  Tokens: {max}, {d2}, {d3}, {AppName}.
+{%- endcomment -%}
+{{ 'somna-home.css' | asset_url | stylesheet_tag }}
+{{ 'somna-bundle.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign brand = settings.brand_name
+  assign sid = section.id
+  assign live = section.settings.discount_is_live
+  assign d2 = section.settings.discount_2 | default: 0 | at_least: 0 | at_most: 90 | round
+  assign d3 = section.settings.discount_3 | default: 0 | at_least: 0 | at_most: 90 | round
+  assign dmax = d2 | at_least: d3
+  assign d2_s = d2 | append: ''
+  assign d3_s = d3 | append: ''
+  assign dmax_s = dmax | append: ''
+  assign limit = section.settings.options_to_show | default: 3
+
+  if live
+    assign eyebrow = section.settings.eyebrow
+    assign heading = section.settings.heading
+    assign body = section.settings.body
+  else
+    assign eyebrow = section.settings.eyebrow_off
+    assign heading = section.settings.heading_off
+    assign body = section.settings.body_off
+  endif
+  assign eyebrow = eyebrow | replace: '{AppName}', brand | replace: '{max}', dmax_s | replace: '{d2}', d2_s | replace: '{d3}', d3_s
+  assign heading = heading | replace: '{AppName}', brand | replace: '{max}', dmax_s | replace: '{d2}', d2_s | replace: '{d3}', d3_s
+  assign body = body | replace: '{AppName}', brand | replace: '{max}', dmax_s | replace: '{d2}', d2_s | replace: '{d3}', d3_s
+  assign hint_text = section.settings.hint_text | replace: '{AppName}', brand
+  assign note_live = section.settings.note_live | replace: '{AppName}', brand
+  assign note_off = section.settings.note_off | replace: '{AppName}', brand
+  assign button_label = section.settings.button_label | default: 'Add bundle to cart'
+
+  assign pillow_col = section.settings.pillow_collection
+  if pillow_col == blank
+    assign pillow_col = collections['pillows']
+  endif
+  assign comforter_col = section.settings.comforter_collection
+  if comforter_col == blank
+    assign comforter_col = collections['comforters']
+  endif
+  assign pillow_real = false
+  if pillow_col != blank and pillow_col.products_count > 0
+    assign pillow_real = true
+  endif
+  assign comforter_real = false
+  if comforter_col != blank and comforter_col.products_count > 0
+    assign comforter_real = true
+  endif
+  assign ready = false
+  if pillow_real and comforter_real
+    assign ready = true
+  endif
+
+  assign addon = section.settings.addon_product
+  assign show_addon = section.settings.show_addon
+
+  assign step_keys = 'pillow,comforter' | split: ','
+  assign pick_pillow_price = 0
+  assign pick_comforter_price = 0
+  assign pick_pillow_variant = nil
+  assign pick_comforter_variant = nil
+  assign pick_pillow_title = ''
+  assign pick_comforter_title = ''
+-%}
+<section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} s-section sb" aria-labelledby="SomnaBundleTitle-{{ sid }}"
+  data-sb
+  data-live="{{ live }}"
+  data-d2="{{ d2 }}"
+  data-d3="{{ d3 }}"
+  data-ready="{{ ready }}"
+  data-hint="{{ hint_text | escape }}">
+  <div class="s-wrap">
+    <div class="sb__card">
+      <div class="sb__head">
+        {%- if eyebrow != blank -%}<span class="s-eyebrow">{{ eyebrow }}</span>{%- endif -%}
+        <h2 id="SomnaBundleTitle-{{ sid }}" class="s-h2 s-balance sb__title">{{ heading }}</h2>
+        {%- if body != blank -%}<p class="sb__lead">{{ body }}</p>{%- endif -%}
+      </div>
+
+      <form class="sb__form" action="{{ routes.cart_add_url }}" method="post" data-sb-form>
+        <div class="sb__steps">
+          {%- for key in step_keys -%}
+            {%- liquid
+              if key == 'pillow'
+                assign col = pillow_col
+                assign real = pillow_real
+                assign step_label = section.settings.step1_label
+                assign step_num = 1
+                assign ph_names = 'CloudAlign Pillow|CloudCool Pillow|MarshMellow Pillow' | split: '|'
+                assign ph_briefs = 'CloudAlign Pillow on lavender sweep|CloudCool Pillow, cooling cover detail|MarshMellow Pillow, soft loft' | split: '|'
+              else
+                assign col = comforter_col
+                assign real = comforter_real
+                assign step_label = section.settings.step2_label
+                assign step_num = 2
+                assign ph_names = 'CloudCool Comforter|MarshMellow Comforter|CloudControl Comforter' | split: '|'
+                assign ph_briefs = 'CloudCool Comforter, folded stack|MarshMellow Comforter, loose drape|CloudControl Comforter, corner flipped' | split: '|'
+              endif
+              assign group = 'SbPick-' | append: key | append: '-' | append: sid
+              assign found = false
+            -%}
+            <fieldset class="sb-step" data-sb-step="{{ key }}">
+              <legend class="sb-step__title"><span class="sb-step__num" aria-hidden="true">{{ step_num }}</span><span class="s-sr">Step {{ step_num }}: </span>{{ step_label }}</legend>
+              <div class="sb-step__opts sh-swipe sh-swipe--narrow" data-sh-swipe>
+                {%- if real -%}
+                  {%- for product in col.products limit: limit -%}
+                    {%- liquid
+                      assign v = product.selected_or_first_available_variant
+                      assign is_checked = false
+                      if found == false and product.available
+                        assign is_checked = true
+                        assign found = true
+                        if key == 'pillow'
+                          assign pick_pillow_price = v.price
+                          assign pick_pillow_variant = v
+                          assign pick_pillow_title = product.title
+                        else
+                          assign pick_comforter_price = v.price
+                          assign pick_comforter_variant = v
+                          assign pick_comforter_title = product.title
+                        endif
+                      endif
+                      assign input_id = group | append: '-' | append: forloop.index
+
+                      assign size_pos = 0
+                      for opt in product.options_with_values
+                        assign opt_name = opt.name | downcase
+                        if opt_name contains 'size'
+                          assign size_pos = opt.position
+                          break
+                        endif
+                      endfor
+                    -%}
+                    <div class="sb-opt{% if is_checked %} is-picked{% endif %}" data-sb-opt>
+                      <input class="sb-opt__input" type="radio" id="{{ input_id }}" name="{{ group }}"
+                        value="{{ v.id }}"
+                        data-sb-input
+                        data-title="{{ product.title | escape }}"
+                        data-variant="{% unless product.has_only_default_variant %}{{ v.title | escape }}{% endunless %}"
+                        data-price="{{ v.price }}"
+                        {% if is_checked %}checked{% endif %}
+                        {% unless product.available %}disabled{% endunless %}>
+                      <label class="sb-opt__card" for="{{ input_id }}">
+                        <span class="sb-opt__media">
+                          {%- if product.featured_media != blank -%}
+                            {{ product.featured_media.preview_image | image_url: width: 600, height: 600, crop: 'center' | image_tag: widths: '160, 320, 480, 600', sizes: '(min-width: 750px) 88px, 60vw', loading: 'lazy', alt: '' }}
+                          {%- else -%}
+                            <span class="s-ph sb-opt__ph" aria-hidden="true">{%- render 'somna-icon', name: 'camera', size: 22 -%}</span>
+                          {%- endif -%}
+                        </span>
+                        <span class="sb-opt__body">
+                          <span class="sb-opt__name">{{ product.title }}</span>
+                          <span class="sb-opt__price" data-sb-card-price>
+                            {%- if product.available -%}{{ v.price | money }}{%- else -%}Sold out{%- endif -%}
+                          </span>
+                        </span>
+                        <span class="sb-opt__tick" aria-hidden="true">{%- render 'somna-icon', name: 'check', size: 16 -%}</span>
+                      </label>
+                      {%- unless product.has_only_default_variant -%}
+                        <div class="sb-opt__variant" data-sb-variant-wrap hidden>
+                          <label class="s-sr" for="{{ input_id }}-v">{{ product.options | join: ' / ' }} for {{ product.title }}</label>
+                          <select id="{{ input_id }}-v" class="sb-opt__select" data-sb-variant>
+                            {%- for variant in product.variants -%}
+                              {%- liquid
+                                if size_pos > 0 and product.options.size > 1
+                                  case size_pos
+                                    when 1
+                                      assign vlabel = variant.option1
+                                    when 2
+                                      assign vlabel = variant.option2
+                                    else
+                                      assign vlabel = variant.option3
+                                  endcase
+                                  for opt in product.options_with_values
+                                    if opt.position != size_pos
+                                      case opt.position
+                                        when 1
+                                          assign vpart = variant.option1
+                                        when 2
+                                          assign vpart = variant.option2
+                                        else
+                                          assign vpart = variant.option3
+                                      endcase
+                                      assign vlabel = vlabel | append: ' / ' | append: vpart
+                                    endif
+                                  endfor
+                                else
+                                  assign vlabel = variant.title
+                                endif
+                              -%}
+                              <option value="{{ variant.id }}" data-price="{{ variant.price }}" data-label="{{ vlabel | escape }}"
+                                {%- if variant.id == v.id %} selected{% endif -%}
+                                {%- unless variant.available %} disabled{% endunless -%}>
+                                {{- vlabel }}{% unless variant.available %} (sold out){% endunless %}{% if product.price_varies %} · {{ variant.price | money }}{% endif -%}
+                              </option>
+                            {%- endfor -%}
+                          </select>
+                        </div>
+                      {%- endunless -%}
+                    </div>
+                  {%- endfor -%}
+                {%- else -%}
+                  {%- for ph_name in ph_names -%}
+                    {%- assign input_id = group | append: '-' | append: forloop.index -%}
+                    {%- liquid
+                      assign ph_n = forloop.index
+                      if key == 'comforter'
+                        assign ph_n = forloop.index | plus: 3
+                      endif
+                      assign ph_code = 'P-0' | append: ph_n
+                    -%}
+                    <div class="sb-opt sb-opt--ph{% if forloop.first %} is-picked{% endif %}" data-sb-opt>
+                      <input class="sb-opt__input" type="radio" id="{{ input_id }}" name="{{ group }}" value="" data-sb-input data-title="{{ ph_name | escape }}" data-price=""{% if forloop.first %} checked{% endif %}>
+                      <label class="sb-opt__card" for="{{ input_id }}">
+                        <span class="sb-opt__media">
+                          {%- render 'somna-media', code: ph_code, brief: ph_briefs[forloop.index0], ratio: '1 / 1', radius: 12, class: 'sb-opt__ph sh-ph-sm', label: 'Photo placeholder', icon: 'camera' -%}
+                        </span>
+                        <span class="sb-opt__body">
+                          <span class="sb-opt__name">{{ ph_name }}</span>
+                          <span class="sb-opt__price">[$Price]</span>
+                        </span>
+                        <span class="sb-opt__tick" aria-hidden="true">{%- render 'somna-icon', name: 'check', size: 16 -%}</span>
+                      </label>
+                    </div>
+                  {%- endfor -%}
+                {%- endif -%}
+              </div>
+
+              {%- if key == 'pillow' -%}
+                <div class="sb-qty" role="radiogroup" aria-label="{{ section.settings.qty_label | escape }}">
+                  <span class="sb-qty__label" aria-hidden="true">{{ section.settings.qty_label }}</span>
+                  <input class="s-sr" type="radio" id="SbQty1-{{ sid }}" name="SbQty-{{ sid }}" value="1" data-sb-qty checked>
+                  <label class="s-chip sb-qty__chip" for="SbQty1-{{ sid }}">{{ section.settings.qty_1_label }}</label>
+                  <input class="s-sr" type="radio" id="SbQty2-{{ sid }}" name="SbQty-{{ sid }}" value="2" data-sb-qty>
+                  <label class="s-chip sb-qty__chip" for="SbQty2-{{ sid }}">{{ section.settings.qty_2_label }}</label>
+                </div>
+              {%- endif -%}
+            </fieldset>
+          {%- endfor -%}
+
+          {%- if show_addon -%}
+            {%- liquid
+              assign addon_ok = false
+              if addon != blank and addon.available
+                assign addon_ok = true
+                assign addon_v = addon.selected_or_first_available_variant
+              endif
+              assign addon_name = section.settings.addon_name
+              if addon != blank
+                assign addon_name = addon.title
+              endif
+            -%}
+            <fieldset class="sb-step sb-step--addon" data-sb-step="addon">
+              <legend class="sb-step__title"><span class="sb-step__num" aria-hidden="true">3</span><span class="s-sr">Step 3: </span>{{ section.settings.step3_label }} <span class="sb-step__opt">{{ section.settings.optional_label }}</span></legend>
+              <div class="sb-opt sb-opt--addon{% unless addon_ok %} sb-opt--ph{% endunless %}" data-sb-opt>
+                <input class="sb-opt__input" type="checkbox" id="SbAddon-{{ sid }}"
+                  {%- if addon_ok %} name="items[][id]" value="{{ addon_v.id }}" data-price="{{ addon_v.price }}" data-variant="{% unless addon.has_only_default_variant %}{{ addon_v.title | escape }}{% endunless %}"{% else %} value="" data-price=""{% if addon != blank %} disabled{% endif %}{% endif %}
+                  data-sb-addon data-title="{{ addon_name | escape }}">
+                <label class="sb-opt__card" for="SbAddon-{{ sid }}">
+                  <span class="sb-opt__media">
+                    {%- if addon.featured_media != blank -%}
+                      {{ addon.featured_media.preview_image | image_url: width: 300, height: 300, crop: 'center' | image_tag: widths: '120, 200, 300', sizes: '88px', loading: 'lazy', alt: '' }}
+                    {%- else -%}
+                      {%- render 'somna-media', code: 'P-07', brief: 'Silk Sleep Mask, folded on lavender', ratio: '1 / 1', radius: 12, class: 'sb-opt__ph sh-ph-sm', label: 'Photo placeholder', icon: 'camera' -%}
+                    {%- endif -%}
+                  </span>
+                  <span class="sb-opt__body">
+                    <span class="sb-opt__name">{{ addon_name }}</span>
+                    {%- if section.settings.addon_line != blank -%}<span class="sb-opt__line">{{ section.settings.addon_line }}</span>{%- endif -%}
+                    <span class="sb-opt__price">
+                      {%- if addon_ok -%}+ {{ addon_v.price | money }}{%- elsif addon != blank -%}Sold out{%- else -%}+ [$Price]{%- endif -%}
+                    </span>
+                  </span>
+                  <span class="sb-opt__tick sb-opt__tick--box" aria-hidden="true">{%- render 'somna-icon', name: 'check', size: 16 -%}</span>
+                </label>
+              </div>
+            </fieldset>
+          {%- endif -%}
+        </div>
+
+        {%- liquid
+          assign subtotal = pick_pillow_price | plus: pick_comforter_price
+          assign count = 2
+          assign pct = d2
+          assign savings = subtotal | times: pct | divided_by: 100.0 | round
+          assign total = subtotal
+          if live
+            assign total = subtotal | minus: savings
+          endif
+          assign has_pills = false
+          if ready and pick_pillow_variant != nil and pick_comforter_variant != nil
+            assign has_pills = true
+          endif
+        -%}
+        <aside class="sb-sum" aria-labelledby="SomnaBundleSum-{{ sid }}">
+          <h3 id="SomnaBundleSum-{{ sid }}" class="sb-sum__title">{{ section.settings.summary_title }}</h3>
+          <ul class="sb-sum__lines" data-sb-lines>
+            {%- if has_pills -%}
+              <li><span class="sb-sum__name">{{ pick_pillow_title }}{% unless pick_pillow_variant.product.has_only_default_variant %}<small>{{ pick_pillow_variant.title }}</small>{% endunless %}</span><span>{{ pick_pillow_price | money }}</span></li>
+              <li><span class="sb-sum__name">{{ pick_comforter_title }}{% unless pick_comforter_variant.product.has_only_default_variant %}<small>{{ pick_comforter_variant.title }}</small>{% endunless %}</span><span>{{ pick_comforter_price | money }}</span></li>
+            {%- else -%}
+              <li><span class="sb-sum__name">Pillow</span><span>[$Price]</span></li>
+              <li><span class="sb-sum__name">Comforter</span><span>[$Price]</span></li>
+            {%- endif -%}
+          </ul>
+          <div class="sb-sum__totals" aria-live="polite" aria-atomic="true" data-sb-totals>
+            <span class="sb-sum__count" data-sb-count>{{ count }} items</span>
+            {%- if live -%}
+              <div class="sb-sum__row" data-sb-discount-row>
+                <span>{{ section.settings.discount_label }} <span data-sb-pct>&minus;{{ pct }}%</span></span>
+                <span data-sb-discount>{% if has_pills %}&minus;{{ savings | money }}{% else %}&minus;[$X]{% endif %}</span>
+              </div>
+            {%- endif -%}
+            <div class="sb-sum__total">
+              <span class="sb-sum__total-label">{{ section.settings.total_label }}</span>
+              <span class="sb-sum__amounts">
+                {%- if live -%}<s class="sb-sum__was" data-sb-was><span class="s-sr">Regular price </span>{% if has_pills %}{{ subtotal | money }}{% else %}[$Was]{% endif %}</s>{%- endif -%}
+                <strong class="sb-sum__now" data-sb-total>{% if has_pills %}{{ total | money }}{% else %}[$Total]{% endif %}</strong>
+              </span>
+            </div>
+            {%- if live -%}
+              <span class="sb-sum__save" data-sb-save>You save {% if has_pills %}{{ savings | money }}{% else %}[$X]{% endif %}</span>
+              <p class="sb-sum__hint" data-sb-hint hidden></p>
+            {%- endif -%}
+          </div>
+          <p class="sb-sum__note">
+            {%- if live -%}{{ note_live }}{%- else -%}{{ note_off }}{%- endif -%}
+          </p>
+          {%- if has_pills -%}
+            <input type="hidden" name="items[][id]" value="{{ pick_pillow_variant.id }}" data-sb-field="pillow">
+            <input type="hidden" name="items[][quantity]" value="1" data-sb-field="pillow-qty">
+            <input type="hidden" name="items[][id]" value="{{ pick_comforter_variant.id }}" data-sb-field="comforter">
+            <input type="hidden" name="items[][quantity]" value="1">
+            <button type="submit" class="s-btn s-btn--lg s-btn--block sb-sum__btn" data-sb-submit>{{ button_label }}</button>
+            <noscript><p class="sb-sum__note">{{ section.settings.noscript_note }}</p></noscript>
+          {%- else -%}
+            <button type="button" class="s-btn s-btn--lg s-btn--block sb-sum__btn" disabled>{{ button_label }}</button>
+            {%- if request.design_mode -%}<p class="sb-sum__note">Add products to your pillow and comforter collections to activate the builder.</p>{%- endif -%}
+          {%- endif -%}
+          <p class="sb-sum__msg" role="status" data-sb-msg></p>
+        </aside>
+      </form>
+    </div>
+  </div>
+</section>
+<script src="{{ 'somna-home.js' | asset_url }}" defer></script>
+<script src="{{ 'somna-bundle.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Somna bundle builder",
+  "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
+    {"type": "header", "content": "Products"},
+    {"type": "collection", "id": "pillow_collection", "label": "Pillow collection", "info": "Blank uses the collection with the handle \"pillows\". While it is empty, placeholder cards show and the button is disabled."},
+    {"type": "collection", "id": "comforter_collection", "label": "Comforter collection", "info": "Blank uses the collection with the handle \"comforters\"."},
+    {"type": "range", "id": "options_to_show", "label": "Products per step", "min": 2, "max": 4, "step": 1, "default": 3},
+    {"type": "checkbox", "id": "show_addon", "label": "Show add-on step", "default": true},
+    {"type": "product", "id": "addon_product", "label": "Add-on product", "info": "For example the Silk Sleep Mask. Shoppers tick it to add it to the bundle."},
+    {"type": "text", "id": "addon_name", "label": "Add-on placeholder name", "default": "Silk Sleep Mask", "info": "Shown until a product is picked."},
+    {"type": "text", "id": "addon_line", "label": "Add-on one-liner", "default": "Blocks light, kind to skin and hair."},
+    {"type": "header", "content": "Bundle discount"},
+    {"type": "number", "id": "discount_2", "label": "Discount for 2 items (%)", "default": 10},
+    {"type": "number", "id": "discount_3", "label": "Discount for 3 or more items (%)", "default": 15},
+    {"type": "checkbox", "id": "discount_is_live", "label": "Discount is live", "default": false, "info": "The theme cannot discount the cart. Before ticking this, create a matching automatic discount in Shopify Admin > Discounts > Create discount > Amount off products (Automatic discount): percentage = the values above, applies to your pillow, comforter and add-on collections, minimum purchase requirement = minimum quantity of items 2 (make a second one at 3 items for the higher %; Shopify applies the best one). Or use a Buy X get Y discount. While unticked, the builder shows full prices and makes no savings claim."},
+    {"type": "header", "content": "Text while the discount is live"},
+    {"type": "paragraph", "content": "Tokens: {max} (highest %), {d2}, {d3}, {AppName}."},
+    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Bundle & save"},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "Build Your Sleep Stack, Save Up to {max}%"},
+    {"type": "textarea", "id": "body", "label": "Text", "default": "Pick a pillow and a comforter: 2 items save {d2}%, 3 or more save {d3}%."},
+    {"type": "text", "id": "note_live", "label": "Checkout note", "default": "Bundle savings applied automatically at checkout. No code needed."},
+    {"type": "text", "id": "hint_text", "label": "Next-tier hint", "default": "Add one more item to save {pct}%", "info": "Token: {pct}."},
+    {"type": "header", "content": "Text while the discount is off"},
+    {"type": "text", "id": "eyebrow_off", "label": "Eyebrow", "default": "Build a bundle"},
+    {"type": "text", "id": "heading_off", "label": "Heading", "default": "Build Your Sleep Stack"},
+    {"type": "textarea", "id": "body_off", "label": "Text", "default": "Pick a pillow and a comforter and add your whole set to the cart in one go."},
+    {"type": "text", "id": "note_off", "label": "Note", "default": "Shipping and any discounts are calculated at checkout."},
+    {"type": "header", "content": "Labels"},
+    {"type": "text", "id": "step1_label", "label": "Step 1", "default": "Pick your pillow"},
+    {"type": "text", "id": "qty_label", "label": "Pillow quantity label", "default": "How many?"},
+    {"type": "text", "id": "qty_1_label", "label": "Quantity 1 label", "default": "1 pillow"},
+    {"type": "text", "id": "qty_2_label", "label": "Quantity 2 label", "default": "2 pillows"},
+    {"type": "text", "id": "step2_label", "label": "Step 2", "default": "Pick your comforter"},
+    {"type": "text", "id": "step3_label", "label": "Step 3", "default": "Add-on"},
+    {"type": "text", "id": "optional_label", "label": "Optional label", "default": "(optional)"},
+    {"type": "text", "id": "summary_title", "label": "Summary title", "default": "Your bundle"},
+    {"type": "text", "id": "discount_label", "label": "Discount row label", "default": "Bundle discount"},
+    {"type": "text", "id": "total_label", "label": "Total label", "default": "Bundle total"},
+    {"type": "text", "id": "button_label", "label": "Button label", "default": "Add bundle to cart"},
+    {"type": "text", "id": "noscript_note", "label": "No-JavaScript note", "default": "Without JavaScript the first option of each step is added. You can change sizes in the cart."}
+  ],
+  "presets": [{"name": "Somna bundle builder"}]
+}
+{% endschema %}

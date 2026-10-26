@@ -5,7 +5,7 @@
   the design's menu (Shop All, Pillows, Comforters, Bundles, Support).
   From 990px, items linking to a collection (or with child links) get a
   dropdown panel (snippets/somna-menu-item.liquid, somna-menu-panel.liquid,
-  assets/somna-menu.js / somna-menu.css).
+  assets/somna-menu.js / theme.css).
   Below 768px the navigation moves into the mobile drawer
   (sections/mobile-menu.liquid). The cart toggle is re-rendered through the
   Section Rendering API (?sections=header) by assets/theme.js.
@@ -41,7 +41,6 @@
   assign support_url = base | append: '/pages/support'
   assign fallback_urls = routes.all_products_collection_url | append: '|' | append: pillows_url | append: '|' | append: comforters_url | append: '|' | append: bundles_url | append: '|' | append: support_url | split: '|'
 -%}
-{{ 'somna-menu.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'somna-menu.js' | asset_url }}" defer></script>
 <header class="site-header sc-header" data-section-id="{{ section.id }}" data-section-type="header">
   <div class="sc-header__inner">

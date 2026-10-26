@@ -5,9 +5,8 @@
   - While typing: assets/collection.js (initPredictive) fetches
     sections/predictive-search (snippets/predictive-results) into [data-ps-live].
   Both panels hold a role="listbox"; the input's aria-controls points at the
-  visible one. Styles: assets/somna-search.css.
+  visible one. Styles: assets/theme.css.
 {%- endcomment -%}
-{{ 'somna-search.css' | asset_url | stylesheet_tag }}
 {%- liquid
   assign popular_terms = section.settings.popular_searches | split: ','
   assign bestsellers = section.settings.bestsellers_collection

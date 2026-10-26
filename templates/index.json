@@ -185,6 +185,20 @@
         "button_url": "/collections/all"
       }
     },
+    "bundle": {
+      "type": "somna-home-bundle",
+      "settings": {
+        "hide_mobile": false,
+        "pillow_collection": "pillows",
+        "comforter_collection": "comforters",
+        "options_to_show": 3,
+        "show_addon": true,
+        "addon_name": "Silk Sleep Mask",
+        "discount_2": 10,
+        "discount_3": 15,
+        "discount_is_live": false
+      }
+    },
     "categories": {
       "type": "somna-home-categories",
       "blocks": {
@@ -637,6 +651,7 @@
     "reviews",
     "bestsellers",
     "free_gift",
+    "bundle",
     "categories",
     "why",
     "quiz",

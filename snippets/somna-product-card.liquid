@@ -40,6 +40,28 @@
     assign price = product.price_min
     assign compare_at = product.compare_at_price_min
     assign variant = product.selected_or_first_available_variant
+    comment
+      Savings: the biggest saving across variants, as an amount (price pill)
+      and as a percentage (image badge, shown from 5%). "Save up to" when prices vary.
+    endcomment
+    assign save_amount = 0
+    assign save_pct = 0
+    for v in product.variants
+      if v.compare_at_price > v.price
+        assign v_save = v.compare_at_price | minus: v.price
+        if v_save > save_amount
+          assign save_amount = v_save
+        endif
+        assign v_pct = v_save | times: 100.0 | divided_by: v.compare_at_price | round
+        if v_pct > save_pct
+          assign save_pct = v_pct
+        endif
+      endif
+    endfor
+    assign save_label = 'Save'
+    if product.price_varies
+      assign save_label = 'Save up to'
+    endif
   else
     assign url = url | default: routes.all_products_collection_url
     assign name = name | default: 'Product name'
@@ -47,7 +69,16 @@
 -%}
 <article class="s-card">
   <a class="s-card__media" href="{{ url }}" aria-label="{{ name | escape }}">
-    {%- if badge != blank -%}<span class="s-badge s-card__badge">{{ badge }}</span>{%- endif -%}
+    {%- if badge != blank and save_pct >= 5 -%}
+      <span class="s-card__badge" style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px;">
+        <span class="s-badge">{{ badge }}</span>
+        <span class="s-badge">{{ save_label }} {{ save_pct }}%</span>
+      </span>
+    {%- elsif badge != blank -%}
+      <span class="s-badge s-card__badge">{{ badge }}</span>
+    {%- elsif save_pct >= 5 -%}
+      <span class="s-badge s-card__badge">{{ save_label }} {{ save_pct }}%</span>
+    {%- endif -%}
     {%- if product.featured_media != blank -%}
       {{ product.featured_media.preview_image | image_url: width: 1200, height: 1200, crop: 'center' | image_tag: widths: '300, 400, 600, 800, 1000, 1200', sizes: sizes, loading: loading, alt: '' }}
       {%- if product.media.size > 1 -%}
@@ -104,7 +135,9 @@
       <span class="s-price__now">{% if product.price_varies %}From {% endif %}{{ price | money }}</span>
       {%- if compare_at > price -%}
         <s class="s-price__was"><span class="s-sr">Regular price </span>{{ compare_at | money }}</s>
-        <span class="s-save">Save {{ compare_at | minus: price | money_without_trailing_zeros }}</span>
+      {%- endif -%}
+      {%- if save_amount > 0 -%}
+        <span class="s-save">{{ save_label }} {{ save_amount | money_without_trailing_zeros }}</span>
       {%- endif -%}
     {%- else -%}
       <span class="s-price__now">[$Price]</span><s class="s-price__was">[$Was]</s><span class="s-save">Save [$X]</span>
