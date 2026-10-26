@@ -58,7 +58,9 @@
 
     {%- if app_blocks.size > 0 -%}
       <div class="sh-reviews__app">
-        {%- for block in app_blocks -%}{% render block %}{%- endfor -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == '@app' -%}{% render block %}{%- endif -%}
+        {%- endfor -%}
       </div>
     {%- else -%}
       <ul class="sh-reviews__list sh-swipe" data-sh-swipe role="list">
