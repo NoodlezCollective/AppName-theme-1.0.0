@@ -1,143 +1,169 @@
 {%- assign brand_token = '{AppName}' -%}
 {%- comment -%}
-  Order summary (app/components/CartSummary.tsx): free-gift progress bar,
-  totals, discount / gift card panels, checkout and trust badges.
-  {% render 'cart-summary', cart: cart, layout: 'aside' | 'page' %}
-  Discount codes post to routes.cart_update_url (field "discount");
-  assets/theme.js submits them through the Ajax API and shows the result.
+  Cart summary pieces (Header.dc.html cart drawer), shared by the drawer and
+  the cart page.
+  {% render 'cart-summary', cart: cart, layout: 'aside' | 'page', part: 'gift' | 'upsell' | 'totals' %}
+  gift    free-gift progress (Theme settings > Cart reward)
+  upsell  "Complete your stack" card (Theme settings > Cart), hidden once the
+          product is in the cart; the drawer hides it at >= 820px where the
+          recommendations panel shows instead
+  totals  estimated total, note, Secure Checkout, trust line; on the cart
+          page also the discount code panel (data-cart-discount-form,
+          submitted through assets/theme.js)
 {%- endcomment -%}
 {%- liquid
   assign layout = layout | default: 'aside'
-  assign brand = settings.brand_name | default: '{AppName}'
-  assign summary_id = 'cart-' | append: layout | append: '-summary-title'
-  assign discount_input_id = 'cart-' | append: layout | append: '-discount-code'
-  assign gift_card_input_id = 'cart-' | append: layout | append: '-gift-card-code'
-
-  assign subtotal = cart.items_subtotal_price
-  assign threshold = settings.free_gift_threshold | default: 0 | times: 100
-  assign gift_label = settings.free_gift_label | replace: '{AppName}', brand
-  assign gift_code = settings.free_gift_code
-  if threshold > 0
-    assign remaining = threshold | minus: subtotal | at_least: 0
-    assign unlocked = false
-    if remaining <= 0
-      assign unlocked = true
-    endif
-    assign percent = subtotal | times: 100.0 | divided_by: threshold | round | at_most: 100
-  endif
-
-  assign applied_codes = ''
-  for application in cart.discount_applications
-    if application.type == 'discount_code'
-      if applied_codes == ''
-        assign applied_codes = application.title
-      else
-        assign applied_codes = applied_codes | append: ',' | append: application.title
-      endif
-    endif
-  endfor
-  assign applied_code_list = applied_codes | split: ','
-  if applied_codes == ''
-    assign applied_code_list = '' | split: ','
-  endif
-  assign discount_amount = cart.total_discount
+  assign part = part | default: 'totals'
+  assign brand = settings.brand_name | default: 'Somna'
 -%}
-<aside aria-labelledby="{{ summary_id }}" class="cart-summary cart-summary--{{ layout }}" data-cart-summary>
-  <h2 id="{{ summary_id }}" class="cart-summary__title">Order summary</h2>
-
-  {%- if threshold > 0 -%}
-    <div class="gift-bar{% if unlocked %} is-unlocked{% endif %}" role="status" aria-live="polite" data-gift-bar data-gift-threshold="{{ threshold }}">
-      <p class="gift-bar__text">
-        {%- if unlocked -%}
-          You unlocked {{ gift_label }}{% if gift_code != blank %} – use code <strong class="gift-bar__code">{{ gift_code }}</strong> at checkout{% endif %}.
-        {%- else -%}
-          Add <strong>{{ remaining | money }}</strong> more for {{ gift_label }}.
-        {%- endif -%}
-      </p>
-      <div class="gift-bar__track" role="progressbar" aria-label="Progress to your free gift" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ percent }}"><span class="gift-bar__fill" style="width:{{ percent }}%"></span></div>
-    </div>
-  {%- endif -%}
-
-  <dl class="cart-summary__rows">
-    <div class="cart-summary__row"><dt>Subtotal</dt><dd><span>{{ subtotal | money }}</span></dd></div>
-    {%- if discount_amount > 0 and applied_codes != '' -%}
-      <div class="cart-summary__row cart-summary__row--discount"><dt>Discount<span class="cart-summary__codes">{{ applied_code_list | join: ', ' }}</span></dt><dd>−<span>{{ discount_amount | money }}</span></dd></div>
-    {%- endif -%}
-    <div class="cart-summary__row cart-summary__row--total"><dt>Total</dt><dd><span>{{ cart.total_price | money }}</span></dd></div>
-  </dl>
-  <p class="cart-summary__note">Shipping &amp; taxes calculated at checkout.</p>
-
-  <div class="cart-summary__promos">
-    <details class="cart-promo"{% if applied_codes != '' %} open{% endif %}>
-      <summary class="cart-promo__summary"><span>Have a discount code?</span>{% render 'icon', name: 'chevron-down', size: 18, class: 'cart-promo__chevron' %}</summary>
-      <div class="cart-promo__panel">
-        {%- if applied_codes != '' -%}
-          <ul class="cart-chips" aria-label="Applied discount codes">
-            {%- for code in applied_code_list -%}
-              {%- assign remaining_codes = '' -%}
-              {%- for other in applied_code_list -%}
-                {%- if other == code -%}{%- continue -%}{%- endif -%}
-                {%- if remaining_codes == '' -%}{%- assign remaining_codes = other -%}{%- else -%}{%- assign remaining_codes = remaining_codes | append: ',' | append: other -%}{%- endif -%}
-              {%- endfor -%}
-              <li>
-                <form method="post" action="{{ routes.cart_update_url }}" data-cart-discount-form data-cart-discount-remove="{{ code | escape }}">
-                  <input type="hidden" name="discount" value="{{ remaining_codes | escape }}">
-                  <span class="cart-chip">{{ code }}<button aria-label="Remove discount code {{ code | escape }}" class="cart-chip__remove" type="submit">{% render 'icon', name: 'close', size: 12 %}</button></span>
-                </form>
-              </li>
-            {%- endfor -%}
-          </ul>
-        {%- endif -%}
-        <form method="post" action="{{ routes.cart_update_url }}" data-cart-discount-form data-applied-codes="{{ applied_codes | escape }}">
-          <div class="cart-promo__form">
-            <label for="{{ discount_input_id }}" class="sr-only">Discount code</label>
-            <input autocapitalize="characters" autocomplete="off" id="{{ discount_input_id }}" name="discount" placeholder="Enter code" spellcheck="false" type="text">
-            <button class="btn btn--secondary btn--md" type="submit" aria-label="Apply discount code"><span class="btn__label">Apply</span></button>
-          </div>
-        </form>
-        <div class="cart-promo__messages" aria-live="polite" data-cart-discount-messages></div>
+{%- case part -%}
+  {%- when 'gift' -%}
+    {%- liquid
+      assign subtotal = cart.items_subtotal_price
+      assign threshold = settings.free_gift_threshold | default: 0 | times: 100
+      assign gift_label = settings.free_gift_label | replace: brand_token, brand
+      if threshold > 0
+        assign remaining = threshold | minus: subtotal | at_least: 0
+        assign unlocked = false
+        if remaining <= 0
+          assign unlocked = true
+        endif
+        assign percent = subtotal | times: 100.0 | divided_by: threshold | round | at_most: 100
+      endif
+    -%}
+    {%- if threshold > 0 -%}
+      <div class="sc-gift" data-gift-bar data-gift-threshold="{{ threshold }}">
+        <span class="sc-gift__label" role="status">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f29a82" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13"/><path d="M12 7c-2-4-6-3-5-1s5 1 5 1 4 1 5-1-3-3-5 1"/></svg>
+          <span>
+            {%- if unlocked -%}
+              You’ve unlocked {{ gift_label }}!{% if settings.free_gift_code != blank %} Use code <strong class="sc-gift__code">{{ settings.free_gift_code }}</strong> at checkout.{% endif %}
+            {%- else -%}
+              You’re {{ remaining | money }} away from {{ gift_label }}
+            {%- endif -%}
+          </span>
+        </span>
+        <div class="sc-gift__track" role="progressbar" aria-label="Progress to free gift" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ percent }}"><span class="sc-gift__fill" style="width: {{ percent }}%;"></span></div>
       </div>
-    </details>
-    <details class="cart-promo">
-      <summary class="cart-promo__summary"><span>Have a gift card?</span>{% render 'icon', name: 'chevron-down', size: 18, class: 'cart-promo__chevron' %}</summary>
-      <div class="cart-promo__panel">
-        <form method="post" action="{{ routes.cart_url }}" data-cart-gift-card-form>
-          <div class="cart-promo__form">
-            <label for="{{ gift_card_input_id }}" class="sr-only">Gift card code</label>
-            <input autocomplete="off" id="{{ gift_card_input_id }}" name="giftCardCode" placeholder="Gift card code" spellcheck="false" type="text">
-            <button class="btn btn--secondary btn--md" type="submit" aria-label="Apply gift card code"><span class="btn__label">Apply</span></button>
-          </div>
-        </form>
-        <div class="cart-promo__messages" aria-live="polite" data-cart-gift-card-messages></div>
-      </div>
-    </details>
-  </div>
-
-  <div class="cart-summary__actions">
-    <form method="post" action="{{ routes.cart_url }}" data-cart-checkout-form>
-      <button class="btn btn--primary btn--lg btn--block" type="submit" name="checkout"><span class="btn__label">Checkout</span></button>
-    </form>
-    {%- if layout == 'aside' -%}
-      <button class="btn btn--ghost btn--md btn--block" type="button" data-drawer-close><span class="btn__label">Continue shopping</span></button>
-    {%- else -%}
-      <a class="btn btn--ghost btn--md btn--block" href="{{ routes.all_products_collection_url }}"><span class="btn__label">Continue shopping</span></a>
     {%- endif -%}
-  </div>
 
-  {%- assign badge_lines = settings.trust_badges | newline_to_br | split: '<br />' -%}
-  <ul class="trust-badges cart-summary__trust">
-    {%- for badge_line in badge_lines -%}
-      {%- assign badge = badge_line | strip -%}
-      {%- if badge == blank -%}{%- continue -%}{%- endif -%}
-      {%- assign badge_parts = badge | split: '|' -%}
-      {%- if badge_parts.size > 1 -%}
-        {%- assign badge_icon = badge_parts[0] | strip -%}
-        {%- assign badge_label = badge_parts[1] | strip -%}
-      {%- else -%}
-        {%- assign badge_icon = 'check' -%}
-        {%- assign badge_label = badge_parts[0] | strip -%}
+  {%- when 'upsell' -%}
+    {%- liquid
+      assign upsell = settings.cart_upsell_product
+      if upsell == blank
+        assign upsell = all_products['silk-sleep-mask']
+      endif
+      assign in_cart = false
+      if upsell != blank
+        for item in cart.items
+          if item.product_id == upsell.id
+            assign in_cart = true
+            break
+          endif
+        endfor
+      endif
+      assign upsell_variant = upsell.selected_or_first_available_variant
+    -%}
+    {%- if upsell != blank and in_cart == false and upsell_variant.available -%}
+      <div class="sc-upsell">
+        <span class="sc-upsell__eyebrow">{{ settings.cart_upsell_heading | default: 'Complete your stack' }}</span>
+        <div class="sc-upsell__row">
+          <div class="sc-upsell__media" aria-hidden="true">
+            {%- if upsell.featured_image -%}
+              {{ upsell.featured_image | image_url: width: 168, height: 168, crop: 'center' | image_tag: widths: '56, 112, 168', sizes: '56px', loading: 'lazy', alt: '' }}
+            {%- else -%}
+              P-06
+            {%- endif -%}
+          </div>
+          <div class="sc-upsell__body">
+            <span class="sc-upsell__name">{{ upsell.title }}</span>
+            <span class="sc-upsell__meta">{{ upsell_variant.price | money }}{% if settings.cart_upsell_text != blank %} · {{ settings.cart_upsell_text | replace: brand_token, brand }}{% endif %}</span>
+          </div>
+          <form class="sc-upsell__form" action="{{ routes.cart_add_url }}" method="post" data-somna-quick-add>
+            <input type="hidden" name="id" value="{{ upsell_variant.id }}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="sc-upsell__add" id="sc-upsell-add-{{ layout }}" aria-label="Add {{ upsell.title | escape }} to bag">+ Add</button>
+          </form>
+        </div>
+      </div>
+    {%- endif -%}
+
+  {%- else -%}
+    {%- liquid
+      assign summary_id = 'cart-' | append: layout | append: '-summary-title'
+      assign discount_input_id = 'cart-' | append: layout | append: '-discount-code'
+      assign applied_codes = ''
+      for application in cart.discount_applications
+        if application.type == 'discount_code'
+          if applied_codes == ''
+            assign applied_codes = application.title
+          else
+            assign applied_codes = applied_codes | append: ',' | append: application.title
+          endif
+        endif
+      endfor
+      assign applied_code_list = applied_codes | split: ','
+      assign trust_items = settings.cart_trust_line | replace: brand_token, brand | split: '•'
+    -%}
+    <div class="sc-summary cart-summary--{{ layout }}" data-cart-summary role="group" aria-labelledby="{{ summary_id }}">
+      {%- if layout == 'page' -%}
+        <details class="sc-promo"{% if applied_codes != '' %} open{% endif %}>
+          <summary class="sc-promo__summary"><span>Have a discount code?</span>{% render 'somna-icon', name: 'chevron-down', size: 18 %}</summary>
+          <div class="sc-promo__panel">
+            {%- if applied_codes != '' -%}
+              <ul class="sc-promo__chips" aria-label="Applied discount codes">
+                {%- for code in applied_code_list -%}
+                  {%- assign remaining_codes = '' -%}
+                  {%- for other in applied_code_list -%}
+                    {%- if other == code -%}{%- continue -%}{%- endif -%}
+                    {%- if remaining_codes == '' -%}{%- assign remaining_codes = other -%}{%- else -%}{%- assign remaining_codes = remaining_codes | append: ',' | append: other -%}{%- endif -%}
+                  {%- endfor -%}
+                  <li>
+                    <form method="post" action="{{ routes.cart_update_url }}" data-cart-discount-form data-cart-discount-remove="{{ code | escape }}">
+                      <input type="hidden" name="discount" value="{{ remaining_codes | escape }}">
+                      <span class="sc-promo__chip">{{ code }}<button aria-label="Remove discount code {{ code | escape }}" type="submit">{% render 'somna-icon', name: 'close', size: 12 %}</button></span>
+                    </form>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+            <form method="post" action="{{ routes.cart_update_url }}" data-cart-discount-form data-applied-codes="{{ applied_codes | escape }}">
+              <div class="sc-promo__form">
+                <label for="{{ discount_input_id }}" class="s-sr">Discount code</label>
+                <input class="s-input" autocapitalize="characters" autocomplete="off" id="{{ discount_input_id }}" name="discount" placeholder="Enter code" spellcheck="false" type="text">
+                <button class="s-btn s-btn--sm s-btn--lavender" type="submit" aria-label="Apply discount code">Apply</button>
+              </div>
+            </form>
+            <div aria-live="polite" data-cart-discount-messages></div>
+          </div>
+        </details>
       {%- endif -%}
-      <li>{% render 'icon', name: badge_icon, size: 18, feature: true %}{{ badge_label | replace: brand_token, brand }}</li>
-    {%- endfor -%}
-  </ul>
-</aside>
+      <div class="sc-summary__row">
+        <span class="sc-summary__label" id="{{ summary_id }}">{{ settings.cart_total_label | default: 'Estimated total' }}</span>
+        <span class="sc-summary__total">{{ cart.total_price | money }}</span>
+      </div>
+      {%- if cart.total_discount > 0 -%}
+        <div class="sc-summary__row sc-summary__discount"><span>Savings{% if applied_codes != '' %} ({{ applied_code_list | join: ', ' }}){% endif %}</span><span>−{{ cart.total_discount | money }}</span></div>
+      {%- endif -%}
+      {%- if settings.cart_total_note != blank -%}<p class="sc-summary__note">{{ settings.cart_total_note | replace: brand_token, brand }}</p>{%- endif -%}
+      <form class="sc-summary__form" method="post" action="{{ routes.cart_url }}" data-cart-checkout-form>
+        <button class="sc-checkout" type="submit" name="checkout">
+          {%- render 'somna-icon', name: 'lock', size: 18 -%}
+          {{- settings.cart_checkout_label | default: 'Secure Checkout' -}}
+        </button>
+      </form>
+      {%- if trust_items.size > 0 -%}
+        <div class="sc-trust">
+          {%- for trust in trust_items -%}
+            {%- assign trust_text = trust | strip -%}
+            {%- if trust_text == blank -%}{%- continue -%}{%- endif -%}
+            {%- unless forloop.first -%}<span aria-hidden="true">•</span>{%- endunless -%}
+            <span>{{ trust_text }}</span>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+      {%- if layout == 'page' -%}
+        <a class="sc-continue" href="{{ routes.all_products_collection_url }}">Continue shopping</a>
+      {%- endif -%}
+    </div>
+{%- endcase -%}

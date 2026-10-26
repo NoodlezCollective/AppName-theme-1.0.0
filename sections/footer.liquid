@@ -1,135 +1,162 @@
 {%- assign brand_token = '{AppName}' -%}
 {%- comment -%}
-  Deep indigo footer (app/components/Footer.tsx): social-proof call to action
-  card, the "footer" link list's child lists as ruled columns (a list titled
-  "Social" renders icon links), the brand name as a giant watermark and the
-  copyright line. Without a "footer" link list the storefront's
-  FALLBACK_FOOTER_MENU (app/lib/menu.ts) is rendered.
+  Somna footer (Footer.dc.html): indigo call-to-action card, Shop / Learn /
+  Support link columns (menus picked in the section settings, otherwise the
+  design's links), the Social column with icon links and support e-mail,
+  copyright + payment chips, and the lowercase brand name as a watermark.
+  The call to action, rating label and copyright come from Theme settings
+  (Brand, Footer).
 {%- endcomment -%}
 {%- liquid
-  assign menu = linklists['footer']
+  assign brand = settings.brand_name | default: 'Somna'
+  assign watermark = brand | downcase
+  assign cta_url = settings.footer_cta_url | default: routes.all_products_collection_url
   assign base = routes.root_url
   if base == '/'
     assign base = ''
   endif
-  assign cta_url = settings.footer_cta_url | default: routes.all_products_collection_url
-  assign brand = settings.brand_name | default: '{AppName}'
-  assign watermark_chars = brand | size
-  if watermark_chars < 4
-    assign watermark_chars = 4
-  endif
-  assign has_groups = false
-  if menu != blank
-    for link in menu.links
-      if link.links.size > 0
-        assign has_groups = true
-      endif
-    endfor
-  endif
+  assign c = routes.collections_url
+  assign p = base | append: '/pages/'
+  assign contact_url = p | append: 'contact-information'
+  assign support_url = p | append: 'support'
+
+  capture fallback_1
+    echo 'Pillows|' | append: c | append: '/pillows'
+    echo '~Comforters|' | append: c | append: '/comforters'
+    echo '~Bundles|' | append: c | append: '/bundles'
+    echo '~Accessories|' | append: c | append: '/accessories'
+  endcapture
+  capture fallback_2
+    echo 'About Us|' | append: p | append: 'about'
+    echo '~Sleep Quiz|' | append: base | append: '/#quiz'
+    echo '~Sleep Journal|' | append: base | append: '/blogs/news'
+    echo '~Reviews|' | append: routes.root_url
+    echo '~Wholesale Inquiries|' | append: contact_url
+  endcapture
+  capture fallback_3
+    echo 'Contact Us|' | append: contact_url
+    echo '~FAQ|' | append: support_url | append: '#faq'
+    echo '~Track My Order|' | append: support_url | append: '#track'
+    echo '~Return and Refund Policy|' | append: p | append: 'refund-policy'
+    echo '~Shipping Policy|' | append: p | append: 'shipping-policy'
+    echo '~Terms of Service|' | append: p | append: 'terms-of-service'
+    echo '~Privacy Policy|' | append: p | append: 'privacy-policy'
+    echo '~Payment Policy|' | append: p | append: 'payment-policy'
+    echo '~Do Not Sell or Share My Personal Information|' | append: p | append: 'do-not-sell'
+    echo '~Legal Notice|' | append: p | append: 'legal-notice'
+  endcapture
+  assign fallback_titles = 'Shop|Learn|Support' | split: '|'
+  assign chips = section.settings.payment_chips | split: ','
 -%}
-<footer class="site-footer" data-section-id="{{ section.id }}">
-  <div class="container">
-    <div class="footer-cta">
-      <div class="footer-cta__body">
-        {%- render 'stars', rating: 5, label: settings.rating_label, size: 'sm' -%}
-        <p class="footer-cta__heading">{{ settings.footer_cta_heading | replace: brand_token, brand }}</p>
+<footer class="site-footer sc-footer" data-section-id="{{ section.id }}">
+  <div class="sc-footer__inner">
+
+    {%- if settings.footer_cta_heading != blank -%}
+      <div class="sc-footer__cta">
+        <div class="sc-footer__cta-body">
+          <div class="sc-footer__rating">
+            <span class="sc-footer__stars" role="img" aria-label="Rated 5 out of 5">
+              {%- for i in (1..5) -%}<svg width="18" height="18" viewBox="0 0 24 24" fill="#ffa38b" aria-hidden="true" focusable="false"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>{%- endfor -%}
+            </span>
+            {%- if settings.rating_label != blank -%}<span>{{ settings.rating_label | replace: brand_token, brand }}</span>{%- endif -%}
+          </div>
+          <p class="sc-footer__heading">{{ settings.footer_cta_heading | replace: brand_token, brand }}</p>
+        </div>
+        {%- if settings.footer_cta_label != blank -%}
+          <a class="sc-footer__btn" href="{{ cta_url }}">{{ settings.footer_cta_label | replace: brand_token, brand }}</a>
+        {%- endif -%}
       </div>
-      <a class="btn btn--light btn--md" href="{{ cta_url }}"><span class="btn__label">{{ settings.footer_cta_label | replace: brand_token, brand }}</span></a>
+    {%- endif -%}
+
+    <div class="sc-footer__cols">
+      {%- for n in (1..3) -%}
+        {%- liquid
+          case n
+            when 1
+              assign menu = section.settings.menu_1
+              assign heading = section.settings.heading_1
+              assign fallback = fallback_1
+            when 2
+              assign menu = section.settings.menu_2
+              assign heading = section.settings.heading_2
+              assign fallback = fallback_2
+            else
+              assign menu = section.settings.menu_3
+              assign heading = section.settings.heading_3
+              assign fallback = fallback_3
+          endcase
+          if heading == blank and menu != blank
+            assign heading = menu.title
+          endif
+          if heading == blank
+            assign heading = fallback_titles[forloop.index0]
+          endif
+          assign heading_id = 'footer-col-' | append: n
+        -%}
+        <nav class="sc-footer__col" aria-labelledby="{{ heading_id }}">
+          <h2 class="sc-footer__title" id="{{ heading_id }}">{{ heading | replace: brand_token, brand }}</h2>
+          {%- if menu != blank and menu.links.size > 0 -%}
+            {%- for link in menu.links -%}
+              {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
+              <a class="sc-footer__link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}{% if link.url contains '://' %} rel="noopener"{% endif %}>{{ link.title | replace: brand_token, brand }}</a>
+            {%- endfor -%}
+          {%- else -%}
+            {%- assign items = fallback | strip | split: '~' -%}
+            {%- for item in items -%}
+              {%- assign parts = item | split: '|' -%}
+              {%- assign url = parts[1] | strip -%}
+              <a class="sc-footer__link" href="{{ url }}"{% if request.path == url %} aria-current="page"{% endif %}>{{ parts[0] | strip }}</a>
+            {%- endfor -%}
+          {%- endif -%}
+        </nav>
+      {%- endfor -%}
+
+      <div class="sc-footer__col">
+        <h2 class="sc-footer__title">{{ section.settings.social_heading | default: 'Social' }}</h2>
+        <div class="sc-footer__social">
+          {%- if section.settings.social_instagram != blank -%}
+            <a class="sc-footer__social-link" href="{{ section.settings.social_instagram }}" aria-label="Instagram" rel="noopener" target="_blank">{% render 'somna-icon', name: 'instagram', size: 22 %}</a>
+          {%- endif -%}
+          {%- if section.settings.social_facebook != blank -%}
+            <a class="sc-footer__social-link" href="{{ section.settings.social_facebook }}" aria-label="Facebook" rel="noopener" target="_blank">{% render 'somna-icon', name: 'facebook', size: 22 %}</a>
+          {%- endif -%}
+          {%- if section.settings.social_tiktok != blank -%}
+            <a class="sc-footer__social-link" href="{{ section.settings.social_tiktok }}" aria-label="TikTok" rel="noopener" target="_blank">{% render 'somna-icon', name: 'tiktok', size: 22 %}</a>
+          {%- endif -%}
+          {%- if section.settings.social_youtube != blank -%}
+            <a class="sc-footer__social-link" href="{{ section.settings.social_youtube }}" aria-label="YouTube" rel="noopener" target="_blank">{% render 'somna-icon', name: 'youtube', size: 22 %}</a>
+          {%- endif -%}
+        </div>
+        {%- if settings.support_email != blank -%}
+          {%- liquid
+            assign email_url = section.settings.contact_url
+            if email_url == blank
+              if settings.support_email contains '[' or settings.support_email contains ' '
+                assign email_url = contact_url
+              else
+                assign email_url = 'mailto:' | append: settings.support_email
+              endif
+            endif
+          -%}
+          <span class="sc-footer__contact">{{ section.settings.contact_label | default: 'Questions?' }} <a href="{{ email_url }}">{{ settings.support_email }}</a></span>
+        {%- endif -%}
+      </div>
     </div>
 
-    <div class="site-footer__columns">
-      {%- if menu != blank and menu.links.size > 0 -%}
-        {%- if has_groups -%}
-          {%- for group in menu.links -%}
-            {%- if group.links.size == 0 -%}{%- continue -%}{%- endif -%}
-            {%- assign group_key = group.title | downcase | strip -%}
-            <nav aria-labelledby="footer-{{ group.handle }}">
-              <h2 class="site-footer__heading" id="footer-{{ group.handle }}">{{ group.title }}</h2>
-              {%- if group_key == 'social' -%}
-                <ul class="site-footer__social">
-                  {%- for link in group.links -%}
-                    {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
-                    {%- assign key = link.title | downcase -%}
-                    {%- assign icon = 'arrow-right' -%}
-                    {%- if key contains 'instagram' -%}{%- assign icon = 'instagram' -%}{%- elsif key contains 'facebook' -%}{%- assign icon = 'facebook' -%}{%- elsif key contains 'tiktok' -%}{%- assign icon = 'tiktok' -%}{%- endif -%}
-                    <li><a class="site-footer__social-link" href="{{ link.url }}" aria-label="{{ link.title | escape }}" title="{{ link.title | escape }}"{% if link.url contains '://' %} rel="noopener noreferrer" target="_blank"{% endif %}>{% render 'icon', name: icon, size: 20 %}</a></li>
-                  {%- endfor -%}
-                </ul>
-              {%- else -%}
-                <ul class="site-footer__links">
-                  {%- for link in group.links -%}
-                    {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
-                    {%- if link.url contains '://' -%}
-                      <li><a href="{{ link.url }}" rel="noopener noreferrer" target="_blank">{{ link.title }}</a></li>
-                    {%- else -%}
-                      <li><a {% if link.current %}aria-current="page" class="active"{% else %}class=""{% endif %} href="{{ link.url }}">{{ link.title }}</a></li>
-                    {%- endif -%}
-                  {%- endfor -%}
-                </ul>
-              {%- endif -%}
-            </nav>
+    <div class="sc-footer__bottom">
+      <span>{{ settings.copyright | replace: brand_token, brand }}</span>
+      {%- if chips.size > 0 -%}
+        <span class="sc-footer__chips" aria-label="Payment methods" role="list">
+          {%- for chip in chips -%}
+            {%- assign chip_text = chip | strip -%}
+            {%- if chip_text == blank -%}{%- continue -%}{%- endif -%}
+            <span class="sc-footer__chip" role="listitem">{{ chip_text }}</span>
           {%- endfor -%}
-        {%- else -%}
-          <nav aria-labelledby="footer-links">
-            <h2 class="site-footer__heading" id="footer-links">Explore</h2>
-            <ul class="site-footer__links">
-              {%- for link in menu.links -%}
-                {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
-                {%- if link.url contains '://' -%}
-                  <li><a href="{{ link.url }}" rel="noopener noreferrer" target="_blank">{{ link.title }}</a></li>
-                {%- else -%}
-                  <li><a {% if link.current %}aria-current="page" class="active"{% else %}class=""{% endif %} href="{{ link.url }}">{{ link.title }}</a></li>
-                {%- endif -%}
-              {%- endfor -%}
-            </ul>
-          </nav>
-        {%- endif -%}
-      {%- else -%}
-        {%- comment -%} FALLBACK_FOOTER_MENU: policies live at /pages/<handle> in the theme. {%- endcomment -%}
-        {%- assign group_handles = 'shop,learn,support' | split: ',' -%}
-        {%- assign group_titles = 'Shop,Learn,Support' | split: ',' -%}
-        {%- assign pillows_url = routes.collections_url | append: '/pillows' -%}
-        {%- assign comforters_url = routes.collections_url | append: '/comforters' -%}
-        {%- assign bath_url = routes.collections_url | append: '/bath' -%}
-        {%- assign bundles_url = routes.collections_url | append: '/bundles' -%}
-        {%- assign shop_links = 'Pillows|' | append: pillows_url | append: ',Comforters|' | append: comforters_url | append: ',Bath|' | append: bath_url | append: ',Bundles|' | append: bundles_url -%}
-        {%- assign about_url = base | append: '/pages/about' -%}
-        {%- assign blog_url = base | append: '/blogs/news' -%}
-        {%- assign learn_links = 'About Us|' | append: about_url | append: ',Blog|' | append: blog_url -%}
-        {%- assign contact_url = base | append: '/pages/contact-information' -%}
-        {%- assign privacy_url = base | append: '/pages/privacy-policy' -%}
-        {%- assign terms_url = base | append: '/pages/terms-of-service' -%}
-        {%- assign refund_url = base | append: '/pages/refund-policy' -%}
-        {%- assign shipping_url = base | append: '/pages/shipping-policy' -%}
-        {%- assign legal_url = base | append: '/pages/legal-notice' -%}
-        {%- assign support_links = 'Contact Us|' | append: contact_url | append: ',Account|' | append: routes.account_url | append: ',Privacy Policy|' | append: privacy_url | append: ',Terms of Service|' | append: terms_url | append: ',Returns|' | append: refund_url | append: ',Shipping Policy|' | append: shipping_url | append: ',Legal Notice|' | append: legal_url -%}
-        {%- for handle in group_handles -%}
-          {%- case handle -%}
-            {%- when 'shop' -%}{%- assign items = shop_links | split: ',' -%}
-            {%- when 'learn' -%}{%- assign items = learn_links | split: ',' -%}
-            {%- else -%}{%- assign items = support_links | split: ',' -%}
-          {%- endcase -%}
-          <nav aria-labelledby="footer-fallback-footer-{{ handle }}">
-            <h2 class="site-footer__heading" id="footer-fallback-footer-{{ handle }}">{{ group_titles[forloop.index0] }}</h2>
-            <ul class="site-footer__links">
-              {%- for item in items -%}
-                {%- assign parts = item | split: '|' -%}
-                {%- assign url = parts[1] -%}
-                {%- assign active = false -%}
-                {%- if request.path == url -%}{%- assign active = true -%}{%- endif -%}
-                <li><a {% if active %}aria-current="page" class="active"{% else %}class=""{% endif %} href="{{ url }}">{{ parts[0] }}</a></li>
-              {%- endfor -%}
-            </ul>
-          </nav>
-        {%- endfor -%}
+        </span>
       {%- endif -%}
     </div>
 
-    <p class="site-footer__watermark" aria-hidden="true" style="--watermark-chars:{{ watermark_chars }}">{{ brand }}</p>
-
-    <div class="site-footer__bottom">
-      <p>{{ settings.copyright | replace: brand_token, brand }}</p>
-    </div>
+    <div class="sc-footer__watermark" aria-hidden="true">{{ watermark }}</div>
   </div>
 </footer>
 
@@ -141,7 +168,100 @@
   "settings": [
     {
       "type": "paragraph",
-      "content": "Columns come from the \"footer\" menu: each top-level item with sub-items is a column; a column titled \"Social\" shows icon links. The call to action, watermark and copyright use the theme settings (Brand and Footer)."
+      "content": "The call-to-action card, rating label, support e-mail and copyright come from Theme settings (Brand, Footer). The watermark is the brand name in lowercase."
+    },
+    {
+      "type": "header",
+      "content": "Link columns"
+    },
+    {
+      "type": "text",
+      "id": "heading_1",
+      "label": "Column 1 heading",
+      "default": "Shop"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_1",
+      "label": "Column 1 menu",
+      "info": "Without a menu: Pillows, Comforters, Bundles, Accessories."
+    },
+    {
+      "type": "text",
+      "id": "heading_2",
+      "label": "Column 2 heading",
+      "default": "Learn"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_2",
+      "label": "Column 2 menu",
+      "info": "Without a menu: About Us, Sleep Quiz, Sleep Journal, Reviews, Wholesale Inquiries."
+    },
+    {
+      "type": "text",
+      "id": "heading_3",
+      "label": "Column 3 heading",
+      "default": "Support"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_3",
+      "label": "Column 3 menu",
+      "info": "Without a menu: Contact Us, FAQ, Track My Order and the policy pages."
+    },
+    {
+      "type": "header",
+      "content": "Social"
+    },
+    {
+      "type": "text",
+      "id": "social_heading",
+      "label": "Heading",
+      "default": "Social"
+    },
+    {
+      "type": "url",
+      "id": "social_instagram",
+      "label": "Instagram link"
+    },
+    {
+      "type": "url",
+      "id": "social_facebook",
+      "label": "Facebook link"
+    },
+    {
+      "type": "url",
+      "id": "social_tiktok",
+      "label": "TikTok link"
+    },
+    {
+      "type": "url",
+      "id": "social_youtube",
+      "label": "YouTube link"
+    },
+    {
+      "type": "text",
+      "id": "contact_label",
+      "label": "Support e-mail lead-in",
+      "default": "Questions?"
+    },
+    {
+      "type": "url",
+      "id": "contact_url",
+      "label": "Support e-mail link",
+      "info": "Defaults to a mailto: link for the support e-mail (Theme settings > Footer), or the contact page while the e-mail is a placeholder."
+    },
+    {
+      "type": "header",
+      "content": "Bottom row"
+    },
+    {
+      "type": "text",
+      "id": "payment_chips",
+      "label": "Payment chips",
+      "default": "Visa, Mastercard, Amex, PayPal, Shop Pay",
+      "info": "Comma-separated."
     }
   ]
 }

@@ -4,7 +4,18 @@
   "sections": {
     "footer": {
       "type": "footer",
-      "settings": {}
+      "settings": {
+        "heading_1": "Shop",
+        "heading_2": "Learn",
+        "heading_3": "Support",
+        "social_heading": "Social",
+        "social_instagram": "https://instagram.com",
+        "social_facebook": "https://facebook.com",
+        "social_tiktok": "https://tiktok.com",
+        "social_youtube": "https://youtube.com",
+        "contact_label": "Questions?",
+        "payment_chips": "Visa, Mastercard, Amex, PayPal, Shop Pay"
+      }
     }
   },
   "order": ["footer"]

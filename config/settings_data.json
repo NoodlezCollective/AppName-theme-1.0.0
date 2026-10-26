@@ -1,7 +1,7 @@
 {
   "current": {
-    "brand_name": "{AppName}",
-    "rating_label": "124,952+ Happy Sleepers",
+    "brand_name": "Somna",
+    "rating_label": "[X]+ Happy Sleepers",
     "cart_heading": "Your Sleep Stack",
     "color_primary": "#4c4184",
     "color_accent": "#ffa38b",
@@ -17,6 +17,18 @@
     "footer_cta_heading": "Cloud-like comfort is just a click away. Try {AppName} today.",
     "footer_cta_label": "Sleep Better",
     "footer_cta_url": "/collections/all",
-    "copyright": "© Copyright {AppName} LLC"
+    "copyright": "© 2026 [Somna legal entity name]. All rights reserved.",
+    "support_email": "hello@[yourdomain].com",
+    "cart_recs_heading": "You may also like",
+    "cart_recent_heading": "Recently viewed",
+    "cart_upsell_heading": "Complete your stack",
+    "cart_upsell_text": "Blackout comfort",
+    "cart_total_label": "Estimated total",
+    "cart_total_note": "Taxes, discounts and shipping calculated at checkout.",
+    "cart_checkout_label": "Secure Checkout",
+    "cart_trust_line": "[100]-night trial • Free returns • Shop Pay · PayPal · Afterpay",
+    "cart_empty_heading": "Your sleep stack is empty",
+    "cart_empty_text": "Start with our most loved pillow, and get {gift} over {threshold}.",
+    "cart_empty_button": "Shop Bestsellers"
   }
 }

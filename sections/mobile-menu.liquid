@@ -1,10 +1,15 @@
 {%- comment -%}
-  Mobile menu drawer (app/components/PageLayout.tsx MobileMenuAside +
-  Header.tsx HeaderMenu viewport="mobile"): Home, the main menu and the
-  search / account links. Same menu source and fallback as sections/header.
+  Mobile menu drawer (opened by the header's menu toggle below 768px), in
+  the Somna drawer look: Outfit links on white, search / account shortcuts
+  and the "Shop All" button. Same menu source and fallback as
+  sections/header.liquid.
 {%- endcomment -%}
 {%- liquid
-  assign menu = linklists['main-menu']
+  assign menu = section.settings.menu
+  if menu == blank
+    assign menu = linklists['main-menu']
+  endif
+  assign brand = settings.brand_name | default: 'Somna'
   assign base = routes.root_url
   if base == '/'
     assign base = ''
@@ -18,44 +23,41 @@
   if request.page_type == 'index'
     assign home_active = true
   endif
-  assign fallback_titles = 'Shop,Bath,Bundles,About' | split: ','
-  assign bath_url = routes.collections_url | append: '/bath'
+  assign fallback_titles = 'Shop All|Pillows|Comforters|Bundles|Support' | split: '|'
+  assign pillows_url = routes.collections_url | append: '/pillows'
+  assign comforters_url = routes.collections_url | append: '/comforters'
   assign bundles_url = routes.collections_url | append: '/bundles'
-  assign about_url = base | append: '/pages/about'
-  assign fallback_urls = routes.all_products_collection_url | append: ',' | append: bath_url | append: ',' | append: bundles_url | append: ',' | append: about_url | split: ','
+  assign support_url = base | append: '/pages/support'
+  assign fallback_urls = routes.all_products_collection_url | append: '|' | append: pillows_url | append: '|' | append: comforters_url | append: '|' | append: bundles_url | append: '|' | append: support_url | split: '|'
 -%}
-<div aria-modal="true" aria-hidden="true" class="overlay " role="dialog" aria-labelledby="mobile-menu-title" data-drawer="mobile" data-section-id="{{ section.id }}">
-  <button class="close-outside" aria-label="Close" tabindex="-1" data-drawer-close></button>
-  <aside class="drawer drawer--mobile">
-    <header class="drawer__header">
-      <h3 id="mobile-menu-title" class="drawer__title">Menu</h3>
-      <button class="icon-btn drawer__close" aria-label="Close" data-drawer-close>{% render 'icon', name: 'close' %}</button>
-    </header>
-    <div class="drawer__body">
-      <nav class="mobile-nav" aria-label="Primary">
-        <a {% if home_active %}aria-current="page" {% endif %}class="mobile-nav__link {% if home_active %}is-active{% endif %}" href="{{ routes.root_url }}">Home</a>
+<div aria-hidden="true" class="overlay sc-overlay" data-drawer="mobile" data-section-id="{{ section.id }}">
+  <button class="close-outside" aria-label="Close menu" tabindex="-1" data-drawer-close></button>
+  <aside class="drawer sc-drawer sc-drawer--mobile" role="dialog" aria-modal="true" aria-labelledby="mobile-menu-title">
+    <div class="sc-drawer__head">
+      <h2 id="mobile-menu-title" class="sc-drawer__title">Menu</h2>
+      <button type="button" class="drawer__close sc-drawer__close" aria-label="Close menu" data-drawer-close>{% render 'somna-icon', name: 'close', size: 20 %}</button>
+    </div>
+    <div class="sc-drawer__body">
+      <nav class="sc-mnav" aria-label="Main">
+        <a class="sc-mnav__link" href="{{ routes.root_url }}"{% if home_active %} aria-current="page"{% endif %}>Home</a>
         {%- if menu != blank and menu.links.size > 0 -%}
           {%- for link in menu.links -%}
             {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
-            {%- if link.url contains '://' -%}
-              <a class="mobile-nav__link" href="{{ link.url }}">{{ link.title }}</a>
-            {%- else -%}
-              <a {% if link.current %}aria-current="page" {% endif %}class="mobile-nav__link {% if link.current %}is-active{% endif %}" href="{{ link.url }}">{{ link.title }}</a>
-            {%- endif -%}
+            <a class="sc-mnav__link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | replace: '{AppName}', brand }}</a>
           {%- endfor -%}
         {%- else -%}
           {%- for title in fallback_titles -%}
             {%- assign url = fallback_urls[forloop.index0] -%}
-            {%- assign active = false -%}
-            {%- if request.path == url -%}{%- assign active = true -%}{%- endif -%}
-            <a {% if active %}aria-current="page" {% endif %}class="mobile-nav__link {% if active %}is-active{% endif %}" href="{{ url }}">{{ title }}</a>
+            <a class="sc-mnav__link" href="{{ url }}"{% if request.path == url %} aria-current="page"{% endif %}>{{ title }}</a>
           {%- endfor -%}
         {%- endif -%}
-        <div class="mobile-nav__footer">
-          <button class="mobile-nav__secondary" type="button" data-drawer-open="search">{% render 'icon', name: 'search', size: 20 %} Search</button>
-          <a class="mobile-nav__secondary" href="{{ routes.account_url }}">{% render 'icon', name: 'user', size: 20 %}{{ account_label }}</a>
-        </div>
       </nav>
+      <div class="sc-mnav__footer">
+        <button class="sc-mnav__secondary" type="button" data-drawer-open="search">{% render 'somna-icon', name: 'search', size: 22 %}Search</button>
+        <a class="sc-mnav__secondary" href="{{ routes.account_url }}">{% render 'somna-icon', name: 'user', size: 22 %}{{ account_label }}</a>
+        <a class="sc-mnav__secondary" href="{{ routes.cart_url }}" data-drawer-open="cart">{% render 'somna-icon', name: 'bag', size: 22 %}Cart</a>
+      </div>
+      <a class="s-btn s-btn--block sc-mnav__cta" href="{{ routes.all_products_collection_url }}">Shop All</a>
     </div>
   </aside>
 </div>
@@ -67,8 +69,11 @@
   "class": "section-mobile-menu",
   "settings": [
     {
-      "type": "paragraph",
-      "content": "Shows the same \"main-menu\" menu as the header, with Home, Search and the account link."
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu",
+      "info": "Use the same menu as the header. Without one the design's links are shown."
     }
   ]
 }

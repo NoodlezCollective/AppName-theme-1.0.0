@@ -1,74 +1,95 @@
 {%- comment -%}
-  Sticky lavender header (app/components/Header.tsx): primary navigation,
-  wordmark / logo (ui/Logo.tsx) and the account / search / cart actions.
-  The menu comes from the "main-menu" link list, otherwise the storefront's
-  FALLBACK_HEADER_MENU (app/lib/menu.ts). The cart toggle is re-rendered
-  through the Section Rendering API (?sections=header) by assets/theme.js.
+  Somna header (Header.dc.html): lavender bar with the wordmark, the main
+  navigation and the search / account / cart icons. The menu comes from the
+  link list picked in the section settings (default "main-menu"), otherwise
+  the design's menu (Shop All, Pillows, Comforters, Bundles, Support).
+  Below 768px the navigation moves into the mobile drawer
+  (sections/mobile-menu.liquid). The cart toggle is re-rendered through the
+  Section Rendering API (?sections=header) by assets/theme.js.
 {%- endcomment -%}
 {%- liquid
-  assign menu = linklists['main-menu']
-  assign base = routes.root_url
-  if base == '/'
-    assign base = ''
+  assign menu = section.settings.menu
+  if menu == blank
+    assign menu = linklists['main-menu']
   endif
-  if customer
-    assign account_label = 'My account'
-  else
-    assign account_label = 'Sign in'
-  endif
+  assign brand = settings.brand_name | default: 'Somna'
+  assign wordmark = brand | downcase
   assign cart_count = cart.item_count
   if cart_count == 1
     assign cart_label = 'Cart, 1 item'
   else
     assign cart_label = 'Cart, ' | append: cart_count | append: ' items'
   endif
-  assign fallback_titles = 'Shop,Bath,Bundles,About' | split: ','
-  assign bath_url = routes.collections_url | append: '/bath'
+  if customer
+    assign account_label = 'My account'
+  else
+    assign account_label = 'Account'
+  endif
+  assign base = routes.root_url
+  if base == '/'
+    assign base = ''
+  endif
+  assign fallback_titles = 'Shop All|Pillows|Comforters|Bundles|Support' | split: '|'
+  assign pillows_url = routes.collections_url | append: '/pillows'
+  assign comforters_url = routes.collections_url | append: '/comforters'
   assign bundles_url = routes.collections_url | append: '/bundles'
-  assign about_url = base | append: '/pages/about'
-  assign fallback_urls = routes.all_products_collection_url | append: ',' | append: bath_url | append: ',' | append: bundles_url | append: ',' | append: about_url | split: ','
+  assign support_url = base | append: '/pages/support'
+  assign fallback_urls = routes.all_products_collection_url | append: '|' | append: pillows_url | append: '|' | append: comforters_url | append: '|' | append: bundles_url | append: '|' | append: support_url | split: '|'
 -%}
-<header class="site-header" data-section-id="{{ section.id }}" data-section-type="header">
-  <div class="container site-header__inner">
-    <button class="icon-btn site-header__mobile-toggle" aria-label="Open menu" aria-haspopup="dialog" aria-expanded="false" data-drawer-open="mobile">{% render 'icon', name: 'menu' %}</button>
-    <nav class="site-header__nav" aria-label="Primary">
+<header class="site-header sc-header" data-section-id="{{ section.id }}" data-section-type="header">
+  <div class="sc-header__inner">
+    <div class="sc-header__brand">
+      <button type="button" class="sc-iconbtn site-header__mobile-toggle" aria-label="Open menu" aria-haspopup="dialog" aria-expanded="false" data-drawer-open="mobile">
+        {%- render 'somna-icon', name: 'menu', size: 22 -%}
+      </button>
+      <a href="{{ routes.root_url }}" class="sc-logo" aria-label="{{ brand | escape }} home">
+        {%- if section.settings.logo != blank -%}
+          {{ section.settings.logo | image_url: width: 480 | image_tag: class: 'sc-logo__image', alt: '', loading: 'eager', height: 34 }}
+        {%- else -%}
+          {{- wordmark -}}<span class="sc-logo__dot">.</span>
+        {%- endif -%}
+      </a>
+    </div>
+    <nav class="sc-nav" aria-label="Main">
       {%- if menu != blank and menu.links.size > 0 -%}
         {%- for link in menu.links -%}
           {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
-          {%- if link.url contains '://' -%}
-            <a class="nav-link" href="{{ link.url }}">{{ link.title }}</a>
-          {%- else -%}
-            <a class="nav-link {% if link.current %}is-active{% endif %} " href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title }}</a>
-          {%- endif -%}
+          <a class="sc-nav__link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | replace: '{AppName}', brand }}</a>
         {%- endfor -%}
       {%- else -%}
         {%- for title in fallback_titles -%}
           {%- assign url = fallback_urls[forloop.index0] -%}
-          {%- assign active = false -%}
-          {%- if request.path == url -%}{%- assign active = true -%}{%- endif -%}
-          <a class="nav-link {% if active %}is-active{% endif %} " href="{{ url }}"{% if active %} aria-current="page"{% endif %}>{{ title }}</a>
+          <a class="sc-nav__link" href="{{ url }}"{% if request.path == url %} aria-current="page"{% endif %}>{{ title }}</a>
         {%- endfor -%}
       {%- endif -%}
     </nav>
-    <div class="site-header__logo">
-      <a class="logo" aria-label="{{ settings.brand_name | escape }} – home" href="{{ routes.root_url }}">
-        {%- if section.settings.logo != blank -%}
-          {{ section.settings.logo | image_url: width: 480 | image_tag: class: 'logo__image', alt: settings.brand_name, loading: 'eager' }}
-        {%- else -%}
-          <span class="logo__wordmark" aria-hidden="true">{{ settings.brand_name }}</span>
-        {%- endif -%}
+    <div class="sc-header__icons">
+      <button type="button" class="sc-iconbtn" aria-label="Search" aria-haspopup="dialog" data-drawer-open="search">
+        {%- render 'somna-icon', name: 'search', size: 22 -%}
+      </button>
+      <a href="{{ routes.account_url }}" class="sc-iconbtn" aria-label="{{ account_label }}">
+        {%- render 'somna-icon', name: 'user', size: 22 -%}
       </a>
-    </div>
-    <nav class="site-header__actions" aria-label="Account and cart">
-      <a aria-label="{{ account_label }}" title="{{ account_label }}" class="icon-btn site-header__account" href="{{ routes.account_url }}">{% render 'icon', name: 'user' %}</a>
-      <button class="icon-btn" aria-label="Search" aria-haspopup="dialog" data-drawer-open="search">{% render 'icon', name: 'search' %}</button>
-      <a href="{{ routes.cart_url }}" class="icon-btn cart-toggle" aria-label="{{ cart_label }}" data-drawer-open="cart" data-cart-toggle data-cart-count="{{ cart_count }}" data-cart-render="header">
-        {%- render 'icon', name: 'cart' -%}
+      <a href="{{ routes.cart_url }}" class="sc-iconbtn cart-toggle" aria-label="{{ cart_label }}" aria-haspopup="dialog" data-drawer-open="cart" data-cart-toggle data-cart-count="{{ cart_count }}" data-cart-render="header">
+        {%- render 'somna-icon', name: 'bag', size: 22 -%}
         {%- if cart_count > 0 -%}<span class="cart-toggle__count" aria-hidden="true">{{ cart_count }}</span>{%- endif -%}
       </a>
-    </nav>
+    </div>
   </div>
 </header>
+{%- if request.page_type == 'product' and product != blank -%}
+  <script>
+    (function () {
+      try {
+        var key = 'somna:recently-viewed';
+        var handle = {{ product.handle | json }};
+        var list = JSON.parse(localStorage.getItem(key) || '[]').filter(function (h) { return h !== handle; });
+        list.unshift(handle);
+        localStorage.setItem(key, JSON.stringify(list.slice(0, 12)));
+      } catch (e) {}
+    })();
+  </script>
+{%- endif -%}
 
 {% schema %}
 {
@@ -80,11 +101,14 @@
       "type": "image_picker",
       "id": "logo",
       "label": "Logo image",
-      "info": "Replaces the brand-name wordmark."
+      "info": "Replaces the brand-name wordmark (Theme settings > Brand)."
     },
     {
-      "type": "paragraph",
-      "content": "Navigation uses the \"main-menu\" menu. Without it the storefront's default menu (Shop, Bath, Bundles, About) is shown."
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu",
+      "info": "Without a menu the design's links are shown: Shop All, Pillows, Comforters, Bundles, Support."
     }
   ]
 }

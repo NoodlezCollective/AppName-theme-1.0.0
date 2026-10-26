@@ -14,14 +14,14 @@
         "type": "text",
         "id": "brand_name",
         "label": "Brand name",
-        "default": "{AppName}",
-        "info": "Shown in the wordmark, the footer watermark and wherever copy says {AppName}. The store name in Shopify settings is not used."
+        "default": "Somna",
+        "info": "Shown in the lowercase wordmark, the footer watermark and wherever copy says {AppName}. The store name in Shopify settings is not used."
       },
       {
         "type": "text",
         "id": "rating_label",
         "label": "Rating label",
-        "default": "124,952+ Happy Sleepers",
+        "default": "[X]+ Happy Sleepers",
         "info": "Next to the five stars on banners and the footer card."
       },
       {
@@ -35,11 +35,36 @@
   {
     "name": "Colours",
     "settings": [
-      {"type": "color", "id": "color_primary", "label": "Primary (indigo)", "default": "#4c4184"},
-      {"type": "color", "id": "color_accent", "label": "Accent (peach)", "default": "#ffa38b"},
-      {"type": "color", "id": "color_ink", "label": "Text (ink)", "default": "#242833"},
-      {"type": "color", "id": "color_lavender", "label": "Lavender", "default": "#e0e0ff"},
-      {"type": "color", "id": "color_background", "label": "Background", "default": "#ffffff"}
+      {
+        "type": "color",
+        "id": "color_primary",
+        "label": "Primary (indigo)",
+        "default": "#4c4184"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Accent (peach)",
+        "default": "#ffa38b"
+      },
+      {
+        "type": "color",
+        "id": "color_ink",
+        "label": "Text (ink)",
+        "default": "#242833"
+      },
+      {
+        "type": "color",
+        "id": "color_lavender",
+        "label": "Lavender",
+        "default": "#e0e0ff"
+      },
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Background",
+        "default": "#ffffff"
+      }
     ]
   },
   {
@@ -91,6 +116,119 @@
     ]
   },
   {
+    "name": "Cart",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Recommendations panel (screens 820px and wider)"
+      },
+      {
+        "type": "text",
+        "id": "cart_recs_heading",
+        "label": "First tab",
+        "default": "You may also like"
+      },
+      {
+        "type": "collection",
+        "id": "cart_recs_collection",
+        "label": "Fallback products",
+        "info": "Shown until Shopify's product recommendations for the first cart item load, and when the cart is empty. Defaults to all products."
+      },
+      {
+        "type": "text",
+        "id": "cart_recent_heading",
+        "label": "Second tab",
+        "default": "Recently viewed"
+      },
+      {
+        "type": "collection",
+        "id": "cart_recent_collection",
+        "label": "Recently viewed fallback",
+        "info": "Shown to shoppers who have not viewed any products yet."
+      },
+      {
+        "type": "header",
+        "content": "Upsell (narrow screens)"
+      },
+      {
+        "type": "text",
+        "id": "cart_upsell_heading",
+        "label": "Heading",
+        "default": "Complete your stack"
+      },
+      {
+        "type": "product",
+        "id": "cart_upsell_product",
+        "label": "Product",
+        "info": "Defaults to the product with the handle silk-sleep-mask. Hidden once it is in the cart."
+      },
+      {
+        "type": "text",
+        "id": "cart_upsell_text",
+        "label": "Short line after the price",
+        "default": "Blackout comfort"
+      },
+      {
+        "type": "header",
+        "content": "Totals"
+      },
+      {
+        "type": "text",
+        "id": "cart_total_label",
+        "label": "Total label",
+        "default": "Estimated total"
+      },
+      {
+        "type": "text",
+        "id": "cart_total_note",
+        "label": "Note",
+        "default": "Taxes, discounts and shipping calculated at checkout."
+      },
+      {
+        "type": "text",
+        "id": "cart_checkout_label",
+        "label": "Checkout button",
+        "default": "Secure Checkout"
+      },
+      {
+        "type": "text",
+        "id": "cart_trust_line",
+        "label": "Trust line",
+        "default": "[100]-night trial • Free returns • Shop Pay · PayPal · Afterpay",
+        "info": "Items separated by •."
+      },
+      {
+        "type": "header",
+        "content": "Empty cart"
+      },
+      {
+        "type": "text",
+        "id": "cart_empty_heading",
+        "label": "Heading",
+        "default": "Your sleep stack is empty"
+      },
+      {
+        "type": "text",
+        "id": "cart_empty_text",
+        "label": "Text",
+        "default": "Start with our most loved pillow, and get {gift} over {threshold}.",
+        "info": "{gift} = free gift label, {threshold} = free gift threshold (Cart reward)."
+      },
+      {
+        "type": "text",
+        "id": "cart_empty_button",
+        "label": "Button",
+        "default": "Shop Bestsellers"
+      },
+      {
+        "type": "url",
+        "id": "cart_empty_url",
+        "label": "Button link",
+        "info": "Defaults to all products."
+      }
+    ]
+  },
+  {
     "name": "Footer",
     "settings": [
       {
@@ -99,9 +237,30 @@
         "label": "Call-to-action heading",
         "default": "Cloud-like comfort is just a click away. Try {AppName} today."
       },
-      {"type": "text", "id": "footer_cta_label", "label": "Call-to-action button", "default": "Sleep Better"},
-      {"type": "url", "id": "footer_cta_url", "label": "Call-to-action link"},
-      {"type": "text", "id": "copyright", "label": "Copyright line", "default": "© Copyright {AppName} LLC"}
+      {
+        "type": "text",
+        "id": "footer_cta_label",
+        "label": "Call-to-action button",
+        "default": "Sleep Better"
+      },
+      {
+        "type": "url",
+        "id": "footer_cta_url",
+        "label": "Call-to-action link"
+      },
+      {
+        "type": "text",
+        "id": "copyright",
+        "label": "Copyright line",
+        "default": "© 2026 [Somna legal entity name]. All rights reserved."
+      },
+      {
+        "type": "text",
+        "id": "support_email",
+        "label": "Support e-mail",
+        "default": "hello@[yourdomain].com",
+        "info": "Shown in the footer's Social column."
+      }
     ]
   }
 ]

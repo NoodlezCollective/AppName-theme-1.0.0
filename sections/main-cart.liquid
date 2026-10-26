@@ -1,10 +1,14 @@
+{%- assign brand_token = '{AppName}' -%}
 {%- comment -%}
-  Cart page (app/routes/cart.tsx + CartMain layout="page").
-  Lines, summary and the empty state come from the shared snippets
-  cart-line, cart-summary and cart-empty (owned by the header/footer task),
-  which carry the data attributes assets/theme.js listens for.
+  Cart page in the Somna cart-drawer look: lines on the left, a soft card
+  with gift progress, discount codes, totals and Secure Checkout on the
+  right. Lines, summary pieces and the empty state come from the shared
+  snippets cart-line, cart-summary and cart-empty, which carry the data
+  attributes assets/theme.js listens for; theme.js re-renders this section
+  by its id after every cart change.
 {%- endcomment -%}
 {%- liquid
+  assign brand = settings.brand_name | default: 'Somna'
   assign count = cart.item_count
   if count == 1
     assign count_text = '1 item'
@@ -12,23 +16,27 @@
     assign count_text = count | append: ' items'
   endif
 -%}
-<div class="container cart-page">
-  <header class="page-header cart-page__header">
-    <p class="eyebrow page-header__eyebrow">{{ settings.brand_name }}</p>
-    <h1>Your cart{% if count > 0 %}<span class="cart-page__count"> {{ count_text }}</span>{% endif %}</h1>
+<div class="s-wrap sc-cartpage">
+  <header class="sc-cartpage__head">
+    <span class="s-eyebrow">{{ brand }}</span>
+    <h1 class="s-h1">{{ settings.cart_heading | default: 'Your Sleep Stack' | replace: brand_token, brand }}{% if count > 0 %} <span class="sc-cartpage__count">({{ count_text }})</span>{% endif %}</h1>
   </header>
-  <section class="cart cart--page" aria-label="Cart">
-    <p class="sr-only" aria-live="polite" aria-atomic="true">{% if count > 0 %}{{ count_text }} in your cart.{% else %}Your cart is empty.{% endif %}</p>
+  <section class="cart sc-cart--page" aria-label="Cart" data-cart-main="page">
+    <p class="s-sr" aria-live="polite" aria-atomic="true">{% if count > 0 %}{{ count_text }} in your cart.{% else %}Your cart is empty.{% endif %}</p>
     {%- if count > 0 -%}
-      <div class="cart__lines">
-        <h2 id="cart-page-lines-title" class="sr-only">Items in your cart</h2>
-        <ul class="cart-lines" aria-labelledby="cart-page-lines-title">
+      <div class="sc-cartpage__lines">
+        <h2 id="cart-page-lines-title" class="s-sr">Items in your cart</h2>
+        <ul class="cart-lines sc-lines" aria-labelledby="cart-page-lines-title">
           {%- for line in cart.items -%}
             {%- render 'cart-line', line: line, index: forloop.index, layout: 'page' -%}
           {%- endfor -%}
         </ul>
+        {%- render 'cart-summary', cart: cart, layout: 'page', part: 'upsell' -%}
       </div>
-      {%- render 'cart-summary', cart: cart, layout: 'page' -%}
+      <aside class="sc-cartpage__summary" aria-label="Order summary">
+        {%- render 'cart-summary', cart: cart, layout: 'page', part: 'gift' -%}
+        {%- render 'cart-summary', cart: cart, layout: 'page', part: 'totals' -%}
+      </aside>
     {%- else -%}
       {%- render 'cart-empty', layout: 'page' -%}
     {%- endif -%}

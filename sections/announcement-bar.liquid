@@ -1,9 +1,10 @@
 {%- assign brand_token = '{AppName}' -%}
 {%- comment -%}
-  Scrolling announcement strip (app/components/AnnouncementBar.tsx).
-  The messages are repeated so each half of the loop is wider than any
-  viewport; only the first copy is exposed to assistive technology. The
-  pause toggle (ui/PauseToggle.tsx) is wired in assets/theme.js.
+  Somna announcement marquee (Header.dc.html): indigo strip scrolling the
+  messages at 40s per loop. Each of the two copies repeats the messages so
+  it is wider than the viewport; the second copy is aria-hidden. Motion stops
+  with prefers-reduced-motion, on hover, and through the keyboard-only pause
+  control ([data-marquee-toggle], assets/theme.js).
 {%- endcomment -%}
 {%- liquid
   assign message_count = 0
@@ -13,23 +14,30 @@
     endif
   endfor
   if message_count > 0
-    assign copies = 12.0 | divided_by: message_count | ceil
-    if copies < 1
-      assign copies = 1
+    assign repeats = 9.0 | divided_by: message_count | ceil
+    if repeats < 1
+      assign repeats = 1
     endif
   endif
 -%}
 {%- if message_count > 0 -%}
   {%- capture items -%}
-    {%- for block in section.blocks -%}
-      {%- if block.settings.text != blank -%}
-        <span class="announcement-bar__item" {{ block.shopify_attributes }}>{{ block.settings.text | replace: brand_token, settings.brand_name }}</span>
-      {%- endif -%}
+    {%- for i in (1..repeats) -%}
+      {%- for block in section.blocks -%}
+        {%- if block.settings.text != blank -%}
+          <span class="sc-announce__msg"{% if i == 1 %} {{ block.shopify_attributes }}{% endif %}>{{ block.settings.text | replace: brand_token, settings.brand_name }}</span><span aria-hidden="true">•</span>
+        {%- endif -%}
+      {%- endfor -%}
     {%- endfor -%}
   {%- endcapture -%}
-  <div class="announcement-bar" role="region" aria-label="Announcements" data-announcement-bar data-section-id="{{ section.id }}">
-    {%- render 'marquee', content: items, duration: 45, gap: 18, copies: copies -%}
-    <button type="button" class="announcement-bar__toggle" aria-label="Pause announcements" aria-pressed="false" data-marquee-toggle><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="5" y="4" width="5" height="16" rx="1.5"></rect><rect x="14" y="4" width="5" height="16" rx="1.5"></rect></svg></button>
+  <div class="announcement-bar sc-announce" role="region" aria-label="Announcements" data-announcement-bar data-section-id="{{ section.id }}">
+    <div class="marquee">
+      <div class="sc-announce__track">
+        <div class="sc-announce__group">{{ items }}</div>
+        <div class="sc-announce__group" aria-hidden="true">{{ items }}</div>
+      </div>
+    </div>
+    <button type="button" class="sc-announce__toggle" aria-label="Pause announcements" aria-pressed="false" data-marquee-toggle><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="5" y="4" width="5" height="16" rx="1.5"></rect><rect x="14" y="4" width="5" height="16" rx="1.5"></rect></svg></button>
   </div>
 {%- endif -%}
 
@@ -49,16 +57,16 @@
           "type": "text",
           "id": "text",
           "label": "Text",
-          "default": "Up to 50% Off Sitewide"
+          "default": "Free Sleep Mask On Orders $120+"
         }
       ]
     }
   ],
   "default": {
     "blocks": [
+      {"type": "announcement", "settings": {"text": "Free Sleep Mask On Orders $120+"}},
       {"type": "announcement", "settings": {"text": "Up to 50% Off Sitewide"}},
-      {"type": "announcement", "settings": {"text": "Save More When You Bundle"}},
-      {"type": "announcement", "settings": {"text": "Free Sleep Mask On Orders $120+"}}
+      {"type": "announcement", "settings": {"text": "Save More When You Bundle"}}
     ]
   }
 }

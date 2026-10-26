@@ -1,44 +1,108 @@
 {%- assign brand_token = '{AppName}' -%}
 {%- comment -%}
-  Cart drawer (app/components/PageLayout.tsx CartAside + Aside.tsx) holding
-  CartMain layout="aside" (app/components/CartMain.tsx). assets/theme.js
-  re-renders the [data-cart-render="cart-drawer"] element from
-  `?sections=cart-drawer` after every cart change.
+  Somna cart drawer (Header.dc.html). Narrow screens: min(440px, 100%) with
+  the "Complete your stack" upsell. From 820px: min(820px, 100%) with the
+  360px recommendations panel ("You may also like" / "Recently viewed") on
+  the left instead of the upsell.
+
+  assets/theme.js re-renders [data-cart-render="cart-drawer"] from
+  ?sections=cart-drawer after every cart change. assets/somna-chrome.js runs
+  the tabs and upgrades the panels: "You may also like" from the product
+  recommendations of the first cart item (this section rendered through
+  routes.product_recommendations_url, where `recommendations` is filled) and
+  "Recently viewed" from the handles stored by sections/header.liquid on
+  product pages. Until then both show the collections picked in
+  Theme settings > Cart.
 {%- endcomment -%}
+<script src="{{ 'somna-chrome.js' | asset_url }}" defer></script>
 {%- liquid
+  assign brand = settings.brand_name | default: 'Somna'
   assign count = cart.item_count
   if count == 1
     assign count_text = '1 item'
   else
     assign count_text = count | append: ' items'
   endif
+
+  assign fallback_collection = settings.cart_recs_collection
+  if fallback_collection == blank or fallback_collection.products_count == 0
+    assign fallback_collection = collections['all']
+  endif
+  if recommendations.performed and recommendations.products_count > 0
+    assign like_products = recommendations.products
+  else
+    assign like_products = fallback_collection.products
+  endif
+  assign recent_collection = settings.cart_recent_collection
+  if recent_collection == blank or recent_collection.products_count == 0
+    assign recent_collection = fallback_collection
+  endif
+
+  assign first_product_id = ''
+  assign cart_product_ids = ''
+  for item in cart.items
+    if forloop.first
+      assign first_product_id = item.product_id
+    endif
+    assign cart_product_ids = cart_product_ids | append: item.product_id | append: ','
+  endfor
+  assign like_shots = 'P-06,P-03,P-05,P-07' | split: ','
+  assign recent_shots = 'P-04,P-03,P-01,P-02' | split: ','
 -%}
-<div aria-modal="true" aria-hidden="true" class="overlay " role="dialog" aria-labelledby="cart-drawer-title" data-drawer="cart" data-section-id="{{ section.id }}">
-  <button class="close-outside" aria-label="Close" tabindex="-1" data-drawer-close></button>
-  <aside class="drawer drawer--cart">
-    <header class="drawer__header">
-      <h3 id="cart-drawer-title" class="drawer__title">{{ settings.cart_heading | replace: brand_token, settings.brand_name }}</h3>
-      <button class="icon-btn drawer__close" aria-label="Close" data-drawer-close>{% render 'icon', name: 'close' %}</button>
-    </header>
-    <div class="drawer__body" data-cart-render="cart-drawer">
-      <section class="cart cart--aside" aria-label="Cart contents" data-cart-main="aside" data-cart-count="{{ count }}">
-        <p class="sr-only" aria-live="polite" aria-atomic="true">{% if count > 0 %}{{ count_text }} in your cart.{% else %}Your cart is empty.{% endif %}</p>
-        {%- if count > 0 -%}
-          <div class="cart__lines">
-            <h2 id="cart-aside-lines-title" class="sr-only">Items in your cart</h2>
-            <ul class="cart-lines" aria-labelledby="cart-aside-lines-title">
-              {%- for line in cart.items -%}
-                {%- render 'cart-line', line: line, index: forloop.index, layout: 'aside' -%}
-              {%- endfor -%}
-            </ul>
-          </div>
-          {%- render 'cart-summary', cart: cart, layout: 'aside' -%}
-        {%- else -%}
-          {%- render 'cart-empty', layout: 'aside' -%}
-        {%- endif -%}
+<div aria-hidden="true" class="overlay sc-overlay" data-drawer="cart" data-section-id="{{ section.id }}" data-sc-cart-drawer data-recs-url="{{ routes.product_recommendations_url }}">
+  <button class="close-outside" aria-label="Close cart" tabindex="-1" data-drawer-close></button>
+  <aside class="drawer sc-drawer sc-drawer--cart" role="dialog" aria-modal="true" aria-labelledby="cart-drawer-title">
+    <div class="sc-cartdrawer" data-cart-render="cart-drawer" data-first-product="{{ first_product_id }}" data-cart-products="{{ cart_product_ids }}">
+      <section class="sc-recs" aria-label="Product suggestions" data-sc-recs>
+        <div class="sc-recs__tabs" role="tablist" aria-label="Product suggestions">
+          <button type="button" class="sc-recs__tab" role="tab" id="sc-recs-tab-like" aria-controls="sc-recs-like" aria-selected="true" tabindex="0" data-sc-tab="like">{{ settings.cart_recs_heading | default: 'You may also like' }}</button>
+          <button type="button" class="sc-recs__tab" role="tab" id="sc-recs-tab-recent" aria-controls="sc-recs-recent" aria-selected="false" tabindex="-1" data-sc-tab="recent">{{ settings.cart_recent_heading | default: 'Recently viewed' }}</button>
+        </div>
+        <div class="sc-recs__panel" role="tabpanel" id="sc-recs-like" aria-labelledby="sc-recs-tab-like" data-sc-panel="like">
+          <ul class="sc-recs__grid" data-sc-recs-list="like"{% if recommendations.performed and recommendations.products_count > 0 %} data-source="recommendations"{% endif %}>
+            {%- for product in like_products limit: 4 -%}
+              {%- render 'cart-rec-card', product: product, panel: 'like', shot: like_shots[forloop.index0] -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+        <div class="sc-recs__panel" role="tabpanel" id="sc-recs-recent" aria-labelledby="sc-recs-tab-recent" data-sc-panel="recent" hidden>
+          <ul class="sc-recs__grid" data-sc-recs-list="recent">
+            {%- for product in recent_collection.products limit: 3 -%}
+              {%- render 'cart-rec-card', product: product, panel: 'recent', shot: recent_shots[forloop.index0] -%}
+            {%- endfor -%}
+          </ul>
+        </div>
       </section>
+
+      <div class="sc-cartcol">
+        <div class="sc-drawer__head">
+          <h2 id="cart-drawer-title" class="sc-drawer__title">{{ settings.cart_heading | default: 'Your Sleep Stack' | replace: brand_token, brand }} <span class="sc-drawer__count">({{ count }})</span></h2>
+          <button type="button" id="cart-drawer-close" class="drawer__close sc-drawer__close" aria-label="Close cart" data-drawer-close>{% render 'somna-icon', name: 'close', size: 20 %}</button>
+        </div>
+        <section class="cart sc-cart" aria-label="Cart contents" data-cart-main="aside" data-cart-count="{{ count }}">
+          <p class="s-sr" aria-live="polite" aria-atomic="true">{% if count > 0 %}{{ count_text }} in your cart.{% else %}Your cart is empty.{% endif %}</p>
+          {%- if count > 0 -%}
+            {%- render 'cart-summary', cart: cart, layout: 'aside', part: 'gift' -%}
+            <div class="sc-cart__scroll">
+              <h3 id="cart-aside-lines-title" class="s-sr">Items in your cart</h3>
+              <ul class="cart-lines sc-lines" aria-labelledby="cart-aside-lines-title">
+                {%- for line in cart.items -%}
+                  {%- render 'cart-line', line: line, index: forloop.index, layout: 'aside' -%}
+                {%- endfor -%}
+              </ul>
+              {%- render 'cart-summary', cart: cart, layout: 'aside', part: 'upsell' -%}
+            </div>
+            {%- render 'cart-summary', cart: cart, layout: 'aside', part: 'totals' -%}
+          {%- else -%}
+            {%- render 'cart-empty', layout: 'aside' -%}
+          {%- endif -%}
+        </section>
+      </div>
     </div>
   </aside>
+  {%- if request.page_type == 'product' and product != blank -%}
+    <template data-sc-current-card data-handle="{{ product.handle | escape }}">{%- render 'cart-rec-card', product: product, panel: 'recent', shot: 'P-01' -%}</template>
+  {%- endif -%}
 </div>
 
 {% schema %}
@@ -49,7 +113,7 @@
   "settings": [
     {
       "type": "paragraph",
-      "content": "The title, free-gift reward and trust badges come from the theme settings (Brand, Cart reward, Trust and savings)."
+      "content": "The title, free-gift progress, upsell, recommendations, totals copy and empty state come from Theme settings (Brand, Cart reward, Cart)."
     }
   ]
 }

@@ -1,0 +1,47 @@
+{%- comment -%}
+  Product tile in the cart drawer's recommendations panel (Header.dc.html):
+  4:5 image with badge, name, price / was price and "+ Add to Bag" (or
+  "Add another" when the product is already in the cart). The button posts a
+  quick-add form handled by assets/somna.js.
+  {% render 'cart-rec-card', product: product, panel: 'like' | 'recent', shot: 'P-06' %}
+  Badge: metafield mellow.badge, else "Sale" when discounted.
+{%- endcomment -%}
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign badge = product.metafields.mellow.badge.value | strip
+  if badge == blank and product.compare_at_price_min > product.price_min
+    assign badge = 'Sale'
+  endif
+  assign in_cart = false
+  for item in cart.items
+    if item.product_id == product.id
+      assign in_cart = true
+      break
+    endif
+  endfor
+-%}
+<li class="sc-rec" data-product-id="{{ product.id }}">
+  <a class="sc-rec__media" href="{{ product.url }}" aria-label="{{ product.title | escape }}" tabindex="-1">
+    {%- if product.featured_image -%}
+      {{ product.featured_image | image_url: width: 480, height: 600, crop: 'center' | image_tag: widths: '160, 240, 320, 480', sizes: '150px', loading: 'lazy', alt: '' }}
+    {%- else -%}
+      {{ shot | default: 'P-01' }}
+    {%- endif -%}
+    {%- if badge != blank -%}<span class="sc-rec__badge">{{ badge }}</span>{%- endif -%}
+  </a>
+  <a class="sc-rec__name" href="{{ product.url }}">{{ product.title }}</a>
+  <span class="sc-rec__price">
+    <strong class="sc-rec__now">{{ variant.price | default: product.price_min | money }}</strong>
+    {%- assign was = variant.compare_at_price | default: product.compare_at_price_min -%}
+    {%- if was > variant.price -%}<s class="sc-rec__was"><span class="s-sr">Regular price </span>{{ was | money }}</s>{%- endif -%}
+  </span>
+  {%- if variant.available -%}
+    <form class="sc-rec__form" action="{{ routes.cart_add_url }}" method="post" data-somna-quick-add>
+      <input type="hidden" name="id" value="{{ variant.id }}">
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit" class="sc-rec__add" id="sc-rec-{{ panel }}-{{ product.id }}" aria-label="Add {{ product.title | escape }} to bag">{% if in_cart %}Add another{% else %}+ Add to Bag{% endif %}</button>
+    </form>
+  {%- else -%}
+    <button type="button" class="sc-rec__add" disabled>Sold out</button>
+  {%- endif -%}
+</li>

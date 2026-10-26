@@ -5,16 +5,18 @@
     "announcement-bar": {
       "type": "announcement-bar",
       "blocks": {
-        "announcement-1": {"type": "announcement", "settings": {"text": "Up to 50% Off Sitewide"}},
-        "announcement-2": {"type": "announcement", "settings": {"text": "Save More When You Bundle"}},
-        "announcement-3": {"type": "announcement", "settings": {"text": "Free Sleep Mask On Orders $120+"}}
+        "announcement-1": {"type": "announcement", "settings": {"text": "Free Sleep Mask On Orders $120+"}},
+        "announcement-2": {"type": "announcement", "settings": {"text": "Up to 50% Off Sitewide"}},
+        "announcement-3": {"type": "announcement", "settings": {"text": "Save More When You Bundle"}}
       },
       "block_order": ["announcement-1", "announcement-2", "announcement-3"],
       "settings": {}
     },
     "header": {
       "type": "header",
-      "settings": {}
+      "settings": {
+        "menu": "main-menu"
+      }
     }
   },
   "order": ["announcement-bar", "header"]
