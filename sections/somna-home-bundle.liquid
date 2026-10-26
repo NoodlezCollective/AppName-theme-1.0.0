@@ -49,12 +49,44 @@
   if comforter_col == blank
     assign comforter_col = collections['comforters']
   endif
-  assign pillow_real = false
+  comment
+    Missing or empty collections: pick the store's products whose title or
+    type mentions pillow / comforter (duvet, quilt), so a live store never
+    shows placeholders just because a collection handle differs.
+  endcomment
+  assign no_items = collections.all.products | where: 'handle', '__none__'
+  assign pillow_items = no_items
+  assign comforter_items = no_items
   if pillow_col != blank and pillow_col.products_count > 0
+    assign pillow_items = pillow_col.products
+  endif
+  if comforter_col != blank and comforter_col.products_count > 0
+    assign comforter_items = comforter_col.products
+  endif
+  if pillow_items.size == 0 or comforter_items.size == 0
+    for p in collections.all.products limit: 50
+      assign words = p.title | append: ' ' | append: p.product_type | downcase
+      assign one = collections.all.products | where: 'handle', p.handle
+      if pillow_col.products_count == 0 or pillow_col == blank
+        if words contains 'pillow' and pillow_items.size < 8
+          assign pillow_items = pillow_items | concat: one
+        endif
+      endif
+      if comforter_col.products_count == 0 or comforter_col == blank
+        if words contains 'comforter' or words contains 'duvet' or words contains 'quilt'
+          if comforter_items.size < 8
+            assign comforter_items = comforter_items | concat: one
+          endif
+        endif
+      endif
+    endfor
+  endif
+  assign pillow_real = false
+  if pillow_items.size > 0
     assign pillow_real = true
   endif
   assign comforter_real = false
-  if comforter_col != blank and comforter_col.products_count > 0
+  if comforter_items.size > 0
     assign comforter_real = true
   endif
   assign ready = false
@@ -93,14 +125,14 @@
           {%- for key in step_keys -%}
             {%- liquid
               if key == 'pillow'
-                assign col = pillow_col
+                assign items = pillow_items
                 assign real = pillow_real
                 assign step_label = section.settings.step1_label
                 assign step_num = 1
                 assign ph_names = 'CloudAlign Pillow|CloudCool Pillow|MarshMellow Pillow' | split: '|'
                 assign ph_briefs = 'CloudAlign Pillow on lavender sweep|CloudCool Pillow, cooling cover detail|MarshMellow Pillow, soft loft' | split: '|'
               else
-                assign col = comforter_col
+                assign items = comforter_items
                 assign real = comforter_real
                 assign step_label = section.settings.step2_label
                 assign step_num = 2
@@ -114,7 +146,7 @@
               <legend class="sb-step__title"><span class="sb-step__num" aria-hidden="true">{{ step_num }}</span><span class="s-sr">Step {{ step_num }}: </span>{{ step_label }}</legend>
               <div class="sb-step__opts sh-swipe sh-swipe--narrow" data-sh-swipe>
                 {%- if real -%}
-                  {%- for product in col.products limit: limit -%}
+                  {%- for product in items limit: limit -%}
                     {%- liquid
                       assign v = product.selected_or_first_available_variant
                       assign is_checked = false
@@ -361,45 +393,238 @@
 {
   "name": "Somna bundle builder",
   "settings": [
-    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
-    {"type": "header", "content": "Products"},
-    {"type": "collection", "id": "pillow_collection", "label": "Pillow collection", "info": "Blank uses the collection with the handle \"pillows\". While it is empty, placeholder cards show and the button is disabled."},
-    {"type": "collection", "id": "comforter_collection", "label": "Comforter collection", "info": "Blank uses the collection with the handle \"comforters\"."},
-    {"type": "range", "id": "options_to_show", "label": "Products per step", "min": 2, "max": 4, "step": 1, "default": 3},
-    {"type": "checkbox", "id": "show_addon", "label": "Show add-on step", "default": true},
-    {"type": "product", "id": "addon_product", "label": "Add-on product", "info": "For example the Silk Sleep Mask. Shoppers tick it to add it to the bundle."},
-    {"type": "text", "id": "addon_name", "label": "Add-on placeholder name", "default": "Silk Sleep Mask", "info": "Shown until a product is picked."},
-    {"type": "text", "id": "addon_line", "label": "Add-on one-liner", "default": "Blocks light, kind to skin and hair."},
-    {"type": "header", "content": "Bundle discount"},
-    {"type": "number", "id": "discount_2", "label": "Discount for 2 items (%)", "default": 10},
-    {"type": "number", "id": "discount_3", "label": "Discount for 3 or more items (%)", "default": 15},
-    {"type": "checkbox", "id": "discount_is_live", "label": "Discount is live", "default": false, "info": "The theme cannot discount the cart. Before ticking this, create a matching automatic discount in Shopify Admin > Discounts > Create discount > Amount off products (Automatic discount): percentage = the values above, applies to your pillow, comforter and add-on collections, minimum purchase requirement = minimum quantity of items 2 (make a second one at 3 items for the higher %; Shopify applies the best one). Or use a Buy X get Y discount. While unticked, the builder shows full prices and makes no savings claim."},
-    {"type": "header", "content": "Text while the discount is live"},
-    {"type": "paragraph", "content": "Tokens: {max} (highest %), {d2}, {d3}, {AppName}."},
-    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Bundle & save"},
-    {"type": "text", "id": "heading", "label": "Heading", "default": "Build Your Sleep Stack, Save Up to {max}%"},
-    {"type": "textarea", "id": "body", "label": "Text", "default": "Pick a pillow and a comforter: 2 items save {d2}%, 3 or more save {d3}%."},
-    {"type": "text", "id": "note_live", "label": "Checkout note", "default": "Bundle savings applied automatically at checkout. No code needed."},
-    {"type": "text", "id": "hint_text", "label": "Next-tier hint", "default": "Add one more item to save {pct}%", "info": "Token: {pct}."},
-    {"type": "header", "content": "Text while the discount is off"},
-    {"type": "text", "id": "eyebrow_off", "label": "Eyebrow", "default": "Build a bundle"},
-    {"type": "text", "id": "heading_off", "label": "Heading", "default": "Build Your Sleep Stack"},
-    {"type": "textarea", "id": "body_off", "label": "Text", "default": "Pick a pillow and a comforter and add your whole set to the cart in one go."},
-    {"type": "text", "id": "note_off", "label": "Note", "default": "Shipping and any discounts are calculated at checkout."},
-    {"type": "header", "content": "Labels"},
-    {"type": "text", "id": "step1_label", "label": "Step 1", "default": "Pick your pillow"},
-    {"type": "text", "id": "qty_label", "label": "Pillow quantity label", "default": "How many?"},
-    {"type": "text", "id": "qty_1_label", "label": "Quantity 1 label", "default": "1 pillow"},
-    {"type": "text", "id": "qty_2_label", "label": "Quantity 2 label", "default": "2 pillows"},
-    {"type": "text", "id": "step2_label", "label": "Step 2", "default": "Pick your comforter"},
-    {"type": "text", "id": "step3_label", "label": "Step 3", "default": "Add-on"},
-    {"type": "text", "id": "optional_label", "label": "Optional label", "default": "(optional)"},
-    {"type": "text", "id": "summary_title", "label": "Summary title", "default": "Your bundle"},
-    {"type": "text", "id": "discount_label", "label": "Discount row label", "default": "Bundle discount"},
-    {"type": "text", "id": "total_label", "label": "Total label", "default": "Bundle total"},
-    {"type": "text", "id": "button_label", "label": "Button label", "default": "Add bundle to cart"},
-    {"type": "text", "id": "noscript_note", "label": "No-JavaScript note", "default": "Without JavaScript the first option of each step is added. You can change sizes in the cart."}
+    {
+      "type": "checkbox",
+      "id": "hide_mobile",
+      "label": "Hide on mobile",
+      "default": false,
+      "info": "Hides this section on screens narrower than 750px."
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "collection",
+      "id": "pillow_collection",
+      "label": "Pillow collection",
+      "info": "Blank uses the collection with the handle \"pillows\". While it is empty, placeholder cards show and the button is disabled."
+    },
+    {
+      "type": "collection",
+      "id": "comforter_collection",
+      "label": "Comforter collection",
+      "info": "Blank uses the collection with the handle \"comforters\"."
+    },
+    {
+      "type": "range",
+      "id": "options_to_show",
+      "label": "Products per step",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "checkbox",
+      "id": "show_addon",
+      "label": "Show add-on step",
+      "default": true
+    },
+    {
+      "type": "product",
+      "id": "addon_product",
+      "label": "Add-on product",
+      "info": "For example the Silk Sleep Mask. Shoppers tick it to add it to the bundle."
+    },
+    {
+      "type": "text",
+      "id": "addon_name",
+      "label": "Add-on placeholder name",
+      "default": "Silk Sleep Mask",
+      "info": "Shown until a product is picked."
+    },
+    {
+      "type": "text",
+      "id": "addon_line",
+      "label": "Add-on one-liner",
+      "default": "Blocks light, kind to skin and hair."
+    },
+    {
+      "type": "header",
+      "content": "Bundle discount"
+    },
+    {
+      "type": "number",
+      "id": "discount_2",
+      "label": "Discount for 2 items (%)",
+      "default": 10
+    },
+    {
+      "type": "number",
+      "id": "discount_3",
+      "label": "Discount for 3 or more items (%)",
+      "default": 15
+    },
+    {
+      "type": "paragraph",
+      "content": "The theme cannot discount the cart itself. Buy X get Y discounts also work."
+    },
+    {
+      "type": "checkbox",
+      "id": "discount_is_live",
+      "label": "Discount is live",
+      "default": false,
+      "info": "Tick only after creating a matching automatic discount (Discounts > Amount off products > Automatic: 2+ items and 3+ items, same % as above). While unticked, full prices are shown."
+    },
+    {
+      "type": "header",
+      "content": "Text while the discount is live"
+    },
+    {
+      "type": "paragraph",
+      "content": "Tokens: {max} (highest %), {d2}, {d3}, {AppName}."
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Bundle & save"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Build Your Sleep Stack, Save Up to {max}%"
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Text",
+      "default": "Pick a pillow and a comforter: 2 items save {d2}%, 3 or more save {d3}%."
+    },
+    {
+      "type": "text",
+      "id": "note_live",
+      "label": "Checkout note",
+      "default": "Bundle savings applied automatically at checkout. No code needed."
+    },
+    {
+      "type": "text",
+      "id": "hint_text",
+      "label": "Next-tier hint",
+      "default": "Add one more item to save {pct}%",
+      "info": "Token: {pct}."
+    },
+    {
+      "type": "header",
+      "content": "Text while the discount is off"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_off",
+      "label": "Eyebrow",
+      "default": "Build a bundle"
+    },
+    {
+      "type": "text",
+      "id": "heading_off",
+      "label": "Heading",
+      "default": "Build Your Sleep Stack"
+    },
+    {
+      "type": "textarea",
+      "id": "body_off",
+      "label": "Text",
+      "default": "Pick a pillow and a comforter and add your whole set to the cart in one go."
+    },
+    {
+      "type": "text",
+      "id": "note_off",
+      "label": "Note",
+      "default": "Shipping and any discounts are calculated at checkout."
+    },
+    {
+      "type": "header",
+      "content": "Labels"
+    },
+    {
+      "type": "text",
+      "id": "step1_label",
+      "label": "Step 1",
+      "default": "Pick your pillow"
+    },
+    {
+      "type": "text",
+      "id": "qty_label",
+      "label": "Pillow quantity label",
+      "default": "How many?"
+    },
+    {
+      "type": "text",
+      "id": "qty_1_label",
+      "label": "Quantity 1 label",
+      "default": "1 pillow"
+    },
+    {
+      "type": "text",
+      "id": "qty_2_label",
+      "label": "Quantity 2 label",
+      "default": "2 pillows"
+    },
+    {
+      "type": "text",
+      "id": "step2_label",
+      "label": "Step 2",
+      "default": "Pick your comforter"
+    },
+    {
+      "type": "text",
+      "id": "step3_label",
+      "label": "Step 3",
+      "default": "Add-on"
+    },
+    {
+      "type": "text",
+      "id": "optional_label",
+      "label": "Optional label",
+      "default": "(optional)"
+    },
+    {
+      "type": "text",
+      "id": "summary_title",
+      "label": "Summary title",
+      "default": "Your bundle"
+    },
+    {
+      "type": "text",
+      "id": "discount_label",
+      "label": "Discount row label",
+      "default": "Bundle discount"
+    },
+    {
+      "type": "text",
+      "id": "total_label",
+      "label": "Total label",
+      "default": "Bundle total"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Add bundle to cart"
+    },
+    {
+      "type": "text",
+      "id": "noscript_note",
+      "label": "No-JavaScript note",
+      "default": "Without JavaScript the first option of each step is added. You can change sizes in the cart."
+    }
   ],
-  "presets": [{"name": "Somna bundle builder"}]
+  "presets": [
+    {
+      "name": "Somna bundle builder"
+    }
+  ]
 }
 {% endschema %}

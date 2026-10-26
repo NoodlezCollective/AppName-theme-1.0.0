@@ -21,6 +21,21 @@
   assign use_collection = false
   if collection != blank and collection.products_count > 0
     assign use_collection = true
+  else
+    comment
+      Chosen collection missing or empty: use picked product blocks if any,
+      otherwise the store's own products (never placeholders on a live store).
+    endcomment
+    assign picked_blocks = 0
+    for block in section.blocks
+      if block.settings.product != blank
+        assign picked_blocks = picked_blocks | plus: 1
+      endif
+    endfor
+    if picked_blocks == 0 and collections.all.products_count > 0
+      assign collection = collections.all
+      assign use_collection = true
+    endif
   endif
 -%}
 <section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} s-section" aria-labelledby="SomnaProductsTitle-{{ section.id }}">

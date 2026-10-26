@@ -32,8 +32,10 @@
   assign support_url = base | append: '/pages/support'
   assign fallback_urls = routes.all_products_collection_url | append: '|' | append: pillows_url | append: '|' | append: comforters_url | append: '|' | append: bundles_url | append: '|' | append: support_url | split: '|'
 
-  # Quick-link tiles: the menu's collection links (up to 4), else the
-  # design's Pillows / Comforters / Bundles collections.
+  comment
+    Quick-link tiles: the menu's collection links (up to 4), else the
+    design's Pillows / Comforters / Bundles collections.
+  endcomment
   assign quick_handles = ''
   if section.settings.show_quick_links
     if menu != blank and menu.links.size > 0
