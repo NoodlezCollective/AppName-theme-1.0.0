@@ -300,8 +300,31 @@
     window.addEventListener('resize', render);
   }
 
+  /* ---------- Autoplay brand film: start only once it is on screen ---------- */
+
+  function initLazyAutoplay(root) {
+    each(root, 'video[data-sh-lazy-autoplay]', function (video) {
+      if (video.__shLazy) return;
+      video.__shLazy = true;
+      if (reducedMotion()) return;
+      if (typeof IntersectionObserver !== 'function') { video.preload = 'auto'; video.play().catch(function () {}); return; }
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            if (video.preload === 'none') video.preload = 'auto';
+            var p = video.play();
+            if (p && p.catch) p.catch(function () {});
+          } else {
+            video.pause();
+          }
+        });
+      }, {rootMargin: '200px 0px'}).observe(video);
+    });
+  }
+
   function init(root) {
     initRings(root);
+    initLazyAutoplay(root);
     each(root, '[data-sh-swipe]', initSwipe);
     initCompare(root);
     initSticky();

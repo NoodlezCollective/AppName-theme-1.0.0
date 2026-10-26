@@ -2,7 +2,9 @@
   Somna image frame: the merchant's image cropped to the frame, otherwise the
   design's labelled photo placeholder (shot code + brief) so the layout reads
   exactly like the design canvas until photography is uploaded.
-  {% render 'somna-media', image: section.settings.image, alt: '…', code: 'H-01 · Hero lifestyle', brief: '…', ratio: '5 / 4', radius: 28, class: '', icon: 'camera', dark: false, sizes: '100vw', loading: 'lazy', label: 'Photo placeholder H-01' %}
+  {% render 'somna-media', image: section.settings.image, alt: '…', code: 'H-01 · Hero lifestyle', brief: '…', ratio: '5 / 4', radius: 28, class: '', icon: 'camera', dark: false, sizes: '100vw', loading: 'lazy', label: 'Photo placeholder H-01', priority: false %}
+  priority: true for the first, above-the-fold image of a page (LCP): eager,
+  fetchpriority=high and a preload hint. Everything else lazy-loads.
   ratio: CSS aspect-ratio, or blank to size with CSS (min-height on the class).
 {%- endcomment -%}
 {%- liquid
@@ -17,7 +19,11 @@
 -%}
 {%- if image != blank -%}
   <div class="s-media s-r-{{ radius }}{% if class %} {{ class }}{% endif %}" style="{{ style }}">
-    {{ image | image_url: width: 2000 | image_tag: widths: '400, 600, 800, 1000, 1200, 1600, 2000', sizes: sizes, loading: loading, alt: alt }}
+    {%- if priority -%}
+      {{ image | image_url: width: 2000 | image_tag: widths: '400, 600, 800, 1000, 1200, 1600, 2000', sizes: sizes, loading: 'eager', fetchpriority: 'high', preload: true, alt: alt }}
+    {%- else -%}
+      {{ image | image_url: width: 2000 | image_tag: widths: '400, 600, 800, 1000, 1200, 1600, 2000', sizes: sizes, loading: loading, decoding: 'async', alt: alt }}
+    {%- endif -%}
   </div>
 {%- else -%}
   {%- assign ph_label = label | default: code | default: 'Photo placeholder' -%}

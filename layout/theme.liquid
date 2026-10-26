@@ -8,14 +8,11 @@
     {%- render 'meta-tags' -%}
     <link rel="canonical" href="{{ canonical_url }}">
     <link rel="preconnect" href="https://cdn.shopify.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap">
+    {{ 'inter-latin-var.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+    {{ 'outfit-latin-var.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
     <link rel="icon" type="image/svg+xml" href="{{ 'favicon.svg' | asset_url }}">
     {%- render 'css-variables' -%}
     {{ 'theme.css' | asset_url | stylesheet_tag: preload: true }}
-    {{ 'somna.css' | asset_url | stylesheet_tag }}
-    {{ 'somna-chrome.css' | asset_url | stylesheet_tag }}
     <script>window.theme = window.theme || {}; window.theme.routes = {root: "{{ routes.root_url }}", cart: "{{ routes.cart_url }}", cartAdd: "{{ routes.cart_add_url }}", cartChange: "{{ routes.cart_change_url }}", cartUpdate: "{{ routes.cart_update_url }}", search: "{{ routes.search_url }}", predictiveSearch: "{{ routes.predictive_search_url }}", products: "{{ routes.all_products_collection_url }}"}; window.theme.moneyFormat = {{ shop.money_format | json }}; window.theme.brandName = {{ settings.brand_name | json }};</script>
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
     <script src="{{ 'somna.js' | asset_url }}" defer></script>

@@ -47,7 +47,7 @@
       </div>
       <div class="sh-film{% if section.settings.hide_film_mobile %} sh-hide-mobile{% endif %}" data-sh-video>
         {%- if has_video and section.settings.autoplay -%}
-          <video autoplay muted loop playsinline{% if poster != blank %} poster="{{ poster | image_url: width: 1600 }}"{% endif %} aria-label="{{ film_label | escape }}">
+          <video muted loop playsinline preload="none" data-sh-lazy-autoplay{% if poster != blank %} poster="{{ poster | image_url: width: 1600 }}"{% endif %} aria-label="{{ film_label | escape }}">
             {%- for source in video.sources -%}<source src="{{ source.url }}" type="{{ source.mime_type }}">{%- endfor -%}
           </video>
         {%- else -%}

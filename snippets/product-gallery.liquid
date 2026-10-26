@@ -37,8 +37,10 @@
             assign index = forloop.index0
             assign alt = media.alt | default: product.title
             assign loading = 'lazy'
+            assign fetchpriority = 'auto'
             if index == active_index
               assign loading = 'eager'
+              assign fetchpriority = 'high'
             endif
           -%}
           <div class="sp-gallery__slide{% if index == active_index %} is-active{% endif %}" role="group" aria-roledescription="slide" aria-label="{{ forloop.index }} of {{ count }}" data-gallery-slide data-media-id="{{ media.id }}">
@@ -48,7 +50,7 @@
               {%- when 'external_video' -%}
                 {{ media | external_video_tag: loading: 'lazy' }}
               {%- else -%}
-                {{ media.preview_image | image_url: width: 1600 | image_tag: widths: '400, 600, 800, 1000, 1200, 1600', sizes: sizes, loading: loading, alt: alt }}
+                {{ media.preview_image | image_url: width: 1600 | image_tag: widths: '400, 600, 800, 1000, 1200, 1600', sizes: sizes, loading: loading, fetchpriority: fetchpriority, alt: alt }}
             {%- endcase -%}
           </div>
         {%- endfor -%}

@@ -21,7 +21,7 @@
 
   {%- if article.image != blank -%}
     <figure class="article__hero">
-      {{ article.image | image_url: width: 1600, height: 900, crop: 'center' | image_tag: widths: '400, 600, 800, 1000, 1200, 1600', sizes: '(min-width: 64em) 760px, 100vw', loading: 'eager', decoding: 'async', alt: image_alt, style: 'width:100%;aspect-ratio:16/9' }}
+      {{ article.image | image_url: width: 1600, height: 900, crop: 'center' | image_tag: widths: '400, 600, 800, 1000, 1200, 1600', sizes: '(min-width: 64em) 760px, 100vw', loading: 'eager', fetchpriority: 'high', alt: image_alt, style: 'width:100%;aspect-ratio:16/9' }}
     </figure>
   {%- endif -%}
 
