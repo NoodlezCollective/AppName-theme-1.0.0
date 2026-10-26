@@ -161,3 +161,16 @@
 .sh-cta .sh-cta__media .s-ph__brief { max-width: 320px; }
 .sh-ring__track { stroke: var(--s-lavender); }
 .sh-ring__arc { stroke: var(--s-peach); }
+
+/* Compact hero: keep the next section (press bar) in view on first load so
+   shoppers can see there is more below. */
+.sh-hero__inner { padding-top: 40px; padding-bottom: 40px; gap: 40px; }
+.sh-hero__copy { gap: 16px; }
+.sh-hero__media > .s-ph, .sh-hero__media > .s-media { aspect-ratio: 16 / 10 !important; }
+.sh-hero__review { bottom: 20px; }
+@media (min-width: 990px) {
+  .sh-hero__media > .s-ph, .sh-hero__media > .s-media {
+    aspect-ratio: auto !important;
+    height: clamp(340px, calc(100vh - 320px), 460px);
+  }
+}
