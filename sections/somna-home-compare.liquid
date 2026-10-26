@@ -14,13 +14,15 @@
   assign col_brand = section.settings.col_brand | replace: '{AppName}', brand_lower
   assign col_other = section.settings.col_other | replace: '{AppName}', brand
 -%}
-<section class="sh s-section s-bg-soft" aria-labelledby="SomnaCompareTitle-{{ section.id }}">
+<section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} s-section s-bg-soft" aria-labelledby="SomnaCompareTitle-{{ section.id }}">
   <div class="s-wrap s-wrap--960 sh-stack-40">
     <div class="sh-head-center">
       {%- if eyebrow != blank -%}<span class="s-eyebrow">{{ eyebrow }}</span>{%- endif -%}
       <h2 id="SomnaCompareTitle-{{ section.id }}" class="s-h2">{{ heading }}</h2>
     </div>
     {%- if section.blocks.size > 0 -%}
+      <details class="sh-compare__details" open data-sh-compare{% if section.settings.collapse_mobile %} data-collapse-mobile{% endif %}>
+      <summary class="sh-compare__toggle">{{ section.settings.toggle_label | default: 'See how we compare' }}<span class="s-faq__icon" aria-hidden="true"></span></summary>
       <div class="sh-compare__box">
         <table class="sh-compare__table">
           <thead>
@@ -47,6 +49,7 @@
           </tbody>
         </table>
       </div>
+      </details>
     {%- endif -%}
   </div>
 </section>
@@ -56,6 +59,9 @@
   "name": "Somna comparison",
   "max_blocks": 12,
   "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
+    {"type": "checkbox", "id": "collapse_mobile", "label": "Collapse the table on mobile", "default": true},
+    {"type": "text", "id": "toggle_label", "label": "Mobile toggle label", "default": "See how we compare"},
     {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The {AppName} difference"},
     {"type": "text", "id": "heading", "label": "Heading", "default": "{AppName} vs. Ordinary Bedding"},
     {"type": "text", "id": "col_feature", "label": "First column heading", "default": "What matters"},

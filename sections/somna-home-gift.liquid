@@ -30,7 +30,7 @@
     assign status = unlocked_text
   endif
 -%}
-<section class="sh sh-gift" aria-labelledby="SomnaGiftTitle-{{ section.id }}">
+<section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} sh-gift" aria-labelledby="SomnaGiftTitle-{{ section.id }}">
   <div class="sh-inner sh-gift__inner"
     data-sh-gift
     data-threshold="{{ threshold }}"
@@ -58,6 +58,7 @@
 {
   "name": "Somna free gift",
   "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
     {"type": "paragraph", "content": "The threshold and gift come from Theme settings > Cart reward. Tokens: {threshold}, {remaining}, {gift}."},
     {"type": "text", "id": "heading", "label": "Heading", "default": "Spend {threshold}, Get a Free Silk Sleep Mask"},
     {"type": "textarea", "id": "body", "label": "Text", "default": "Added to your cart automatically when you reach the threshold. No code needed."},

@@ -6,6 +6,8 @@
  * - brand film / customer videos: play inline from a <template>
  * - proof rings: arcs draw in when scrolled into view
  * - free gift banner: live progress on theme:cart:updated
+ * - phones: swipe rows get dots, the comparison table starts collapsed and a
+ *   sticky buy bar appears once the hero buttons scroll away
  * Loaded (deferred) by several sections; runs once.
  */
 (function () {
@@ -203,7 +205,107 @@
     updateGift(event.detail && event.detail.cart);
   });
 
-  function init(root) { initRings(root); }
+  /* ---------- Mobile: swipe rows with dots ---------- */
+
+  var MOBILE = '(max-width: 749px)';
+  function isMobile() {
+    return typeof window.matchMedia === 'function' && window.matchMedia(MOBILE).matches;
+  }
+  function slidesOf(row) {
+    var slides = [];
+    Array.prototype.forEach.call(row.children, function (child) {
+      // Bestseller blocks wrap each card in a display: contents element.
+      if (child.style && child.style.display === 'contents') {
+        Array.prototype.forEach.call(child.children, function (c) { slides.push(c); });
+      } else {
+        slides.push(child);
+      }
+    });
+    return slides;
+  }
+  function initSwipe(row) {
+    if (row.__shSwipe) return;
+    row.__shSwipe = true;
+    var slides = slidesOf(row);
+    if (slides.length < 2) return;
+    var dots = document.createElement('div');
+    dots.className = 'sh-dots';
+    dots.setAttribute('role', 'group');
+    dots.setAttribute('aria-label', 'Choose slide');
+    slides.forEach(function (slide, index) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'sh-dot';
+      dot.setAttribute('aria-label', 'Show item ' + (index + 1) + ' of ' + slides.length);
+      dot.addEventListener('click', function () {
+        row.scrollTo({left: slide.offsetLeft - row.offsetLeft - parseFloat(getComputedStyle(row).paddingLeft || 0), behavior: reducedMotion() ? 'auto' : 'smooth'});
+      });
+      dots.appendChild(dot);
+    });
+    row.parentNode.insertBefore(dots, row.nextSibling);
+    var frame = 0;
+    function update() {
+      frame = 0;
+      var start = row.getBoundingClientRect().left;
+      var best = 0, bestDistance = Infinity;
+      slides.forEach(function (slide, index) {
+        var d = Math.abs(slide.getBoundingClientRect().left - start - parseFloat(getComputedStyle(row).paddingLeft || 0));
+        if (d < bestDistance) { bestDistance = d; best = index; }
+      });
+      if (row.scrollLeft + row.clientWidth >= row.scrollWidth - 4) best = slides.length - 1;
+      Array.prototype.forEach.call(dots.children, function (dot, index) {
+        dot.setAttribute('aria-current', index === best ? 'true' : 'false');
+      });
+    }
+    row.addEventListener('scroll', function () { if (!frame) frame = requestAnimationFrame(update); }, {passive: true});
+    window.addEventListener('resize', update);
+    update();
+  }
+
+  /* ---------- Mobile: comparison table collapses ---------- */
+
+  function initCompare(root) {
+    each(root, '[data-sh-compare][data-collapse-mobile]', function (details) {
+      if (isMobile()) details.open = false;
+    });
+  }
+
+  /* ---------- Mobile: sticky buy bar ---------- */
+
+  function initSticky() {
+    var bar = document.querySelector('[data-sh-sticky]');
+    var anchor = document.querySelector('[data-sh-sticky-anchor]');
+    if (!bar || !anchor || bar.__shSticky || typeof IntersectionObserver !== 'function') return;
+    bar.__shSticky = true;
+    var anchorVisible = true;
+    var footerVisible = false;
+    function render() {
+      var show = isMobile() && !anchorVisible && !footerVisible;
+      bar.hidden = !show;
+      document.documentElement.classList.toggle('sh-has-sticky', show);
+    }
+    new IntersectionObserver(function (entries) {
+      // Hidden only once the buttons have scrolled above the viewport.
+      var e = entries[0];
+      anchorVisible = e.isIntersecting || e.boundingClientRect.top > 0;
+      render();
+    }).observe(anchor);
+    var footer = document.querySelector('footer, .shopify-section-group-footer-group');
+    if (footer) {
+      new IntersectionObserver(function (entries) {
+        footerVisible = entries[0].isIntersecting;
+        render();
+      }).observe(footer);
+    }
+    window.addEventListener('resize', render);
+  }
+
+  function init(root) {
+    initRings(root);
+    each(root, '[data-sh-swipe]', initSwipe);
+    initCompare(root);
+    initSticky();
+  }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () { init(document); });
   } else {

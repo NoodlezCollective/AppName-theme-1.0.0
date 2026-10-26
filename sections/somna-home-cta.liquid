@@ -12,7 +12,7 @@
   assign image = section.settings.image
   assign image_alt = image.alt | default: section.settings.image_alt | replace: '{AppName}', brand
 -%}
-<section class="sh sh-cta" aria-labelledby="SomnaCtaTitle-{{ section.id }}">
+<section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} sh-cta" aria-labelledby="SomnaCtaTitle-{{ section.id }}">
   <div class="sh-inner sh-cta__inner">
     <div class="sh-cta__copy">
       <h2 id="SomnaCtaTitle-{{ section.id }}" class="s-h2 s-balance">{{ heading }}</h2>
@@ -37,6 +37,7 @@
 {
   "name": "Somna closing CTA",
   "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
     {"type": "text", "id": "heading", "label": "Heading", "default": "Your Best Sleep Starts Tonight"},
     {"type": "textarea", "id": "body", "label": "Text", "default": "Sleep on it for [100] nights. If it's not love, send it back for a full refund."},
     {"type": "text", "id": "button_label", "label": "Button label", "default": "Sleep Better"},

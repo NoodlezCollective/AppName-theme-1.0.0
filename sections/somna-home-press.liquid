@@ -9,7 +9,7 @@
   assign label = section.settings.label | replace: '{AppName}', brand
 -%}
 {%- if section.blocks.size > 0 -%}
-  <section class="sh s-marquee" aria-label="{{ label | escape }}">
+  <section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} s-marquee" aria-label="{{ label | escape }}">
     <div class="s-marquee__track" style="animation-duration: {{ section.settings.speed }}s;">
       {%- for pass in (1..2) -%}
         <ul class="s-marquee__list"{% if pass == 2 %} aria-hidden="true"{% else %} aria-hidden="false"{% endif %}>
@@ -34,6 +34,7 @@
   "name": "Somna press marquee",
   "max_blocks": 16,
   "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
     {"type": "text", "id": "label", "label": "Accessible label", "default": "As featured in"},
     {"type": "range", "id": "speed", "label": "Loop duration", "min": 10, "max": 90, "step": 5, "unit": "s", "default": 35}
   ],

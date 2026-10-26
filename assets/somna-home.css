@@ -174,3 +174,82 @@
     height: clamp(340px, calc(100vh - 320px), 460px);
   }
 }
+
+/* ---------- Comparison: toggle (only visible on phones) ---------- */
+.sh-compare__details > summary { display: none; }
+.sh-compare__details:not([open]) > summary ~ * { display: none; }
+
+/* ---------- Swipe-row dots, FAQ "more", sticky bar: phones only ---------- */
+.sh-dots, .sh-faq__more-mobile, .sh-sticky { display: none; }
+.sh-rings__wrap { flex: 1 1 460px; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.sh-rings__wrap > .sh-rings { flex: none; }
+
+/* ===== Phones (< 750px): shorter page, swipe rows, sticky buy bar ===== */
+@media (max-width: 749px) {
+  .sh-hide-mobile { display: none !important; }
+
+  /* Spacing: 96px -> 56px */
+  .sh.s-section { padding-top: 56px; padding-bottom: 56px; }
+  .sh-quiz { padding-top: 56px; }
+  .sh-proof, .sh-cta { padding-bottom: 56px; }
+  .sh-stack-40, .sh-why__inner { gap: 28px; }
+  .sh-why__top { gap: 28px; }
+  .sh-gift__inner { padding: 28px 24px; gap: 20px; }
+  .sh-gift__icon { width: 56px; height: 56px; }
+  .sh-quiz__inner { padding: 32px 24px; gap: 24px; }
+  .sh-quote { padding: 28px 24px; gap: 16px; }
+  .sh .sh-quote blockquote { font-size: 20px; }
+  .sh-cta__copy { padding: 36px 24px; }
+  .sh-cta .sh-cta__media { min-height: 200px; }
+
+  /* Swipe rows with peek: full-bleed track, cards ~80% wide */
+  .sh-swipe {
+    display: flex !important; grid-template-columns: none; gap: 16px;
+    overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+    margin-left: calc(-1 * var(--s-pad-x)); margin-right: calc(-1 * var(--s-pad-x));
+    padding: 0 var(--s-pad-x) 4px; scroll-padding: 0 var(--s-pad-x);
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .sh-swipe::-webkit-scrollbar { display: none; }
+  .sh-swipe { position: relative; }
+  .sh-swipe > *, .sh-swipe > [style*='contents'] > * { position: relative; flex: 0 0 80%; min-width: 0; scroll-snap-align: start; }
+  .sh-swipe--narrow > * { flex-basis: 62%; }
+  .sh-cats__grid .s-ph, .sh-cats__grid .s-media { aspect-ratio: 1 / 1 !important; }
+  .sh-feature { padding: 24px; }
+  .sh-ring { padding: 24px 16px; }
+  .sh-proof__inner > .sh-rings__wrap { flex-basis: 100%; }
+
+  .sh-dots { display: flex; justify-content: center; gap: 4px; margin-top: -12px; }
+  .sh-dot {
+    width: 24px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sh-dot::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--s-border); opacity: 0.45; transition: width 200ms ease, opacity 200ms ease; }
+  .sh-dot[aria-current='true']::before { width: 22px; background: var(--s-indigo); opacity: 1; }
+
+  /* Comparison table collapses behind a toggle */
+  .sh-compare__details > summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    min-height: 56px; padding: 12px 20px; border-radius: 20px; background: var(--s-white);
+    font: 600 16px var(--s-font-body); color: var(--s-indigo); cursor: pointer; list-style: none;
+  }
+  .sh-compare__details > summary::-webkit-details-marker { display: none; }
+  .sh-compare__details[open] > summary { border-radius: 20px 20px 0 0; }
+  .sh-compare__details[open] .s-faq__icon::before { content: '\2212'; }
+  .sh-compare__details[open] .sh-compare__box { border-radius: 0 0 20px 20px; }
+
+  /* FAQ: first N questions, then "More questions" */
+  .sh-faq__extra { display: none; }
+  .sh-faq__more-mobile { display: inline-flex; align-self: center; }
+
+  /* Sticky buy bar */
+  .sh-sticky:not([hidden]) {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); box-sizing: border-box;
+    background: var(--s-white); box-shadow: 0 -8px 24px rgba(45, 36, 92, 0.12);
+  }
+  .sh-sticky__text { font-size: 13px; line-height: 1.35; color: var(--s-muted); }
+  .sh-sticky .s-btn { flex: 0 0 auto; }
+  html.sh-has-sticky body { padding-bottom: 76px; }
+}

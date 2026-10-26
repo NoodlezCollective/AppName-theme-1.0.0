@@ -20,7 +20,7 @@
   assign review_name = section.settings.review_name | replace: '{AppName}', brand
   assign review_verified = section.settings.review_verified | replace: '{AppName}', brand
 -%}
-<section class="sh sh-hero" aria-labelledby="SomnaHeroTitle-{{ section.id }}">
+<section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} sh-hero" aria-labelledby="SomnaHeroTitle-{{ section.id }}">
   <div class="sh-inner sh-hero__inner">
     <div class="sh-hero__copy">
       {%- if rating_label != blank -%}
@@ -32,7 +32,7 @@
       <h1 id="SomnaHeroTitle-{{ section.id }}" class="sh-hero__title">{{ heading }}</h1>
       {%- if subheading != blank -%}<p class="sh-hero__sub">{{ subheading }}</p>{%- endif -%}
       {%- if primary_label != blank or secondary_label != blank -%}
-        <div class="sh-hero__ctas">
+        <div class="sh-hero__ctas" data-sh-sticky-anchor>
           {%- if primary_label != blank -%}<a class="s-btn s-btn--lg" href="{{ primary_url }}">{{ primary_label }}</a>{%- endif -%}
           {%- if secondary_label != blank -%}<a class="s-btn s-btn--lg s-btn--lavender sh-btn-px32" href="{{ secondary_url }}">{{ secondary_label }}</a>{%- endif -%}
         </div>
@@ -70,12 +70,23 @@
     </div>
   </div>
 </section>
+{%- if section.settings.sticky_mobile and primary_label != blank -%}
+  {%- assign sticky_label = section.settings.sticky_label | default: primary_label -%}
+  <div class="sh sh-sticky" data-sh-sticky hidden>
+    {%- if section.settings.sticky_text != blank -%}<span class="sh-sticky__text">{% echo section.settings.sticky_text | replace: '{AppName}', brand %}</span>{%- endif -%}
+    <a class="s-btn s-btn--md" href="{{ primary_url }}">{{ sticky_label }}</a>
+  </div>
+{%- endif -%}
 
 {% schema %}
 {
   "name": "Somna hero",
   "max_blocks": 6,
   "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
+    {"type": "checkbox", "id": "sticky_mobile", "label": "Sticky buy bar on mobile", "default": true, "info": "Appears once the hero buttons scroll out of view."},
+    {"type": "text", "id": "sticky_label", "label": "Sticky bar button", "default": "Shop Bestsellers"},
+    {"type": "text", "id": "sticky_text", "label": "Sticky bar text", "default": "[100]-night trial · Free returns"},
     {"type": "header", "content": "Rating"},
     {"type": "text", "id": "rating_label", "label": "Rating label", "default": "[X]+ Happy Sleepers", "info": "Blank uses the Rating label theme setting."},
     {"type": "text", "id": "rating_aria", "label": "Rating description for screen readers", "default": "Rated [4.8] out of 5"},

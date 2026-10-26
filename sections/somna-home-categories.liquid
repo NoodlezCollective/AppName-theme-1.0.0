@@ -9,14 +9,14 @@
   assign eyebrow = section.settings.eyebrow | replace: '{AppName}', brand
   assign heading = section.settings.heading | replace: '{AppName}', brand
 -%}
-<section class="sh s-section" aria-labelledby="SomnaCatsTitle-{{ section.id }}">
+<section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} s-section" aria-labelledby="SomnaCatsTitle-{{ section.id }}">
   <div class="s-wrap sh-stack-40">
     <div class="sh-head-center">
       {%- if eyebrow != blank -%}<span class="s-eyebrow">{{ eyebrow }}</span>{%- endif -%}
       <h2 id="SomnaCatsTitle-{{ section.id }}" class="s-h2">{{ heading }}</h2>
     </div>
     {%- if section.blocks.size > 0 -%}
-      <div class="sh-cats__grid">
+      <div class="sh-cats__grid sh-swipe" data-sh-swipe>
         {%- for block in section.blocks -%}
           {%- liquid
             assign c = block.settings.collection
@@ -58,6 +58,7 @@
   "name": "Somna categories",
   "max_blocks": 6,
   "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
     {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Shop by category"},
     {"type": "text", "id": "heading", "label": "Heading", "default": "Build Your Sleep Stack"}
   ],

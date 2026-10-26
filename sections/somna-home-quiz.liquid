@@ -17,7 +17,7 @@
   assign total = questions.size
   assign anchor = section.settings.anchor | strip | handleize
 -%}
-<section class="sh sh-quiz"{% if anchor != blank %} id="{{ anchor }}"{% endif %} aria-labelledby="SomnaQuizTitle-{{ section.id }}">
+<section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} sh-quiz"{% if anchor != blank %} id="{{ anchor }}"{% endif %} aria-labelledby="SomnaQuizTitle-{{ section.id }}">
   <div class="sh-inner sh-quiz__inner">
     <div class="sh-quiz__intro">
       {%- if eyebrow != blank -%}<span class="s-eyebrow">{{ eyebrow }}</span>{%- endif -%}
@@ -59,6 +59,7 @@
   "name": "Somna sleep quiz",
   "max_blocks": 50,
   "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
     {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "60-second sleep quiz"},
     {"type": "text", "id": "heading", "label": "Heading", "default": "Not Sure Where to Start?"},
     {"type": "textarea", "id": "body", "label": "Text", "default": "Tell us how you sleep and we'll match you with the right pillow height and comforter warmth."},

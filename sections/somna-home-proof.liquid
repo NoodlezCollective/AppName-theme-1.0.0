@@ -16,7 +16,7 @@
   assign initial = section.settings.initial | default: name | slice: 0
   assign circumference = 314.1593
 -%}
-<section class="sh sh-proof" aria-label="{% echo section.settings.label | replace: '{AppName}', brand | escape %}">
+<section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} sh-proof" aria-label="{% echo section.settings.label | replace: '{AppName}', brand | escape %}">
   <div class="sh-inner sh-proof__inner">
     {%- if quote != blank -%}
       <figure class="sh-quote">
@@ -38,7 +38,8 @@
       </figure>
     {%- endif -%}
     {%- if section.blocks.size > 0 or footnote != blank -%}
-      <div class="sh-rings" data-sh-rings>
+      <div class="sh-rings__wrap">
+      <div class="sh-rings sh-swipe sh-swipe--narrow" data-sh-rings data-sh-swipe>
         {%- for block in section.blocks -%}
           {%- liquid
             assign value = block.settings.value | at_least: 0 | at_most: 100
@@ -60,6 +61,7 @@
             <span class="sh-ring__label"><span class="s-sr">{{ shown }} </span>{{ label }}</span>
           </div>
         {%- endfor -%}
+      </div>
         {%- if footnote != blank -%}<p class="s-note">{{ footnote }}</p>{%- endif -%}
       </div>
     {%- endif -%}
@@ -72,6 +74,7 @@
   "name": "Somna proof",
   "max_blocks": 6,
   "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
     {"type": "text", "id": "label", "label": "Accessible section label", "default": "What sleepers say"},
     {"type": "header", "content": "Featured review"},
     {"type": "textarea", "id": "quote", "label": "Review", "default": "[Feature your single best long-form review here, ideally one naming a specific problem it solved, e.g. neck pain or night sweats.]"},

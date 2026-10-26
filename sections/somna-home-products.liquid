@@ -23,7 +23,7 @@
     assign use_collection = true
   endif
 -%}
-<section class="sh s-section" aria-labelledby="SomnaProductsTitle-{{ section.id }}">
+<section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} s-section" aria-labelledby="SomnaProductsTitle-{{ section.id }}">
   <div class="s-wrap sh-stack-40">
     <div class="s-head-row">
       <div class="s-head">
@@ -34,7 +34,7 @@
         <a class="s-link-arrow sh-products__all" href="{{ link_url }}">{{ link_label }} {% render 'somna-icon', name: 'arrow-right', size: 18 %}</a>
       {%- endif -%}
     </div>
-    <div class="s-grid s-grid--products">
+    <div class="s-grid s-grid--products sh-swipe" data-sh-swipe>
       {%- if use_collection -%}
         {%- for product in collection.products limit: section.settings.products_to_show -%}
           {%- render 'somna-product-card', product: product, actions: 'shop', cta_label: section.settings.cta_label -%}
@@ -69,6 +69,7 @@
   "name": "Somna bestsellers",
   "max_blocks": 12,
   "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
     {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our most loved"},
     {"type": "text", "id": "heading", "label": "Heading", "default": "Explore Our Most Loved Sleep Products"},
     {"type": "text", "id": "link_label", "label": "Link label", "default": "Shop All"},

@@ -9,20 +9,27 @@
   assign link_label = section.settings.link_label | replace: '{AppName}', brand
   assign link_url = section.settings.link_url | default: pages.support.url | default: '/pages/support'
 -%}
-<section class="sh s-section" aria-labelledby="SomnaFaqTitle-{{ section.id }}">
+<section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} s-section" aria-labelledby="SomnaFaqTitle-{{ section.id }}">
   <div class="s-wrap s-wrap--760 sh-faq__inner">
     <h2 id="SomnaFaqTitle-{{ section.id }}" class="s-h2">{{ heading }}</h2>
     {%- if section.blocks.size > 0 -%}
       <div class="s-faq">
         {%- for block in section.blocks -%}
-          <details class="s-faq__item"{% if block.settings.open %} open{% endif %} {{ block.shopify_attributes }}>
+          <details class="s-faq__item{% if forloop.index > section.settings.mobile_limit %} sh-faq__extra{% endif %}"{% if block.settings.open %} open{% endif %} {{ block.shopify_attributes }}>
             <summary class="s-faq__q">{% echo block.settings.question | replace: '{AppName}', brand %}<span class="s-faq__icon" aria-hidden="true"></span></summary>
             <div class="s-faq__a">{% echo block.settings.answer | replace: '{AppName}', brand %}</div>
           </details>
         {%- endfor -%}
       </div>
     {%- endif -%}
-    {%- if link_label != blank -%}<a class="sh-faq__more" href="{{ link_url }}">{{ link_label }}</a>{%- endif -%}
+    {%- liquid
+      assign has_extra = false
+      if section.blocks.size > section.settings.mobile_limit
+        assign has_extra = true
+      endif
+    -%}
+    {%- if link_label != blank -%}<a class="sh-faq__more{% if has_extra %} sh-hide-mobile{% endif %}" href="{{ link_url }}">{{ link_label }}</a>{%- endif -%}
+    {%- if has_extra -%}<a class="s-btn s-btn--lavender sh-faq__more-mobile" href="{{ link_url }}">{{ section.settings.more_label | default: 'More questions' }}</a>{%- endif -%}
   </div>
 </section>
 
@@ -31,6 +38,9 @@
   "name": "Somna FAQ",
   "max_blocks": 20,
   "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
+    {"type": "range", "id": "mobile_limit", "label": "Questions shown on mobile", "min": 1, "max": 12, "step": 1, "default": 4},
+    {"type": "text", "id": "more_label", "label": "Mobile \"more\" button", "default": "More questions"},
     {"type": "text", "id": "heading", "label": "Heading", "default": "Questions, Answered"},
     {"type": "text", "id": "link_label", "label": "Link label", "default": "Visit the Help Center"},
     {"type": "url", "id": "link_url", "label": "Link", "info": "Blank links to the page with the handle \"support\"."}
