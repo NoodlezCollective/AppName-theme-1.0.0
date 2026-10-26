@@ -21,8 +21,8 @@
         "type": "text",
         "id": "rating_label",
         "label": "Rating label",
-        "default": "[X]+ Happy Sleepers",
-        "info": "Next to the five stars on banners and the footer card."
+        "default": "{count}+ Happy Sleepers",
+        "info": "Hero pill and footer card. {count} is the live total of reviews and {rating} the average (see Reviews and guarantee); unknown numbers show as [X]."
       },
       {
         "type": "text",
@@ -64,6 +64,55 @@
         "id": "color_background",
         "label": "Background",
         "default": "#ffffff"
+      }
+    ]
+  },
+  {
+    "name": "Reviews and guarantee",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Review totals"
+      },
+      {
+        "type": "paragraph",
+        "content": "Ratings come from your review app (Judge.me, Okendo, Loox, Yotpo, Stamped…) through Shopify's standard product rating fields. Turn on \"product ratings / rich snippets\" sync in the app."
+      },
+      {
+        "type": "collection",
+        "id": "reviews_collection",
+        "label": "Count reviews from",
+        "info": "Blank counts all products (first 50)."
+      },
+      {
+        "type": "text",
+        "id": "reviews_count",
+        "label": "Total reviews (manual)",
+        "info": "Overrides the app's total, e.g. 124952. Leave blank to use live data."
+      },
+      {
+        "type": "text",
+        "id": "reviews_rating",
+        "label": "Average rating (manual)",
+        "info": "e.g. 4.8. Leave blank to use live data."
+      },
+      {
+        "type": "header",
+        "content": "Guarantee and shipping"
+      },
+      {
+        "type": "text",
+        "id": "guarantee_text",
+        "label": "Guarantee line",
+        "default": "100-night trial · Free returns · Lifetime warranty",
+        "info": "Shown beside Add to cart and Checkout. Separate items with ·. Only promise what your policies honour."
+      },
+      {
+        "type": "text",
+        "id": "shipping_promise",
+        "label": "Shipping promise",
+        "default": "Ships in 1–2 business days",
+        "info": "Shown above the guarantee on product pages. Add the same text as an announcement in the header bar."
       }
     ]
   },
@@ -194,8 +243,8 @@
         "type": "text",
         "id": "cart_trust_line",
         "label": "Trust line",
-        "default": "[100]-night trial • Free returns • Shop Pay · PayPal · Afterpay",
-        "info": "Items separated by •."
+        "default": "Shop Pay · PayPal · Afterpay",
+        "info": "Under the guarantee line (Theme settings › Reviews and guarantee). Items separated by •."
       },
       {
         "type": "header",

@@ -152,6 +152,7 @@
           {{- settings.cart_checkout_label | default: 'Secure Checkout' -}}
         </button>
       </form>
+      {%- render 'somna-guarantee', class: 's-guarantee--center sc-guarantee' -%}
       {%- if trust_items.size > 0 -%}
         <div class="sc-trust">
           {%- for trust in trust_items -%}

@@ -4378,3 +4378,14 @@ body a.s-btn, body a.s-btn:hover, body a.s-chip, body a.s-chip:hover, body a.s-l
   pointer-events: none;
 }
 .sc-footer :focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+
+/* ===== Reviews and guarantee ===== */
+.s-stars .s-stars__off { color: #e4dff5; }
+.s-guarantee { display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.4; color: var(--s-muted); }
+.s-guarantee__row { margin: 0; display: flex; align-items: flex-start; gap: 8px; }
+.s-guarantee__row .s-icon { flex: 0 0 auto; color: var(--s-success); margin-top: -1px; }
+.s-guarantee__ship .s-icon { color: var(--s-indigo); }
+.s-guarantee__ship { color: var(--s-ink); font-weight: 500; }
+.s-guarantee--center { align-items: center; text-align: center; }
+.s-guarantee--center .s-guarantee__row { justify-content: center; }
+.sc-guarantee { margin-top: 2px; }

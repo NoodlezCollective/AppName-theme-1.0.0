@@ -335,3 +335,6 @@ body .sp-cross__name a { color: var(--s-ink); text-decoration: none; }
 .sp-cross__add:disabled { opacity: 0.55; cursor: not-allowed; }
 .sp-cross__card--skeleton .sp-cross__line { display: block; height: 14px; border-radius: 7px; background: var(--s-mist); width: 70%; margin: 6px 0; }
 .sp-cross__card--skeleton .sp-cross__line--short { width: 35%; }
+
+/* Shipping promise + guarantee under Add to cart */
+.sp-guarantee { margin-top: -4px; }

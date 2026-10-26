@@ -1,0 +1,31 @@
+{%- comment -%}
+  One review card for the Somna "Recent reviews" strip.
+  {% render 'somna-review-card', body: '…', rating: 5, author: 'Jenna R.', verified: true, photo: image, product: product, product_label: '', max_chars: 140, attrs: block.shopify_attributes %}
+{%- endcomment -%}
+{%- liquid
+  assign max_chars = max_chars | default: 140
+  assign quote = body | strip_html | strip | truncate: max_chars
+  assign name = author | default: 'Verified customer'
+  assign product_name = product.title | default: product_label
+  assign initial = name | remove: '[' | strip | slice: 0, 1 | upcase
+-%}
+<li class="sh-review"{% if attrs %} {{ attrs }}{% endif %}>
+  <div class="sh-review__top">
+    <span class="sh-review__photo" aria-hidden="true">
+      {%- if photo != blank -%}
+        {{ photo | image_url: width: 160, height: 160, crop: 'center' | image_tag: loading: 'lazy', alt: '', width: 64, height: 64 }}
+      {%- else -%}
+        {{ initial }}
+      {%- endif -%}
+    </span>
+    {%- if rating != blank and rating != 0 -%}{%- render 'somna-stars', rating: rating, size: 15 -%}{%- endif -%}
+  </div>
+  <blockquote class="sh-review__quote">“{{ quote }}”</blockquote>
+  <p class="sh-review__by">
+    <strong>{{ name }}</strong>
+    {%- if verified -%}<span class="s-verified"> ✓ Verified Buyer</span>{%- endif -%}
+    {%- if product_name != blank -%}
+      <br><span class="sh-review__product">{% if product != blank %}<a href="{{ product.url }}">{{ product_name }}</a>{% else %}{{ product_name }}{% endif %}</span>
+    {%- endif -%}
+  </p>
+</li>

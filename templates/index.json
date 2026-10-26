@@ -31,7 +31,7 @@
         "trust_warranty"
       ],
       "settings": {
-        "rating_label": "[X]+ Happy Sleepers",
+        "rating_label": "{count}+ Happy Sleepers",
         "rating_aria": "Rated [4.8] out of 5",
         "heading": "Sleep Cooler. Wake Softer. Cloud-Like Comfort for Every Kind of Sleeper.",
         "subheading": "Pillows that align and comforters that adapt, designed around the way you actually sleep. Try any of them for [100] nights.",
@@ -594,11 +594,47 @@
         "shot_brief": "Sleeper stretching awake, soft morning light, rumpled MarshMellow Comforter",
         "placeholder_label": "Photo placeholder H-02"
       }
+    },
+    "reviews": {
+      "type": "somna-home-reviews",
+      "blocks": {
+        "review_1": {
+          "type": "review",
+          "settings": {
+            "quote": "[Short review quote about sleeping cooler, from your review app]",
+            "author": "[Reviewer name]",
+            "product_label": "CloudCool Cooling Comforter"
+          }
+        },
+        "review_2": {
+          "type": "review",
+          "settings": {
+            "quote": "[Short review quote about neck pain or support, from your review app]",
+            "author": "[Reviewer name]",
+            "product_label": "CloudAlign Pillow"
+          }
+        },
+        "review_3": {
+          "type": "review",
+          "settings": {
+            "quote": "[Short review quote about softness or washability, from your review app]",
+            "author": "[Reviewer name]",
+            "product_label": "MarshMellow Comforter"
+          }
+        }
+      },
+      "block_order": [
+        "review_1",
+        "review_2",
+        "review_3"
+      ],
+      "settings": {}
     }
   },
   "order": [
     "hero",
     "press",
+    "reviews",
     "bestsellers",
     "free_gift",
     "categories",

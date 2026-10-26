@@ -1,7 +1,7 @@
 {
   "current": {
     "brand_name": "Somna",
-    "rating_label": "[X]+ Happy Sleepers",
+    "rating_label": "{count}+ Happy Sleepers",
     "cart_heading": "Your Sleep Stack",
     "color_primary": "#4c4184",
     "color_accent": "#ffa38b",
@@ -26,9 +26,11 @@
     "cart_total_label": "Estimated total",
     "cart_total_note": "Taxes, discounts and shipping calculated at checkout.",
     "cart_checkout_label": "Secure Checkout",
-    "cart_trust_line": "[100]-night trial • Free returns • Shop Pay · PayPal · Afterpay",
+    "cart_trust_line": "Shop Pay · PayPal · Afterpay",
     "cart_empty_heading": "Your sleep stack is empty",
     "cart_empty_text": "Start with our most loved pillow, and get {gift} over {threshold}.",
-    "cart_empty_button": "Shop Bestsellers"
+    "cart_empty_button": "Shop Bestsellers",
+    "guarantee_text": "100-night trial · Free returns · Lifetime warranty",
+    "shipping_promise": "Ships in 1–2 business days"
   }
 }

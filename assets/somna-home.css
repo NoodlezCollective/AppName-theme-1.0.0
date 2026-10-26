@@ -253,3 +253,37 @@
   .sh-sticky .s-btn { flex: 0 0 auto; }
   html.sh-has-sticky body { padding-bottom: 76px; }
 }
+
+/* Sticky bar guarantee */
+.sh-sticky__text { display: flex; align-items: center; gap: 6px; }
+.sh-sticky__text .s-icon { flex: 0 0 auto; color: var(--s-success); }
+
+/* ---------- Recent reviews strip (under the press bar) ---------- */
+.sh-reviews { padding: 48px var(--s-pad-x) 0; }
+.sh-reviews__inner { padding: 0; display: flex; flex-direction: column; gap: 24px; }
+.sh-reviews__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
+.sh-reviews__title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.sh .sh-reviews__title { margin: 0; font-family: var(--s-font-display); font-size: 22px; font-weight: 600; line-height: 1.25; color: var(--s-indigo); }
+.sh-reviews__summary { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--s-muted); }
+.sh-reviews__summary strong { color: var(--s-ink); font-weight: 600; }
+.sh-reviews__all { color: var(--s-indigo); }
+.sh-reviews__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.sh-review { background: var(--s-soft); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box; }
+.sh-review__top { display: flex; align-items: center; gap: 14px; }
+.sh-review__photo {
+  width: 56px; height: 56px; flex: 0 0 auto; border-radius: 12px; overflow: hidden; background: var(--s-mist);
+  display: flex; align-items: center; justify-content: center; font-family: var(--s-font-display); font-weight: 700; font-size: 22px; color: var(--s-indigo);
+}
+.sh-review__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sh .sh-review__quote { margin: 0; font-family: var(--s-font-display); font-size: 18px; font-weight: 500; line-height: 1.4; color: var(--s-ink); }
+.sh-review__by { margin: 0; margin-top: auto; font-size: 14px; line-height: 1.5; color: var(--s-ink); }
+.sh-review__by strong { font-weight: 600; }
+.sh-review__product, .sh-review__product a { color: var(--s-muted); }
+.sh-reviews__app { min-width: 0; }
+@media (max-width: 749px) {
+  .sh-reviews { padding-top: 40px; }
+  .sh-reviews__list { display: flex; }
+}
+@media (max-width: 749px) {
+  .sh-hero__review { position: relative; left: auto; bottom: auto; max-width: none; margin: -40px 16px 0; }
+}

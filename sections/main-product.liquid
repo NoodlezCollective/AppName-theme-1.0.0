@@ -198,6 +198,7 @@
             {%- render 'product-quantity', value: quantity, id: 'product-quantity', form_id: form_id -%}
             {%- render 'product-add-to-cart', variant: current, form_id: form_id, label: atc_label, total: atc_total -%}
           </div>
+          {%- if section.settings.show_guarantee -%}{%- render 'somna-guarantee', shipping: true, class: 'sp-guarantee' -%}{%- endif -%}
 
           {%- capture trust -%}
             {%- if section.settings.trust_1 != blank -%}
@@ -442,6 +443,13 @@
       "id": "trust_3",
       "label": "Trust card 3 (shield)",
       "default": "[Lifetime] warranty"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_guarantee",
+      "label": "Show shipping promise and guarantee under Add to cart",
+      "default": true,
+      "info": "Text: Theme settings › Reviews and guarantee."
     },
     {
       "type": "checkbox",

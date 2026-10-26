@@ -1,0 +1,30 @@
+{%- comment -%}
+  Risk-reversal line shown beside buy buttons (product page, cart drawer, cart
+  page, homepage sticky bar). Text comes from Theme settings › Reviews and
+  guarantee; items are separated by "·".
+  {% render 'somna-guarantee', shipping: true, class: '' %}
+  shipping: true adds the shipping promise above the guarantee.
+{%- endcomment -%}
+{%- liquid
+  assign items = settings.guarantee_text | replace: '{AppName}', settings.brand_name | split: '·'
+  assign promise = settings.shipping_promise | strip
+-%}
+{%- if items.size > 0 or shipping and promise != blank -%}
+  <div class="s-guarantee{% if class %} {{ class }}{% endif %}">
+    {%- if shipping and promise != blank -%}
+      <p class="s-guarantee__row s-guarantee__ship">{%- render 'somna-icon', name: 'truck', size: 18 -%}<span>{{ promise }}</span></p>
+    {%- endif -%}
+    {%- if items.size > 0 -%}
+      <p class="s-guarantee__row">
+        {%- render 'somna-icon', name: 'shield-check', size: 18 -%}
+        <span>
+          {%- for item in items -%}
+            {%- assign t = item | strip -%}
+            {%- if t == blank -%}{%- continue -%}{%- endif -%}
+            {%- unless forloop.first -%}<span class="s-guarantee__sep" aria-hidden="true"> · </span>{%- endunless -%}{{ t }}
+          {%- endfor -%}
+        </span>
+      </p>
+    {%- endif -%}
+  </div>
+{%- endif -%}

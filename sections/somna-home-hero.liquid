@@ -6,7 +6,15 @@
 {{ 'somna-home.css' | asset_url | stylesheet_tag }}
 {%- liquid
   assign brand = settings.brand_name
-  assign rating_label = section.settings.rating_label | default: settings.rating_label | replace: '{AppName}', brand
+  assign rating_label_template = section.settings.rating_label | default: settings.rating_label
+  capture rating_label
+    render 'somna-review-summary', part: 'label', label: rating_label_template
+  endcapture
+  assign rating_label = rating_label | strip
+  capture store_rating
+    render 'somna-review-summary', part: 'rating'
+  endcapture
+  assign store_rating = store_rating | strip
   assign rating_aria = section.settings.rating_aria | replace: '{AppName}', brand
   assign heading = section.settings.heading | replace: '{AppName}', brand
   assign subheading = section.settings.subheading | replace: '{AppName}', brand
@@ -25,7 +33,7 @@
     <div class="sh-hero__copy">
       {%- if rating_label != blank -%}
         <div class="sh-hero__rating">
-          {%- render 'somna-stars', size: 16, label: rating_aria -%}
+          {%- if store_rating != blank -%}{%- render 'somna-stars', size: 16, rating: store_rating -%}{%- else -%}{%- render 'somna-stars', size: 16, label: rating_aria -%}{%- endif -%}
           <strong>{{ rating_label }}</strong>
         </div>
       {%- endif -%}
@@ -73,7 +81,14 @@
 {%- if section.settings.sticky_mobile and primary_label != blank -%}
   {%- assign sticky_label = section.settings.sticky_label | default: primary_label -%}
   <div class="sh sh-sticky" data-sh-sticky hidden>
-    {%- if section.settings.sticky_text != blank -%}<span class="sh-sticky__text">{% echo section.settings.sticky_text | replace: '{AppName}', brand %}</span>{%- endif -%}
+    {%- liquid
+      assign sticky_text = section.settings.sticky_text | replace: '{AppName}', brand
+      if sticky_text == blank
+        assign g = settings.guarantee_text | split: '·'
+        assign sticky_text = g[0] | strip | append: ' · ' | append: g[1] | strip
+      endif
+    -%}
+    {%- if sticky_text != blank -%}<span class="sh-sticky__text">{%- render 'somna-icon', name: 'shield-check', size: 16 -%}{{ sticky_text }}</span>{%- endif -%}
     <a class="s-btn s-btn--md" href="{{ primary_url }}">{{ sticky_label }}</a>
   </div>
 {%- endif -%}
@@ -86,10 +101,10 @@
     {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
     {"type": "checkbox", "id": "sticky_mobile", "label": "Sticky buy bar on mobile", "default": true, "info": "Appears once the hero buttons scroll out of view."},
     {"type": "text", "id": "sticky_label", "label": "Sticky bar button", "default": "Shop Bestsellers"},
-    {"type": "text", "id": "sticky_text", "label": "Sticky bar text", "default": "[100]-night trial · Free returns"},
+    {"type": "text", "id": "sticky_text", "label": "Sticky bar text", "default": "100-night trial · Free returns", "info": "Blank uses the first two items of the guarantee line."},
     {"type": "header", "content": "Rating"},
-    {"type": "text", "id": "rating_label", "label": "Rating label", "default": "[X]+ Happy Sleepers", "info": "Blank uses the Rating label theme setting."},
-    {"type": "text", "id": "rating_aria", "label": "Rating description for screen readers", "default": "Rated [4.8] out of 5"},
+    {"type": "text", "id": "rating_label", "label": "Rating label", "default": "{count}+ Happy Sleepers", "info": "{count} = live review total, {rating} = average (Theme settings › Reviews and guarantee). Blank uses the Rating label theme setting."},
+    {"type": "text", "id": "rating_aria", "label": "Rating description for screen readers", "default": "Rated [4.8] out of 5", "info": "Used only until live review data exists."},
     {"type": "header", "content": "Text"},
     {"type": "text", "id": "heading", "label": "Heading", "default": "Sleep Cooler. Wake Softer. Cloud-Like Comfort for Every Kind of Sleeper."},
     {"type": "textarea", "id": "subheading", "label": "Subheading", "default": "Pillows that align and comforters that adapt, designed around the way you actually sleep. Try any of them for [100] nights."},

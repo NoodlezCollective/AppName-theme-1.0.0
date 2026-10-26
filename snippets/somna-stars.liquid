@@ -1,15 +1,24 @@
 {%- comment -%}
   Five peach stars (Somna design). {% render 'somna-stars', rating: 4.8, size: 15 %}
-  Without a rating it renders five full stars labelled with `label`.
+  With a rating, stars past the rounded rating are drawn in the pale track
+  colour. Without one it renders five full stars labelled with `label`.
 {%- endcomment -%}
 {%- liquid
   assign size = size | default: 15
   assign label = label | default: 'Rated 5 out of 5'
+  assign filled = 5
   if rating != blank
-    assign r = rating | round: 1
+    assign r = rating | plus: 0.0 | round: 1
+    assign filled = r | round
     assign label = 'Rated ' | append: r | append: ' out of 5'
   endif
 -%}
 <span class="s-stars{% if class %} {{ class }}{% endif %}" role="img" aria-label="{{ label | escape }}">
-  {%- for i in (1..5) -%}{%- render 'somna-icon', name: 'star', size: size -%}{%- endfor -%}
+  {%- for i in (1..5) -%}
+    {%- if i <= filled -%}
+      {%- render 'somna-icon', name: 'star', size: size -%}
+    {%- else -%}
+      {%- render 'somna-icon', name: 'star', size: size, class: 's-stars__off' -%}
+    {%- endif -%}
+  {%- endfor -%}
 </span>

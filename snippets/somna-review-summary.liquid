@@ -1,0 +1,85 @@
+{%- comment -%}
+  Store-wide review totals for social proof (hero pill, footer, reviews strip).
+  {% render 'somna-review-summary', part: 'count' | 'rating' | 'label', label: '{count}+ Happy Sleepers' %}
+    count  -> "124,952" (thousands separators), blank when unknown
+    rating -> "4.8", blank when unknown
+    label  -> `label` (default: theme setting Rating label) with {count} and
+              {rating} filled in; an unknown number shows as [X]
+  Sources, first match wins:
+    1. Theme settings › Reviews: total reviews / average rating (manual)
+    2. Judge.me shop metafields judgeme.all_reviews_count / all_reviews_rating
+    3. Sum of the standard reviews.rating / reviews.rating_count product
+       metafields (written by Judge.me, Okendo, Loox, Yotpo, Stamped…) across
+       the Reviews collection setting (all products when blank; first 50)
+{%- endcomment -%}
+{%- liquid
+  assign count = settings.reviews_count | remove: ',' | remove: '+' | strip
+  assign rating = settings.reviews_rating | strip
+
+  if count == blank
+    assign jm_count = shop.metafields.judgeme.all_reviews_count.value | default: shop.metafields.judgeme.all_reviews_count
+    if jm_count != blank
+      assign count = jm_count | plus: 0
+    endif
+  endif
+  if rating == blank
+    assign jm_rating = shop.metafields.judgeme.all_reviews_rating.value | default: shop.metafields.judgeme.all_reviews_rating
+    if jm_rating != blank
+      assign rating = jm_rating | plus: 0.0
+    endif
+  endif
+
+  if count == blank or rating == blank
+    assign source = settings.reviews_collection
+    if source == blank
+      assign source = collections.all
+    endif
+    assign sum_count = 0
+    assign sum_weighted = 0.0
+    for p in source.products limit: 50
+      assign c = p.metafields.reviews.rating_count.value | plus: 0
+      if c == 0
+        continue
+      endif
+      assign field = p.metafields.reviews.rating
+      assign r = nil
+      if field.value.rating != blank
+        assign r = field.value.rating | times: 5.0 | divided_by: field.value.scale_max
+      elsif field.value != blank
+        assign r = field.value | plus: 0.0
+      endif
+      assign sum_count = sum_count | plus: c
+      if r != nil
+        assign sum_weighted = r | times: c | plus: sum_weighted
+      endif
+    endfor
+    if count == blank and sum_count > 0
+      assign count = sum_count
+    endif
+    if rating == blank and sum_count > 0 and sum_weighted > 0
+      assign rating = sum_weighted | divided_by: sum_count
+    endif
+  endif
+
+  if count != blank
+    capture count_text
+      render 'number', value: count
+    endcapture
+    assign count_text = count_text | strip
+  endif
+  if rating != blank
+    assign rating_text = rating | plus: 0.0 | round: 1
+  endif
+-%}
+{%- case part -%}
+  {%- when 'count' -%}{{ count_text }}
+  {%- when 'rating' -%}{{ rating_text }}
+  {%- else -%}
+    {%- liquid
+      assign shown_count = count_text | default: '[X]'
+      assign shown_rating = rating_text | default: '[4.8]'
+      assign text = label | default: settings.rating_label
+      assign text = text | replace: '{count}', shown_count | replace: '{rating}', shown_rating | replace: '{AppName}', settings.brand_name
+    -%}
+    {{- text -}}
+{%- endcase -%}

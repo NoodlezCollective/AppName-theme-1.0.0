@@ -5,11 +5,12 @@
     "announcement-bar": {
       "type": "announcement-bar",
       "blocks": {
+        "announcement-ship": {"type": "announcement", "settings": {"text": "Ships In 1–2 Business Days"}},
         "announcement-1": {"type": "announcement", "settings": {"text": "Free Sleep Mask On Orders $120+"}},
         "announcement-2": {"type": "announcement", "settings": {"text": "Up to 50% Off Sitewide"}},
         "announcement-3": {"type": "announcement", "settings": {"text": "Save More When You Bundle"}}
       },
-      "block_order": ["announcement-1", "announcement-2", "announcement-3"],
+      "block_order": ["announcement-ship", "announcement-1", "announcement-2", "announcement-3"],
       "settings": {}
     },
     "header": {

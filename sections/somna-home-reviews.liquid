@@ -1,0 +1,154 @@
+{%- comment -%}
+  Somna "Recent reviews" strip (sits under the press bar): summary line with
+  live stars + total, then three short review cards with photos.
+  Card sources, first match wins:
+    1. App blocks: a review app's carousel/widget block (Judge.me, Okendo,
+       Loox…) replaces the cards entirely.
+    2. Source "From products": the `mellow.featured_reviews` metaobjects of
+       the products in the chosen collection (fields body, rating, author,
+       verified, optional photo); 4★ and up, reviews with photos first.
+    3. Review blocks typed in the editor.
+  On phones the cards become a swipe row (assets/somna-home.js).
+{%- endcomment -%}
+{{ 'somna-home.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign brand = settings.brand_name
+  assign heading = section.settings.heading | replace: '{AppName}', brand
+  capture total_count
+    render 'somna-review-summary', part: 'count'
+  endcapture
+  assign total_count = total_count | strip
+  capture store_rating
+    render 'somna-review-summary', part: 'rating'
+  endcapture
+  assign store_rating = store_rating | strip
+  assign limit = section.settings.limit
+
+  assign app_blocks = section.blocks | where: 'type', '@app'
+  assign manual_blocks = section.blocks | where: 'type', 'review'
+
+  comment
+    Collect featured reviews from products: two passes so photo reviews lead.
+  endcomment
+  assign picked = 0
+  assign source_collection = section.settings.collection | default: settings.reviews_collection
+  if source_collection == blank
+    assign source_collection = collections.all
+  endif
+-%}
+<section class="sh{% if section.settings.hide_mobile %} sh-hide-mobile{% endif %} sh-reviews" aria-labelledby="SomnaReviewsTitle-{{ section.id }}">
+  <div class="s-wrap sh-reviews__inner">
+    <div class="sh-reviews__head">
+      <div class="sh-reviews__title-row">
+        <h2 id="SomnaReviewsTitle-{{ section.id }}" class="sh-reviews__title">{{ heading }}</h2>
+        <span class="sh-reviews__summary">
+          {%- if store_rating != blank -%}
+            {%- render 'somna-stars', rating: store_rating, size: 16 -%}
+            <strong>{{ store_rating }}</strong>
+          {%- else -%}
+            {%- render 'somna-stars', size: 16 -%}
+          {%- endif -%}
+          {%- if total_count != blank -%}<span>from {{ total_count }} reviews</span>{%- endif -%}
+        </span>
+      </div>
+      {%- if section.settings.link_label != blank -%}
+        <a class="s-link-arrow sh-reviews__all" href="{{ section.settings.link_url | default: '#' }}">{{ section.settings.link_label }} {% render 'somna-icon', name: 'arrow-right', size: 18 %}</a>
+      {%- endif -%}
+    </div>
+
+    {%- if app_blocks.size > 0 -%}
+      <div class="sh-reviews__app">
+        {%- for block in app_blocks -%}{% render block %}{%- endfor -%}
+      </div>
+    {%- else -%}
+      <ul class="sh-reviews__list sh-swipe" data-sh-swipe role="list">
+        {%- if section.settings.source == 'products' -%}
+          {%- for pass in (1..2) -%}
+            {%- for p in source_collection.products limit: 50 -%}
+              {%- for review in p.metafields.mellow.featured_reviews.value -%}
+                {%- if picked >= limit -%}{%- break -%}{%- endif -%}
+                {%- liquid
+                  assign body = review.body.value | default: review.body | strip_html | strip
+                  if body == blank
+                    continue
+                  endif
+                  assign r = review.rating.value.rating | default: review.rating.value | default: review.rating | plus: 0
+                  if r != 0 and r < 4
+                    continue
+                  endif
+                  assign photo = review.photo.value
+                  if pass == 1 and photo == blank
+                    continue
+                  endif
+                  if pass == 2 and photo != blank
+                    continue
+                  endif
+                  assign picked = picked | plus: 1
+                -%}
+                {%- render 'somna-review-card', body: body, rating: r, author: review.author.value, verified: review.verified.value, photo: photo, product: p, max_chars: section.settings.max_chars -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {%- if picked == 0 -%}
+          {%- for block in manual_blocks limit: limit -%}
+            {%- render 'somna-review-card', body: block.settings.quote, rating: block.settings.rating, author: block.settings.author, verified: block.settings.verified, photo: block.settings.photo, product: block.settings.product, product_label: block.settings.product_label, max_chars: section.settings.max_chars, attrs: block.shopify_attributes -%}
+          {%- endfor -%}
+        {%- endif -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</section>
+<script src="{{ 'somna-home.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Somna recent reviews",
+  "settings": [
+    {"type": "checkbox", "id": "hide_mobile", "label": "Hide on mobile", "default": false, "info": "Hides this section on screens narrower than 750px."},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "Recent reviews"},
+    {"type": "text", "id": "link_label", "label": "Link label", "default": "Read all reviews"},
+    {"type": "url", "id": "link_url", "label": "Link", "info": "e.g. your review app's All Reviews page."},
+    {
+      "type": "select",
+      "id": "source",
+      "label": "Review cards",
+      "default": "products",
+      "options": [
+        {"value": "products", "label": "From products' featured reviews"},
+        {"value": "manual", "label": "Review blocks below"}
+      ],
+      "info": "Products' featured reviews use the mellow.featured_reviews metafield; review blocks are used while none are found. Adding a review app block replaces the cards."
+    },
+    {"type": "collection", "id": "collection", "label": "Products to pull reviews from", "info": "Blank uses Theme settings › Reviews and guarantee, then all products."},
+    {"type": "range", "id": "limit", "label": "Reviews shown", "min": 3, "max": 6, "step": 1, "default": 3},
+    {"type": "range", "id": "max_chars", "label": "Shorten quotes to", "min": 80, "max": 240, "step": 10, "unit": "ch", "default": 140}
+  ],
+  "blocks": [
+    {"type": "@app"},
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {"type": "textarea", "id": "quote", "label": "Quote", "default": "[Short review quote, 1–2 sentences, from your review app]"},
+        {"type": "range", "id": "rating", "label": "Stars", "min": 1, "max": 5, "step": 1, "default": 5},
+        {"type": "text", "id": "author", "label": "Name", "default": "[Reviewer name]"},
+        {"type": "checkbox", "id": "verified", "label": "Verified buyer", "default": true},
+        {"type": "image_picker", "id": "photo", "label": "Customer photo"},
+        {"type": "product", "id": "product", "label": "Product reviewed"},
+        {"type": "text", "id": "product_label", "label": "Product name", "info": "Used when no product is picked."}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Somna recent reviews",
+      "blocks": [
+        {"type": "review", "settings": {"product_label": "CloudAlign Pillow"}},
+        {"type": "review", "settings": {"product_label": "CloudCool Cooling Comforter"}},
+        {"type": "review", "settings": {"product_label": "MarshMellow Comforter"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -30,8 +30,11 @@
       endunless
     endif
     assign rating = nil
-    if product.metafields.reviews.rating.value != blank
-      assign rating = product.metafields.reviews.rating.value.rating | times: 5.0 | divided_by: product.metafields.reviews.rating.value.scale_max
+    assign rating_field = product.metafields.reviews.rating
+    if rating_field.value.rating != blank
+      assign rating = rating_field.value.rating | times: 5.0 | divided_by: rating_field.value.scale_max
+    elsif rating_field.value != blank
+      assign rating = rating_field.value | plus: 0.0
     endif
     assign rating_count = product.metafields.reviews.rating_count.value
     assign price = product.price_min
@@ -85,10 +88,15 @@
       </div>
     {%- endif -%}
   {%- endif -%}
-  <div class="s-rating">
-    {%- render 'somna-stars', rating: rating, size: 15 -%}
-    {%- if rating_count != blank -%}<span>({{ rating_count }} reviews)</span>{%- elsif product == blank -%}<span>([X] reviews)</span>{%- endif -%}
-  </div>
+  {%- comment -%} Live rating from the review app; hidden for products without reviews so no card shows stars it has not earned. {%- endcomment -%}
+  {%- if rating != nil -%}
+    <div class="s-rating">
+      {%- render 'somna-stars', rating: rating, size: 15 -%}
+      {%- if rating_count != blank and rating_count > 0 -%}<span>{{ rating | round: 1 }} ({% render 'number', value: rating_count %} reviews)</span>{%- endif -%}
+    </div>
+  {%- elsif product == blank -%}
+    <div class="s-rating">{%- render 'somna-stars', size: 15 -%}<span>([X] reviews)</span></div>
+  {%- endif -%}
   <{{ heading_tag }} class="s-card__title"><a href="{{ url }}">{{ name }}</a></{{ heading_tag }}>
   {%- if line != blank -%}<p class="s-card__line">{{ line }}</p>{%- endif -%}
   <div class="s-price">
