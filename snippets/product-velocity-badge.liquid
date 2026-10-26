@@ -1,0 +1,9 @@
+{%- comment -%}
+  "2,184 sold in the last 7 days" with a pulsing radar dot
+  (app/components/product/VelocityBadge.tsx). Hidden unless `count` > 0.
+  {% render 'product-velocity-badge', count: product.metafields.mellow.sold_recently.value %}
+{%- endcomment -%}
+{%- assign count = count | plus: 0 -%}
+{%- if count > 0 -%}
+<p class="velocity"><span class="velocity__pulse" aria-hidden="true"></span><strong>{% render 'number', value: count %}</strong> sold in the last 7 days</p>
+{%- endif -%}

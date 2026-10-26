@@ -1,0 +1,72 @@
+{%- comment -%}
+  Product media gallery (app/components/product/ProductGallery.tsx).
+  {% render 'product-gallery', product: product %}
+  Slides are every product media item's preview image (a bare product falls
+  back to its featured image). The selected variant's image is the active
+  slide, so the server render already shows it; product.js drives the arrows,
+  thumbnails, the mobile scroll-snap strip and variant changes.
+{%- endcomment -%}
+{%- liquid
+  assign current = product.selected_or_first_available_variant
+  assign count = product.media.size
+  assign active_index = 0
+  if current.featured_media
+    for media in product.media
+      if media.id == current.featured_media.id
+        assign active_index = forloop.index0
+      endif
+    endfor
+  endif
+  if count == 0 and product.featured_image
+    assign count = 1
+  endif
+  assign label = product.title | append: ' images'
+  assign strip_label = product.title | append: ' image strip'
+-%}
+{%- if count == 0 -%}
+<div class="gallery gallery--empty" data-gallery>
+  <div class="product-image product-image--empty" aria-hidden="true"></div>
+</div>
+{%- else -%}
+<section class="gallery" aria-roledescription="carousel" aria-label="{{ label | escape }}" data-gallery>
+  <div class="gallery__viewport">
+    <div class="gallery__track" role="group" aria-label="{{ strip_label | escape }}" tabindex="0" style="--gallery-index:{{ active_index }}" data-gallery-track>
+      {%- if product.media.size > 0 -%}
+        {%- for media in product.media -%}
+          {%- liquid
+            assign index = forloop.index0
+            assign alt = media.alt | default: product.title
+            assign loading = 'lazy'
+            if index == active_index or index == 0
+              assign loading = 'eager'
+            endif
+          -%}
+          <div class="gallery__slide{% if index == active_index %} is-active{% endif %}" role="group" aria-roledescription="slide" aria-label="{{ forloop.index }} of {{ count }}" data-media-id="{{ media.id }}">
+            <div class="product-image">{% render 'image', image: media.preview_image, alt: alt, aspect_ratio: '1/1', loading: loading, sizes: '(min-width: 64em) 600px, 100vw' %}</div>
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        {%- assign alt = product.featured_image.alt | default: product.title -%}
+        <div class="gallery__slide is-active" role="group" aria-roledescription="slide" aria-label="1 of 1" data-media-id="{{ product.featured_image.id }}">
+          <div class="product-image">{% render 'image', image: product.featured_image, alt: alt, aspect_ratio: '1/1', loading: 'eager', sizes: '(min-width: 64em) 600px, 100vw' %}</div>
+        </div>
+      {%- endif -%}
+    </div>
+    {%- if count > 1 -%}
+      <button type="button" class="gallery__arrow gallery__arrow--prev" aria-label="Previous image" data-gallery-prev>{% render 'icon', name: 'chevron-left', size: 18 %}</button>
+      <button type="button" class="gallery__arrow gallery__arrow--next" aria-label="Next image" data-gallery-next>{% render 'icon', name: 'chevron-right', size: 18 %}</button>
+    {%- endif -%}
+  </div>
+  {%- if count > 1 -%}
+    <div class="gallery__thumbs" data-gallery-thumbs>
+      {%- for media in product.media -%}
+        {%- liquid
+          assign index = forloop.index0
+          assign alt = media.alt | default: product.title
+        -%}
+        <button type="button" class="gallery__thumb{% if index == active_index %} is-active{% endif %}" aria-label="View image {{ forloop.index }} of {{ count }}" aria-pressed="{% if index == active_index %}true{% else %}false{% endif %}" data-index="{{ index }}">{% render 'image', image: media.preview_image, alt: alt, aspect_ratio: '1/1', loading: 'lazy', sizes: '88px' %}</button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</section>
+{%- endif -%}

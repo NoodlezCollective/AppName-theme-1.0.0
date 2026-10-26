@@ -1,0 +1,22 @@
+{
+  "current": {
+    "brand_name": "{AppName}",
+    "rating_label": "124,952+ Happy Sleepers",
+    "cart_heading": "Your Sleep Stack",
+    "color_primary": "#4c4184",
+    "color_accent": "#ffa38b",
+    "color_ink": "#242833",
+    "color_lavender": "#e0e0ff",
+    "color_background": "#ffffff",
+    "trust_badges": "shield|30-Day Trial\ntruck|Hassle-Free Returns",
+    "savings_note": "Savings based on comparable value.",
+    "savings_explanation": "Compare-at prices reflect the comparable retail value of similar bedding sold at full price. Your savings are the difference between that value and the {AppName} price.",
+    "free_gift_threshold": 120,
+    "free_gift_label": "a free Silk Sleep Mask",
+    "free_gift_code": "SLEEPMASK",
+    "footer_cta_heading": "Cloud-like comfort is just a click away. Try {AppName} today.",
+    "footer_cta_label": "Sleep Better",
+    "footer_cta_url": "/collections/all",
+    "copyright": "© Copyright {AppName} LLC"
+  }
+}

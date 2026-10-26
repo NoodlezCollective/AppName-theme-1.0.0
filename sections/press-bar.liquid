@@ -1,0 +1,107 @@
+{%- comment -%}
+  "As seen in" strip (app/components/home/PressBar.tsx). Logos with an image
+  render as images, otherwise a typographic treatment of the name. The
+  marquee pauses on hover/focus; the toggle (assets/home.js) pauses it on
+  request (WCAG 2.2.2).
+{%- endcomment -%}
+{%- liquid
+  assign brand = settings.brand_name
+  assign count = section.blocks.size
+  assign copies = 1
+  if count > 0
+    assign copies = 11 | plus: count | divided_by: count
+  endif
+  if copies < 1
+    assign copies = 1
+  endif
+-%}
+{%- if count > 0 -%}
+  {%- comment -%}
+    Items are rendered once and repeated by the marquee snippet, so block
+    editor attributes are left off (they must be unique on the page).
+  {%- endcomment -%}
+  {%- capture items -%}
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign name = block.settings.name | replace: '{AppName}', brand
+        assign key = name | downcase
+        assign style = ''
+        if key contains 'forbes' or key contains 'digest'
+          assign style = 'press-logo--serif'
+        elsif key contains 'usa today'
+          assign style = 'press-logo--dot press-logo--caps'
+        elsif key contains 'scary'
+          assign style = 'press-logo--script'
+        elsif key contains 'us weekly'
+          assign style = 'press-logo--caps'
+        endif
+      -%}
+      {%- capture mark -%}
+        {%- if block.settings.image != blank -%}
+          {%- render 'image', image: block.settings.image, alt: name, sizes: '160px' -%}
+        {%- else -%}
+          <span class="press-logo {{ style }}">{{ name }}</span>
+        {%- endif -%}
+      {%- endcapture -%}
+      <span class="press-bar__item">
+        {%- if block.settings.url != blank -%}
+          <a href="{{ block.settings.url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ name | escape }} (opens in a new tab)">{{ mark }}</a>
+        {%- else -%}
+          {{ mark }}
+        {%- endif -%}
+      </span>
+    {%- endfor -%}
+  {%- endcapture -%}
+  <section class="press-bar" aria-label="As seen in" data-press-bar>
+    {%- render 'marquee', content: items, duration: 40, gap: 0, copies: copies -%}
+    <button type="button" class="press-bar__toggle" aria-label="Pause press logos" aria-pressed="false" data-pause-toggle>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="5" y="4" width="5" height="16" rx="1.5"></rect><rect x="14" y="4" width="5" height="16" rx="1.5"></rect></svg>
+    </button>
+  </section>
+  <script src="{{ 'home.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Press bar",
+  "max_blocks": 12,
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Publication",
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name",
+          "default": "Publication"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Logo",
+          "info": "Without a logo the name is set in type."
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Press bar",
+      "blocks": [
+        {"type": "logo", "settings": {"name": "USA Today"}},
+        {"type": "logo", "settings": {"name": "Scary Mommy"}},
+        {"type": "logo", "settings": {"name": "Reader's Digest"}},
+        {"type": "logo", "settings": {"name": "Forbes"}},
+        {"type": "logo", "settings": {"name": "Life & Style"}},
+        {"type": "logo", "settings": {"name": "Us Weekly"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

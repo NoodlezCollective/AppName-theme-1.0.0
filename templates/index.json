@@ -1,0 +1,218 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "settings": {
+        "rating_label": "124,952+ Happy Sleepers",
+        "rating": 5,
+        "headline": "Shop Premium\nCooling Comforters\n& Pillows For Better Sleep",
+        "subheadline": "Pillows that align. Comforters that adapt. Smarter sleep essentials, designed for every night.",
+        "cta_label": "Shop Now",
+        "image_alt": "Three friends relaxing on a bed layered with {AppName} pillows and comforters"
+      }
+    },
+    "press_bar": {
+      "type": "press-bar",
+      "blocks": {
+        "usa_today": {"type": "logo", "settings": {"name": "USA Today"}},
+        "scary_mommy": {"type": "logo", "settings": {"name": "Scary Mommy"}},
+        "readers_digest": {"type": "logo", "settings": {"name": "Reader's Digest"}},
+        "forbes": {"type": "logo", "settings": {"name": "Forbes"}},
+        "life_style": {"type": "logo", "settings": {"name": "Life & Style"}},
+        "us_weekly": {"type": "logo", "settings": {"name": "Us Weekly"}}
+      },
+      "block_order": ["usa_today", "scary_mommy", "readers_digest", "forbes", "life_style", "us_weekly"],
+      "settings": {}
+    },
+    "story": {
+      "type": "story",
+      "settings": {
+        "heading": "Redefining Sleep. One Innovation At A Time.",
+        "body": "{AppName} started with a comforter that changed everything. Now, we're building a new standard for sleep with more innovative fabrics, dual-sided cooling, cloud-like pillows and effortless design. Sleep shouldn't be complicated. It should just feel right.",
+        "poster_alt": "{AppName} brand film",
+        "cta_label": "Our Story"
+      }
+    },
+    "stat_rings": {
+      "type": "stat-rings",
+      "blocks": {
+        "temperature": {"type": "stat", "settings": {"value": 95, "label": "sleep at their ideal temperature"}},
+        "recommend": {"type": "stat", "settings": {"value": 97, "label": "would recommend {AppName} to family and friends"}},
+        "five_star": {"type": "stat", "settings": {"value": 99, "label": "have left a 5-star review"}}
+      },
+      "block_order": ["temperature", "recommend", "five_star"],
+      "settings": {
+        "heading": "Sleepers who switched"
+      }
+    },
+    "featured_products": {
+      "type": "featured-products",
+      "settings": {
+        "heading": "Explore Our Most Loved Sleep Products",
+        "subheading": "From adaptive comforters to cloud-like pillows, every {AppName} product is designed to make sleep effortless.",
+        "collection": "most-loved",
+        "products_to_show": 6,
+        "cta_label": "Shop Now"
+      }
+    },
+    "ugc_grid": {
+      "type": "ugc-grid",
+      "blocks": {
+        "ugc_1": {
+          "type": "video",
+          "settings": {
+            "title": "Does your pillow do this? A chiropractor tests the CloudAlign.",
+            "poster_alt": "Chiropractor demonstrating the CloudAlign pillow",
+            "product": "cloudalign-pillow"
+          }
+        },
+        "ugc_2": {
+          "type": "video",
+          "settings": {
+            "title": "This is the dual sided comforter.",
+            "poster_alt": "Customer unfolding the dual-sided CloudCool comforter",
+            "product": "cloudcool-cooling-comforter"
+          }
+        },
+        "ugc_3": {
+          "type": "video",
+          "settings": {
+            "title": "I kept my {AppName} pillow.",
+            "poster_alt": "Customer holding a {AppName} pillow",
+            "product": "cloudalign-pillow"
+          }
+        },
+        "ugc_4": {
+          "type": "video",
+          "settings": {
+            "title": "No more hassling to put your duvet cover on again.",
+            "poster_alt": "Customer with the CloudControl comforter",
+            "product": "cloudcontrol-comforter"
+          }
+        }
+      },
+      "block_order": ["ugc_1", "ugc_2", "ugc_3", "ugc_4"],
+      "settings": {
+        "heading": "Sleep Better With {AppName}",
+        "subheading": "Watch why everyone is making the switch to {AppName}!"
+      }
+    },
+    "lifestyle_gallery": {
+      "type": "lifestyle-gallery",
+      "blocks": {
+        "lifestyle_1": {"type": "image", "settings": {"alt": "Woman smiling while resting on a stack of {AppName} pillows", "caption": ""}},
+        "lifestyle_2": {"type": "image", "settings": {"alt": "Close-up of the MarshMellow comforter fabric", "caption": ""}}
+      },
+      "block_order": ["lifestyle_1", "lifestyle_2"],
+      "settings": {
+        "label": "Life with {AppName}"
+      }
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "blocks": {
+        "t_1": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "I wake up without neck pain for the first time in years. The CloudAlign actually keeps my head where it should be.",
+            "author": "Jenna R.",
+            "show_rating": true,
+            "rating": 5,
+            "product": "cloudalign-pillow",
+            "product_title": "CloudAlign Pillow"
+          }
+        },
+        "t_2": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "The cool side is genuinely cool. I flip it in summer and my partner keeps the plush side. We finally agree on a comforter.",
+            "author": "Marcus T.",
+            "show_rating": true,
+            "rating": 5,
+            "product": "cloudcool-cooling-comforter",
+            "product_title": "CloudCool Cooling Comforter"
+          }
+        },
+        "t_3": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "It washed beautifully and came out of the dryer just as fluffy. Hotel-bed feel at home.",
+            "author": "Priya S.",
+            "show_rating": true,
+            "rating": 5,
+            "product": "marshmellow-comforter",
+            "product_title": "MarshMellow Comforter"
+          }
+        }
+      },
+      "block_order": ["t_1", "t_2", "t_3"],
+      "settings": {
+        "heading": "Loved By 124,952+ Sleepers",
+        "subheading": "Real reviews from people who stopped fighting their bedding."
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "faq_1": {
+          "type": "item",
+          "settings": {
+            "question": "How does the 30-day trial work?",
+            "answer": "Sleep on any {AppName} product for 30 nights. If it is not the best sleep you have had, start a return from your account and we will make it right.",
+            "open": false
+          }
+        },
+        "faq_2": {
+          "type": "item",
+          "settings": {
+            "question": "Are {AppName} comforters and pillows machine washable?",
+            "answer": "Yes. Every comforter and pillow cover is designed to be washed at home on a gentle cycle and tumble dried low.",
+            "open": false
+          }
+        },
+        "faq_3": {
+          "type": "item",
+          "settings": {
+            "question": "Which side of the CloudCool comforter is the cool side?",
+            "answer": "The smooth, silk-touch side is the cooling side. The soft knit side is for cooler nights. Flip it whenever you like.",
+            "open": false
+          }
+        },
+        "faq_4": {
+          "type": "item",
+          "settings": {
+            "question": "How long does shipping take?",
+            "answer": "Orders ship within 1-2 business days and typically arrive in 3-6 business days. Tracking is emailed as soon as your order leaves our warehouse.",
+            "open": false
+          }
+        }
+      },
+      "block_order": ["faq_1", "faq_2", "faq_3", "faq_4"],
+      "settings": {
+        "heading": "Questions, Answered"
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "heading": "Sleep Smarter. Save More.",
+        "body": "Join the {AppName} list for early access to launches, bundle savings and sleep tips.",
+        "placeholder": "Enter your email",
+        "cta_label": "Sign Up",
+        "success_message": "You're on the list. Welcome to {AppName}."
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "press_bar",
+    "story",
+    "stat_rings",
+    "featured_products",
+    "ugc_grid",
+    "lifestyle_gallery",
+    "testimonials",
+    "faq",
+    "newsletter"
+  ]
+}

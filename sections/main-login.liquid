@@ -1,0 +1,93 @@
+{%- comment -%}
+  Customer sign-in: login form, password recovery and guest checkout, styled
+  with the account classes (app/styles/account.css).
+{%- endcomment -%}
+{%- liquid
+  assign recover_open = false
+  capture recover_form
+    form 'recover_customer_password', class: 'account-card account-form'
+      if form.posted_successfully? or form.errors
+        assign recover_open = true
+      endif
+      echo '<fieldset class="account-form__fieldset">'
+      echo '<legend class="account-card__subtitle">Reset your password</legend>'
+      echo '<p class="text-muted">We’ll email you a link to set a new password.</p>'
+      echo '<div class="account-form__messages" aria-live="polite">'
+      if form.posted_successfully?
+        echo '<p class="form-message form-message--success">If that email is registered you’ll receive a reset link shortly.</p>'
+      endif
+      if form.errors
+        echo '<p class="form-message form-message--error">'
+        echo form.errors | default_errors
+        echo '</p>'
+      endif
+      echo '</div>'
+      echo '<div class="field">'
+      echo '<label for="recover-email">Email</label>'
+      echo '<input type="email" id="recover-email" name="email" autocomplete="email" autocorrect="off" autocapitalize="off" placeholder="you@example.com" required>'
+      echo '</div>'
+      echo '<div class="account-form__actions">'
+      echo '<button class="btn btn--primary btn--sm" type="submit"><span class="btn__label">Send reset link</span></button>'
+      echo '</div>'
+      echo '</fieldset>'
+    endform
+  endcapture
+-%}
+<div class="account">
+  <header class="account-header">
+    <div class="container">
+      <p class="eyebrow">My account</p>
+      <h1 class="account-header__title">Sign in</h1>
+    </div>
+  </header>
+  <div class="container account-content">
+    <div class="account-section account-login">
+      <header class="account-section__header">
+        <h2>Welcome back</h2>
+        <p class="text-muted">Sign in to see your orders, addresses and the status of your deliveries.</p>
+      </header>
+
+      {%- form 'customer_login', class: 'account-card account-form', novalidate: 'novalidate' -%}
+        <fieldset class="account-form__fieldset">
+          <legend class="account-card__subtitle">Sign in</legend>
+          <div class="account-form__messages" aria-live="polite">
+            {%- if form.errors -%}
+              <p class="form-message form-message--error">{{ form.errors | default_errors }}</p>
+            {%- endif -%}
+          </div>
+          <div class="field">
+            <label for="customer-login-email">Email</label>
+            <input type="email" id="customer-login-email" name="customer[email]" autocomplete="email" autocorrect="off" autocapitalize="off" placeholder="you@example.com" required>
+          </div>
+          <div class="field">
+            <label for="customer-login-password">Password</label>
+            <input type="password" id="customer-login-password" name="customer[password]" autocomplete="current-password" placeholder="Password" required>
+          </div>
+          <div class="account-form__actions">
+            <button class="btn btn--primary btn--md" type="submit"><span class="btn__label">Sign in</span></button>
+            <a class="btn btn--ghost btn--md" href="{{ routes.account_register_url }}"><span class="btn__label">Create an account</span></a>
+          </div>
+        </fieldset>
+      {%- endform -%}
+
+      <details class="address-card__details" id="recover"{% if recover_open %} open{% endif %}>
+        <summary class="btn btn--outline btn--sm address-card__edit">Forgot your password?</summary>
+        <div class="address-card__panel">{{ recover_form }}</div>
+      </details>
+
+      {%- if shop.checkout.guest_login -%}
+        {%- form 'guest_login', class: 'account-form__footer' -%}
+          <p class="text-muted">Just here to check out? No account needed.</p>
+          <button class="btn btn--outline btn--sm" type="submit"><span class="btn__label">Continue as guest</span></button>
+        {%- endform -%}
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Sign in",
+  "settings": []
+}
+{% endschema %}

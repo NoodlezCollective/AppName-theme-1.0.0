@@ -1,0 +1,24 @@
+{%- comment -%}
+  Current price with struck-through compare-at (app/components/ui/Price.tsx).
+  {% render 'price', price: 12900, compare_at_price: 15900, size: 'md', class: '', show_from: false %}
+  Amounts are in cents (Liquid money). Compare-at drops trailing zeros ("$159").
+  Pass `blank` as price to render the empty placeholder (ProductPrice.tsx).
+{%- endcomment -%}
+{%- liquid
+  assign size = size | default: 'md'
+  assign on_sale = false
+  if compare_at_price != blank and compare_at_price > price
+    assign on_sale = true
+  endif
+-%}
+{%- if price == blank or price == nil -%}
+<div aria-label="Price" class="price price--{{ size }}{% if class %} {{ class }}{% endif %}" role="group"><span>&nbsp;</span></div>
+{%- else -%}
+<div class="price price--{{ size }}{% if on_sale %} price--sale{% endif %}{% if class %} {{ class }}{% endif %}" aria-label="Price" role="group">
+  {%- if show_from -%}<span class="price__from">From</span>{%- endif -%}
+  <span class="price__current">{{ price | money }}</span>
+  {%- if on_sale -%}
+    <s class="price__compare"><span class="sr-only">Regular price </span>{{ compare_at_price | money_without_trailing_zeros }}</s>
+  {%- endif -%}
+</div>
+{%- endif -%}

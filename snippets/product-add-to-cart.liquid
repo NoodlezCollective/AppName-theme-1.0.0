@@ -1,0 +1,21 @@
+{%- comment -%}
+  Add to cart form (app/components/AddToCartButton.tsx). Posts to
+  routes.cart_add_url so it works without JavaScript; product.js intercepts
+  the submit and calls theme.cart.add([...], {open: true}) so the add-on rides
+  along and the cart drawer opens.
+  {% render 'product-add-to-cart', variant: variant, form_id: 'product-form' %}
+{%- endcomment -%}
+{%- liquid
+  assign available = false
+  if variant != blank and variant.available
+    assign available = true
+  endif
+-%}
+<form method="post" action="{{ routes.cart_add_url }}" id="{{ form_id }}" data-product-form>
+  <input type="hidden" name="id" value="{{ variant.id }}" data-variant-input>
+  <div class="add-to-cart" data-add-to-cart>
+    <input name="analytics" type="hidden" value="">
+    <button class="btn btn--primary btn--lg btn--block" type="submit"{% unless available %} disabled{% endunless %} data-add-to-cart-button><span class="btn__label" data-add-to-cart-label>{% if available %}Add to cart{% else %}Sold out{% endif %}</span></button>
+    <p class="sr-only" role="status" aria-live="polite" data-add-to-cart-status></p>
+  </div>
+</form>

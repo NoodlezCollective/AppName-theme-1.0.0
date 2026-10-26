@@ -1,0 +1,48 @@
+{%- comment -%}
+  Standalone featured reviews carousel (app/components/product/ReviewsCarousel.tsx).
+  The product page already shows the carousel inside its grid, under the
+  gallery (sections/main-product.liquid), so this section is disabled in
+  templates/product.json; enable it to show the reviews in a place of your
+  own and switch the grid copy off in the Product section.
+{%- endcomment -%}
+{%- liquid
+  assign reviews = product.metafields.mellow.featured_reviews.value
+  assign review_count = 0
+  for review in reviews
+    assign review_body = review.body.value | strip
+    if review_body != blank
+      assign review_count = review_count | plus: 1
+    endif
+  endfor
+  assign id_prefix = 'reviews-' | append: section.id
+-%}
+{%- if product != blank and review_count > 0 -%}
+<div class="section section--tight">
+  <div class="container container--narrow">
+    {%- render 'product-reviews-carousel', product: product, id_prefix: id_prefix -%}
+  </div>
+</div>
+<script src="{{ 'product.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Product reviews",
+  "tag": "div",
+  "class": "section-product-reviews",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shows the product's featured reviews (mellow.featured_reviews metafield). The Product section already shows them under the gallery."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product reviews"
+    }
+  ]
+}
+{% endschema %}

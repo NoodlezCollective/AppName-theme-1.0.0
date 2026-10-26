@@ -1,0 +1,50 @@
+{%- comment -%}
+  Empty cart (app/components/CartMain.tsx CartEmpty + CartRecovery): the
+  empty state and three bestsellers from the "most-loved" collection
+  (falling back to all products).
+  {% render 'cart-empty', layout: 'aside' | 'page' %}
+{%- endcomment -%}
+{%- liquid
+  assign layout = layout | default: 'aside'
+  assign recovery = collections['most-loved']
+  if recovery == blank or recovery.products.size == 0
+    assign recovery = collections['all']
+  endif
+-%}
+<div class="cart__empty">
+  <div class="empty-state empty-state--cart">
+    <h2 class="empty-state__title" tabindex="-1">Your cart is empty</h2>
+    <p>Looks like you haven’t added anything yet. Let’s get you started on better sleep.</p>
+    <div class="empty-state__actions">
+      <a class="btn btn--primary btn--md" href="{{ routes.all_products_collection_url }}"><span class="btn__label">Shop best sellers</span></a>
+      {%- if layout == 'aside' -%}
+        <button class="btn btn--ghost btn--md" type="button" data-drawer-close><span class="btn__label">Continue shopping</span></button>
+      {%- else -%}
+        <a class="btn btn--ghost btn--md" href="{{ routes.root_url }}"><span class="btn__label">Continue shopping</span></a>
+      {%- endif -%}
+    </div>
+  </div>
+  {%- if recovery != blank and recovery.products.size > 0 -%}
+    <section class="cart-recovery" aria-labelledby="cart-recovery-heading">
+      <h3 id="cart-recovery-heading" class="cart-recovery__title">Sleepers start here</h3>
+      <ul class="cart-recovery__list">
+        {%- for product in recovery.products limit: 3 -%}
+          {%- assign image = product.featured_image -%}
+          <li>
+            <div class="cart-recovery__item">
+              {%- if image -%}
+                <img alt="{{ image.alt | escape }}" decoding="async" height="72" loading="lazy" src="{{ image | image_url: width: 72, height: 72, crop: 'center' }}" srcset="{{ image | image_url: width: 72, height: 72, crop: 'center' }} 1x, {{ image | image_url: width: 144, height: 144, crop: 'center' }} 2x, {{ image | image_url: width: 216, height: 216, crop: 'center' }} 3x" width="72" class="cart-recovery__image" style="aspect-ratio: 1 / 1;">
+              {%- else -%}
+                <span class="cart-recovery__image" aria-hidden="true"></span>
+              {%- endif -%}
+              <span class="cart-recovery__body">
+                <a class="cart-recovery__name" href="{{ product.url }}">{{ product.title }}</a>
+                {%- render 'price', price: product.price_min, compare_at_price: product.compare_at_price_min, size: 'sm' -%}
+              </span>
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </section>
+  {%- endif -%}
+</div>

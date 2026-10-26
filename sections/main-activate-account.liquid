@@ -1,0 +1,52 @@
+{%- comment -%}
+  Account activation (customers/activate_account), styled with the account
+  classes (app/styles/account.css).
+{%- endcomment -%}
+<div class="account">
+  <header class="account-header">
+    <div class="container">
+      <p class="eyebrow">My account</p>
+      <h1 class="account-header__title">Activate your account</h1>
+    </div>
+  </header>
+  <div class="container account-content">
+    <div class="account-section account-activate">
+      <header class="account-section__header">
+        <h2>Choose a password</h2>
+        <p class="text-muted">Create a password to activate your account.</p>
+      </header>
+
+      {%- form 'activate_customer_password', class: 'account-card account-form' -%}
+        <fieldset class="account-form__fieldset">
+          <legend class="account-card__subtitle">Password</legend>
+          <div class="account-form__messages" aria-live="polite">
+            {%- if form.errors -%}
+              <p class="form-message form-message--error">{{ form.errors | default_errors }}</p>
+            {%- endif -%}
+          </div>
+          <div class="account-form__grid">
+            <div class="field">
+              <label for="activate-password">Password*</label>
+              <input type="password" id="activate-password" name="customer[password]" autocomplete="new-password" placeholder="At least 5 characters" minlength="5" required>
+            </div>
+            <div class="field">
+              <label for="activate-password-confirm">Confirm password*</label>
+              <input type="password" id="activate-password-confirm" name="customer[password_confirmation]" autocomplete="new-password" placeholder="Repeat your password" minlength="5" required>
+            </div>
+          </div>
+          <div class="account-form__actions">
+            <button class="btn btn--primary btn--md" type="submit"><span class="btn__label">Activate account</span></button>
+            <button class="btn btn--ghost btn--md" type="submit" name="decline"><span class="btn__label">Decline invitation</span></button>
+          </div>
+        </fieldset>
+      {%- endform -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Activate account",
+  "settings": []
+}
+{% endschema %}

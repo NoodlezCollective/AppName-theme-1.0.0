@@ -1,0 +1,75 @@
+{%- comment -%}
+  Mobile menu drawer (app/components/PageLayout.tsx MobileMenuAside +
+  Header.tsx HeaderMenu viewport="mobile"): Home, the main menu and the
+  search / account links. Same menu source and fallback as sections/header.
+{%- endcomment -%}
+{%- liquid
+  assign menu = linklists['main-menu']
+  assign base = routes.root_url
+  if base == '/'
+    assign base = ''
+  endif
+  if customer
+    assign account_label = 'My account'
+  else
+    assign account_label = 'Sign in'
+  endif
+  assign home_active = false
+  if request.page_type == 'index'
+    assign home_active = true
+  endif
+  assign fallback_titles = 'Shop,Bath,Bundles,About' | split: ','
+  assign bath_url = routes.collections_url | append: '/bath'
+  assign bundles_url = routes.collections_url | append: '/bundles'
+  assign about_url = base | append: '/pages/about'
+  assign fallback_urls = routes.all_products_collection_url | append: ',' | append: bath_url | append: ',' | append: bundles_url | append: ',' | append: about_url | split: ','
+-%}
+<div aria-modal="true" aria-hidden="true" class="overlay " role="dialog" aria-labelledby="mobile-menu-title" data-drawer="mobile" data-section-id="{{ section.id }}">
+  <button class="close-outside" aria-label="Close" tabindex="-1" data-drawer-close></button>
+  <aside class="drawer drawer--mobile">
+    <header class="drawer__header">
+      <h3 id="mobile-menu-title" class="drawer__title">Menu</h3>
+      <button class="icon-btn drawer__close" aria-label="Close" data-drawer-close>{% render 'icon', name: 'close' %}</button>
+    </header>
+    <div class="drawer__body">
+      <nav class="mobile-nav" aria-label="Primary">
+        <a {% if home_active %}aria-current="page" {% endif %}class="mobile-nav__link {% if home_active %}is-active{% endif %}" href="{{ routes.root_url }}">Home</a>
+        {%- if menu != blank and menu.links.size > 0 -%}
+          {%- for link in menu.links -%}
+            {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
+            {%- if link.url contains '://' -%}
+              <a class="mobile-nav__link" href="{{ link.url }}">{{ link.title }}</a>
+            {%- else -%}
+              <a {% if link.current %}aria-current="page" {% endif %}class="mobile-nav__link {% if link.current %}is-active{% endif %}" href="{{ link.url }}">{{ link.title }}</a>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- else -%}
+          {%- for title in fallback_titles -%}
+            {%- assign url = fallback_urls[forloop.index0] -%}
+            {%- assign active = false -%}
+            {%- if request.path == url -%}{%- assign active = true -%}{%- endif -%}
+            <a {% if active %}aria-current="page" {% endif %}class="mobile-nav__link {% if active %}is-active{% endif %}" href="{{ url }}">{{ title }}</a>
+          {%- endfor -%}
+        {%- endif -%}
+        <div class="mobile-nav__footer">
+          <button class="mobile-nav__secondary" type="button" data-drawer-open="search">{% render 'icon', name: 'search', size: 20 %} Search</button>
+          <a class="mobile-nav__secondary" href="{{ routes.account_url }}">{% render 'icon', name: 'user', size: 20 %}{{ account_label }}</a>
+        </div>
+      </nav>
+    </div>
+  </aside>
+</div>
+
+{% schema %}
+{
+  "name": "Mobile menu",
+  "tag": "div",
+  "class": "section-mobile-menu",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shows the same \"main-menu\" menu as the header, with Home, Search and the account link."
+    }
+  ]
+}
+{% endschema %}

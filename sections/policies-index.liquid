@@ -1,0 +1,81 @@
+{%- assign brand_token = '{AppName}' -%}
+{%- comment -%}
+  Policy index list (app/routes/policies._index.tsx). Each block links to the
+  Page that holds the policy (template page.policy); until that page exists the
+  link points at /pages/<handle>.
+{%- endcomment -%}
+<div class="content-page">
+  <div class="container container--text policy-page__body">
+    <ul class="policy-list">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign handle = block.settings.handle | strip
+          assign policy_page = pages[handle]
+          assign url = policy_page.url
+          if url == blank
+            assign url = routes.root_url | append: 'pages/' | append: handle
+          endif
+          assign title = block.settings.title | default: policy_page.title | default: handle
+        -%}
+        <li {{ block.shopify_attributes }}>
+          <a class="policy-card" href="{{ url }}">
+            <span class="policy-card__body">
+              <span class="policy-card__title">{{ title | replace: brand_token, settings.brand_name }}</span>
+              {%- if block.settings.description != blank -%}
+                <span class="policy-card__description">{{ block.settings.description | replace: brand_token, settings.brand_name }}</span>
+              {%- endif -%}
+            </span>
+            {%- render 'icon', name: 'arrow-right', size: 20, class: 'policy-card__arrow' -%}
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Policies list",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "policy",
+      "name": "Policy",
+      "settings": [
+        {
+          "type": "text",
+          "id": "handle",
+          "label": "Page handle",
+          "default": "privacy-policy",
+          "info": "Handle of the page that uses the page.policy template."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Privacy Policy"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Description",
+          "default": "How we collect, use and protect your personal information."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Policies list",
+      "blocks": [
+        {"type": "policy", "settings": {"handle": "privacy-policy", "title": "Privacy Policy", "description": "How we collect, use and protect your personal information."}},
+        {"type": "policy", "settings": {"handle": "shipping-policy", "title": "Shipping Policy", "description": "Processing times, delivery estimates and tracking."}},
+        {"type": "policy", "settings": {"handle": "terms-of-service", "title": "Terms of Service", "description": "The terms that apply when you shop with {AppName}."}},
+        {"type": "policy", "settings": {"handle": "refund-policy", "title": "Return and Refund Policy", "description": "Our 30-day return window and how refunds and exchanges work."}},
+        {"type": "policy", "settings": {"handle": "contact-information", "title": "Contact Information", "description": "Business details, how to reach us and when we reply."}},
+        {"type": "policy", "settings": {"handle": "legal-notice", "title": "Legal Notice", "description": "Who operates this website, hosting and intellectual property."}}
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,33 @@
+{%- comment -%}
+  One customer sentence above the product title
+  (app/components/product/FeaturedQuote.tsx): the first featured review,
+  cut to 190 characters at a word boundary.
+  {% render 'product-featured-quote', review: review %}
+{%- endcomment -%}
+{%- liquid
+  assign body = review.body.value | newline_to_br | replace: '<br />', ' ' | strip_newlines | replace: '  ', ' ' | replace: '  ', ' ' | strip
+  if body.size > 190
+    assign cut = body | slice: 0, 190
+    assign last_char = cut | slice: 189, 1
+    if last_char == ' '
+      assign cut_at = 189
+    else
+      assign words = cut | split: ' '
+      assign last_word = words | last
+      assign cut_at = 190 | minus: last_word.size | minus: 1
+      if words.size < 2
+        assign cut_at = 80
+      endif
+    endif
+    if cut_at < 80
+      assign cut_at = 80
+    endif
+    assign body = cut | slice: 0, cut_at | append: '…'
+  endif
+  assign author = review.author.value | strip | default: 'Customer'
+-%}
+<figure class="featured-quote">
+  {%- render 'icon', name: 'quote', size: 18, class: 'featured-quote__icon' -%}
+  <blockquote class="featured-quote__text">“{{ body | escape }}”</blockquote>
+  <figcaption class="featured-quote__author">{{ author | escape }}{% if review.verified.value == true %}<span class="featured-quote__verified">Verified buyer</span>{% endif %}</figcaption>
+</figure>

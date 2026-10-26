@@ -1,0 +1,68 @@
+{
+  "sections": {
+    "hero": {
+      "type": "about-hero",
+      "settings": {
+        "heading": "Sleep Was Broken.\nWe Fixed It.",
+        "subheading": "Bedding and sleepwear, done right. Engineered for better sleep.",
+        "cta_label": "Shop Now",
+        "image_alt": "Woman resting on a {AppName} pillow",
+        "show_placeholder": true
+      }
+    },
+    "story": {
+      "type": "about-story",
+      "settings": {
+        "heading": "How {AppName} was created to redefine sleep",
+        "body": "Most comforters make you choose: too hot or too cold, too heavy or too light, impossible to wash or just plain uncomfortable.",
+        "highlight": "It shouldn't be this complicated.",
+        "image_left_alt": "Woman smiling while resting on {AppName} pillows",
+        "image_bottom_alt": "Hand pressing into a {AppName} comforter",
+        "show_placeholders": true
+      }
+    },
+    "values": {
+      "type": "about-values",
+      "blocks": {
+        "value-1": {
+          "type": "value",
+          "settings": {
+            "icon": "snowflake",
+            "title": "Engineered for every sleeper",
+            "body": "Dual-sided fabrics, adaptive fills and ergonomic shapes so hot sleepers, cold sleepers and side sleepers all get their best night."
+          }
+        },
+        "value-2": {
+          "type": "value",
+          "settings": {
+            "icon": "wash",
+            "title": "Washable by design",
+            "body": "Everything we make survives the washing machine and comes out fluffy. Bedding should be easy to love and easy to clean."
+          }
+        },
+        "value-3": {
+          "type": "value",
+          "settings": {
+            "icon": "moon",
+            "title": "Tested by 124,952+ sleepers",
+            "body": "We iterate on real feedback, from award-winning pillows to the comforter that started it all."
+          }
+        }
+      },
+      "block_order": ["value-1", "value-2", "value-3"],
+      "settings": {
+        "heading": "What we stand for"
+      }
+    },
+    "closing": {
+      "type": "about-closing",
+      "settings": {
+        "show_page_content": true,
+        "heading": "Ready to sleep {AppName}?",
+        "body": "Try any product for 30 nights. If you do not sleep better, returns are on us.",
+        "cta_label": "Shop Best Sellers"
+      }
+    }
+  },
+  "order": ["hero", "story", "values", "closing"]
+}

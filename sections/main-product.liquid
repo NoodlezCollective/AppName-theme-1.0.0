@@ -1,0 +1,171 @@
+{%- comment -%}
+  Product page (app/routes/products.$handle.tsx): gallery, buy box, trust
+  badges, proof strip, accordions and the featured reviews carousel inside
+  the product grid. Product data comes from the mellow.* and reviews.*
+  metafields documented in docs/shopify-setup.md; every block hides when its
+  data is missing, like the storefront.
+{%- endcomment -%}
+{%- capture newline %}
+{% endcapture -%}
+{%- liquid
+  assign current = product.selected_or_first_available_variant
+  if current == blank
+    assign current = product.variants.first
+  endif
+
+  assign reviews = product.metafields.mellow.featured_reviews.value
+  assign first_review = nil
+  assign review_count = 0
+  for review in reviews
+    assign review_body = review.body.value | strip
+    if review_body != blank
+      assign review_count = review_count | plus: 1
+      if first_review == nil
+        assign first_review = review
+      endif
+    endif
+  endfor
+
+  assign rating = nil
+  assign rating_field = product.metafields.reviews.rating
+  if rating_field.value.rating != blank
+    assign rating = rating_field.value.rating | times: 5.0 | divided_by: rating_field.value.scale_max
+  elsif rating_field.value != blank
+    assign rating = rating_field.value | plus: 0.0
+    if rating < 0 or rating > 5
+      assign rating = nil
+    endif
+  endif
+  assign rating_count = product.metafields.reviews.rating_count.value
+
+  assign on_sale = false
+  if current.compare_at_price != blank and current.compare_at_price > current.price
+    assign on_sale = true
+  endif
+
+  capture tiers
+    render 'product-pack-tier-list', product: product
+  endcapture
+  assign tiers = tiers | strip
+  assign tier_rows = tiers | split: newline
+  assign quantity = 1
+  if tier_rows.size > 1
+    assign first_tier = tier_rows[0] | split: '|'
+    assign quantity = first_tier[0] | plus: 0
+  endif
+
+  assign form_id = 'product-form-' | append: section.id
+  assign show_reviews = section.settings.show_reviews
+  if show_reviews == nil
+    assign show_reviews = true
+  endif
+-%}
+<div class="product-page" data-product-page data-section-id="{{ section.id }}">
+  <div class="container container--narrow product-layout">
+    <div class="product-layout__media">
+      {%- render 'product-gallery', product: product -%}
+    </div>
+
+    <div class="product-layout__info">
+      <div class="product-info">
+        {%- if first_review != nil -%}
+          {%- render 'product-featured-quote', review: first_review -%}
+        {%- endif -%}
+        {%- if rating != nil -%}
+          {%- render 'stars', rating: rating, count: rating_count, size: 'md', class: 'product-info__stars' -%}
+        {%- endif -%}
+        <h1 class="product-info__title">{{ product.title }}</h1>
+        {%- render 'price', price: current.price, compare_at_price: current.compare_at_price, size: 'lg', class: 'product-info__price' -%}
+        {%- render 'product-savings-note', product: product, on_sale: on_sale, id: 'savings-note-panel' -%}
+        {%- render 'product-velocity-badge', count: product.metafields.mellow.sold_recently.value -%}
+        <div class="product-form" data-product-form-root>
+          {%- render 'product-variant-selector', product: product, id_prefix: 'product-option' -%}
+          {%- render 'product-pack-tiers', tiers: tiers, quantity: quantity, variant: current, id_prefix: 'pack-tier' -%}
+          {%- render 'product-addon-offer', product: product, id: 'product-addon' -%}
+          {%- render 'product-features', product: product -%}
+          <div class="product-buy">
+            {%- render 'product-quantity', value: quantity, id: 'product-quantity', form_id: form_id -%}
+            {%- render 'product-add-to-cart', variant: current, form_id: form_id -%}
+          </div>
+        </div>
+        {%- render 'product-trust-badges' -%}
+        {%- render 'product-proof-strip', product: product -%}
+        {%- render 'product-accordions', product: product -%}
+      </div>
+    </div>
+
+    {%- if show_reviews and review_count > 0 -%}
+      <div class="product-layout__reviews">
+        {%- render 'product-reviews-carousel', product: product, id_prefix: 'reviews' -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <script type="application/json" data-product-json>
+    {
+      "id": {{ product.id | json }},
+      "handle": {{ product.handle | json }},
+      "url": {{ product.url | json }},
+      "selectedVariantId": {{ current.id | json }},
+      "options": {{ product.options | json }},
+      "variants": {{ product.variants | json }}
+    }
+  </script>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": {{ product.title | json }},
+      "description": {{ product.description | strip_html | json }},
+      "image": [
+        {%- for media in product.media -%}
+          {{ media.preview_image | image_url: width: 1200 | prepend: 'https:' | json }}{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ],
+      "brand": {"@type": "Brand", "name": {{ product.vendor | json }}},
+      "url": {{ shop.url | append: product.url | json }}
+      {%- if current != blank -%}
+        {%- if current.sku != blank -%},
+        "sku": {{ current.sku | json }}
+        {%- endif -%},
+        "offers": {
+          "@type": "Offer",
+          "url": {{ shop.url | append: product.url | json }},
+          "price": {{ current.price | divided_by: 100.0 | json }},
+          "priceCurrency": {{ cart.currency.iso_code | json }},
+          "availability": {% if current.available %}"https://schema.org/InStock"{% else %}"https://schema.org/OutOfStock"{% endif %},
+          "itemCondition": "https://schema.org/NewCondition"
+          {%- if current.sku != blank -%},
+          "sku": {{ current.sku | json }}
+          {%- endif %}
+        }
+      {%- endif -%}
+      {%- if rating != nil and rating_count > 0 -%},
+        "aggregateRating": {"@type": "AggregateRating", "ratingValue": {{ rating | json }}, "reviewCount": {{ rating_count | json }}}
+      {%- endif %}
+    }
+  </script>
+</div>
+<script src="{{ 'product.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Product",
+  "tag": "div",
+  "class": "section-main-product",
+  "limit": 1,
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Show the featured reviews carousel under the gallery",
+      "default": true,
+      "info": "Reviews come from the product's mellow.featured_reviews metafield."
+    }
+  ]
+}
+{% endschema %}

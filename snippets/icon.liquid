@@ -1,0 +1,120 @@
+{%- comment -%}
+  Icon set ported one to one from app/components/ui/Icons.tsx.
+  Usage: {% render 'icon', name: 'cart', size: 20, class: 'x', title: 'Label' %}
+  name: search, cart, user, menu, close, chevron-left, chevron-right, chevron-down, arrow-right, plus, minus, check, trash, play, star, shield, truck, snowflake, heat, couch, wash, feather, moon, sparkle, leaf, quote, mail, info, filter, instagram, facebook, tiktok
+  feature: true  -> unknown names fall back to 'sparkle' (FeatureIcon behaviour)
+  Without a title the icon is decorative (aria-hidden).
+{%- endcomment -%}
+{%- liquid
+  assign size = size | default: 24
+  assign stroke_width = stroke_width | default: 1.75
+  assign fill = 'none'
+  assign stroke = 'currentColor'
+  assign body = ''
+-%}
+{%- case name -%}
+  {%- when 'search' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />{%- endcapture -%}
+  {%- when 'cart' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M5 8h14l-1 12H6L5 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" />{%- endcapture -%}
+  {%- when 'user' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" />{%- endcapture -%}
+  {%- when 'menu' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M4 7h16M4 12h16M4 17h16" />{%- endcapture -%}
+  {%- when 'close' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M6 6l12 12M18 6 6 18" />{%- endcapture -%}
+  {%- when 'chevron-left' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="m15 5-7 7 7 7" />{%- endcapture -%}
+  {%- when 'chevron-right' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="m9 5 7 7-7 7" />{%- endcapture -%}
+  {%- when 'chevron-down' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="m5 9 7 7 7-7" />{%- endcapture -%}
+  {%- when 'arrow-right' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M4 12h16m-6-6 6 6-6 6" />{%- endcapture -%}
+  {%- when 'plus' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M12 5v14M5 12h14" />{%- endcapture -%}
+  {%- when 'minus' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M5 12h14" />{%- endcapture -%}
+  {%- when 'check' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="m5 12 4.5 4.5L19 7" />{%- endcapture -%}
+  {%- when 'trash' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />{%- endcapture -%}
+  {%- when 'play' -%}
+    {%- assign fill = 'currentColor' -%}{%- assign stroke = 'none' -%}
+    {%- capture body -%}<path d="M8 5.5v13a1 1 0 0 0 1.52.85l10.5-6.5a1 1 0 0 0 0-1.7L9.52 4.65A1 1 0 0 0 8 5.5Z" />{%- endcapture -%}
+  {%- when 'star' -%}
+    {%- assign fill = 'currentColor' -%}{%- assign stroke = 'none' -%}
+    {%- capture body -%}<path d="M12 2.5l2.9 6.2 6.7.8-5 4.6 1.3 6.7L12 17.5l-5.9 3.3 1.3-6.7-5-4.6 6.7-.8L12 2.5Z" />{%- endcapture -%}
+  {%- when 'shield' -%}
+    {%- assign fill = 'currentColor' -%}{%- assign stroke = 'none' -%}
+    {%- capture body -%}<path d="M12 2.5 4.5 5.5v6c0 4.6 3.2 8.8 7.5 10 4.3-1.2 7.5-5.4 7.5-10v-6L12 2.5Z" />{%- endcapture -%}
+  {%- when 'truck' -%}
+    {%- assign fill = 'currentColor' -%}{%- assign stroke = 'none' -%}
+    {%- capture body -%}<path d="M2.5 6.5A1.5 1.5 0 0 1 4 5h9a1.5 1.5 0 0 1 1.5 1.5V8H17a2 2 0 0 1 1.6.8l2.6 3.4c.2.3.3.6.3 1V16a1.5 1.5 0 0 1-1.5 1.5h-1.3a2.75 2.75 0 0 1-5.4 0H9.2a2.75 2.75 0 0 1-5.4 0H4A1.5 1.5 0 0 1 2.5 16V6.5Zm12 3.5v3h4.4l-2.3-3h-2.1ZM6.5 16a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Zm9.5 0a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Z" />{%- endcapture -%}
+  {%- when 'snowflake' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4" /><path d="M12 3 9.5 5.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5" />{%- endcapture -%}
+  {%- when 'heat' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M7 4c-1.5 2-1.5 3.5 0 5.5s1.5 3.5 0 5.5-1.5 3.5 0 5M12 4c-1.5 2-1.5 3.5 0 5.5s1.5 3.5 0 5.5-1.5 3.5 0 5M17 4c-1.5 2-1.5 3.5 0 5.5s1.5 3.5 0 5.5-1.5 3.5 0 5" />{%- endcapture -%}
+  {%- when 'couch' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M4 11V8a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v3" /><path d="M3 13a2 2 0 0 1 4 0v3h10v-3a2 2 0 0 1 4 0v5H3v-5Z" />{%- endcapture -%}
+  {%- when 'wash' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<rect x="4" y="3" width="16" height="18" rx="2" /><circle cx="12" cy="13" r="5" /><path d="M8 6h2M14 6h2" />{%- endcapture -%}
+  {%- when 'feather' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M20 4c-5 0-11 3-13 9l-3 7 7-3c6-2 9-8 9-13Z" /><path d="M4 20 13 11M8 15h5" />{%- endcapture -%}
+  {%- when 'moon' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" />{%- endcapture -%}
+  {%- when 'sparkle' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M6.3 17.7l2.8-2.8M14.9 9.1l2.8-2.8" />{%- endcapture -%}
+  {%- when 'leaf' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14H5Z" /><path d="M5 19 13 11" />{%- endcapture -%}
+  {%- when 'quote' -%}
+    {%- assign fill = 'currentColor' -%}{%- assign stroke = 'none' -%}
+    {%- capture body -%}<path d="M6 17c-1.7 0-3-1.3-3-3s1.3-3 3-3c.2 0 .4 0 .6.1C7.3 8.6 9 7 11 6v2c-1.4.9-2.2 2-2.5 3.3.3-.2.7-.3 1-.3 1.7 0 3 1.3 3 3s-1.3 3-3 3H6Zm10 0c-1.7 0-3-1.3-3-3s1.3-3 3-3c.2 0 .4 0 .6.1.7-2.5 2.4-4.1 4.4-5.1v2c-1.4.9-2.2 2-2.5 3.3.3-.2.7-.3 1-.3 1.7 0 3 1.3 3 3s-1.3 3-3 3h-3.5Z" />{%- endcapture -%}
+  {%- when 'mail' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" />{%- endcapture -%}
+  {%- when 'info' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" />{%- endcapture -%}
+  {%- when 'filter' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M4 6h16M7 12h10M10 18h4" />{%- endcapture -%}
+  {%- when 'instagram' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" />{%- endcapture -%}
+  {%- when 'facebook' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M14 8h2.5V4.5H14A3.5 3.5 0 0 0 10.5 8v2.5H8V14h2.5v6.5H14V14h2.5l.5-3.5h-3V8.5a.5.5 0 0 1 0 0Z" />{%- endcapture -%}
+  {%- when 'tiktok' -%}
+    {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+    {%- capture body -%}<path d="M14 4v10.5a3.5 3.5 0 1 1-3.5-3.5" /><path d="M14 4c.4 2.6 2 4.2 4.5 4.5" />{%- endcapture -%}
+  {%- else -%}
+    {%- if feature -%}
+      {%- assign fill = 'none' -%}{%- assign stroke = 'currentColor' -%}
+      {%- capture body -%}<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M6.3 17.7l2.8-2.8M14.9 9.1l2.8-2.8" />{%- endcapture -%}
+    {%- endif -%}
+{%- endcase -%}
+{%- if body != blank -%}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="{{ fill }}" stroke="{{ stroke }}" stroke-width="{{ stroke_width }}" stroke-linecap="round" stroke-linejoin="round"{% if title %} role="img"{% else %} aria-hidden="true"{% endif %} focusable="false"{% if class %} class="{{ class }}"{% endif %}>{% if title %}<title>{{ title | escape }}</title>{% endif %}{{ body }}</svg>
+{%- endif -%}

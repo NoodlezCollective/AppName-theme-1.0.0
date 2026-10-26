@@ -1,0 +1,76 @@
+{%- comment -%}
+  One cart line (app/components/CartLineItem.tsx): image, title, selected
+  options, line total, unit price, quantity stepper and remove button.
+  {% render 'cart-line', line: line, index: forloop.index, layout: 'aside' | 'page' %}
+  The forms work without JavaScript (POST routes.cart_change_url with the
+  line key and quantity); assets/theme.js intercepts them through
+  data-cart-line-form / data-cart-line-action and re-renders the cart.
+{%- endcomment -%}
+{%- liquid
+  assign layout = layout | default: 'aside'
+  assign quantity = line.quantity
+  assign prev_quantity = quantity | minus: 1 | at_least: 0
+  assign next_quantity = quantity | plus: 1
+  assign line_url = line.product.url
+  assign separator = '?'
+  assign option_count = 0
+  for option in line.options_with_values
+    if option.value == 'Default Title'
+      continue
+    endif
+    assign option_count = option_count | plus: 1
+    assign option_name = option.name | url_encode
+    assign option_value = option.value | url_encode
+    assign line_url = line_url | append: separator | append: option_name | append: '=' | append: option_value
+    assign separator = '&'
+  endfor
+  assign compare_at = line.variant.compare_at_price
+  if compare_at == blank and line.original_price > line.final_price
+    assign compare_at = line.original_price
+  endif
+  assign image_alt = line.image.alt | default: line.variant.title | default: line.product.title
+-%}
+<li class="cart-line" data-cart-line="{{ line.key }}" data-line-index="{{ index }}" data-line-quantity="{{ quantity }}">
+  <a class="cart-line__media" tabindex="-1" aria-hidden="true" href="{{ line_url }}">
+    {%- if line.image -%}
+      <img alt="{{ image_alt | escape }}" decoding="async" height="96" loading="lazy" src="{{ line.image | image_url: width: 96, height: 96, crop: 'center' }}" srcset="{{ line.image | image_url: width: 96, height: 96, crop: 'center' }} 1x, {{ line.image | image_url: width: 192, height: 192, crop: 'center' }} 2x, {{ line.image | image_url: width: 288, height: 288, crop: 'center' }} 3x" width="96" style="aspect-ratio:1/1">
+    {%- endif -%}
+  </a>
+  <div class="cart-line__body">
+    <div class="cart-line__header">
+      <div class="cart-line__heading">
+        <a class="cart-line__title" href="{{ line_url }}">{{ line.product.title }}</a>
+        {%- if option_count > 0 -%}
+          <p class="cart-line__options">
+            {%- for option in line.options_with_values -%}
+              {%- if option.value == 'Default Title' -%}{%- continue -%}{%- endif -%}
+              <span>{% unless forloop.first %} · {% endunless %}{{ option.name }}: {{ option.value }}</span>
+            {%- endfor -%}
+          </p>
+        {%- endif -%}
+      </div>
+      <div class="cart-line__total">{{ line.final_line_price | money }}</div>
+    </div>
+    {%- render 'price', price: line.final_price, compare_at_price: compare_at, size: 'sm', class: 'cart-line__price' -%}
+    <div class="cart-line__actions">
+      <div class="qty" role="group" aria-label="Quantity">
+        <form method="post" action="{{ routes.cart_change_url }}" data-cart-line-form>
+          <input type="hidden" name="id" value="{{ line.key }}">
+          <input type="hidden" name="quantity" value="{{ prev_quantity }}">
+          <button aria-label="Decrease quantity"{% if quantity <= 1 %} aria-disabled="true"{% endif %} class="qty__btn" name="decrease-quantity" type="submit" value="{{ prev_quantity }}" data-cart-line-action="decrease">{% render 'icon', name: 'minus', size: 16, stroke_width: 2 %}</button>
+        </form>
+        <span class="qty__value" data-cart-line-quantity><span class="sr-only">Quantity </span>{{ quantity }}</span>
+        <form method="post" action="{{ routes.cart_change_url }}" data-cart-line-form>
+          <input type="hidden" name="id" value="{{ line.key }}">
+          <input type="hidden" name="quantity" value="{{ next_quantity }}">
+          <button aria-label="Increase quantity" class="qty__btn" name="increase-quantity" type="submit" value="{{ next_quantity }}" data-cart-line-action="increase">{% render 'icon', name: 'plus', size: 16, stroke_width: 2 %}</button>
+        </form>
+      </div>
+      <form method="post" action="{{ routes.cart_change_url }}" data-cart-line-form>
+        <input type="hidden" name="id" value="{{ line.key }}">
+        <input type="hidden" name="quantity" value="0">
+        <button aria-label="Remove {{ line.product.title | escape }} from cart" class="icon-btn cart-line__remove" type="submit" data-cart-line-action="remove">{% render 'icon', name: 'trash', size: 20 %}</button>
+      </form>
+    </div>
+  </div>
+</li>

@@ -1,0 +1,107 @@
+{%- comment -%}
+  Option pickers (app/components/product/VariantSelector.tsx). Options with a
+  native swatch render round colour swatches, grouped under the labels of the
+  `mellow.swatch_groups` JSON metafield; other options render pills. The
+  `mellow.size_guide` line sits under the Size option. Options with a single
+  value are not shown; nothing renders when no option has a choice.
+  {% render 'product-variant-selector', product: product, id_prefix: 'product-option' %}
+{%- endcomment -%}
+{%- liquid
+  assign id_prefix = id_prefix | default: 'product-option'
+  assign swatch_groups = product.metafields.mellow.swatch_groups.value
+  assign size_guide = product.metafields.mellow.size_guide.value | strip
+  assign option_count = 0
+  for option in product.options_with_values
+    if option.values.size > 1
+      assign option_count = option_count | plus: 1
+    endif
+  endfor
+-%}
+{%- if option_count > 0 -%}
+<div class="variant-selector" data-variant-selector>
+  {%- for option in product.options_with_values -%}
+    {%- if option.values.size < 2 -%}{%- continue -%}{%- endif -%}
+    {%- liquid
+      assign option_index = option.position | minus: 1
+      assign label_id = id_prefix | append: '-' | append: forloop.index0
+      assign is_swatch = false
+      assign selected_name = ''
+      for value in option.values
+        if value.swatch.color != blank or value.swatch.image != blank
+          assign is_swatch = true
+        endif
+        if value.selected
+          assign selected_name = value.name
+        endif
+      endfor
+      assign option_name_down = option.name | downcase
+      assign values_class = 'product-option__values'
+      if is_swatch
+        assign values_class = 'product-option__values product-option__values--swatches'
+      endif
+    -%}
+    <div class="product-option" role="group" aria-labelledby="{{ label_id }}" data-option-index="{{ option_index }}">
+      <p class="product-option__label" id="{{ label_id }}"><span class="product-option__prefix">Select {{ option.name }}:</span> <span class="product-option__value" data-option-selected>{{ selected_name }}</span></p>
+      {%- if size_guide != blank and option_name_down == 'size' -%}
+        <p class="product-option__guide">{{ size_guide | escape }}</p>
+      {%- endif -%}
+      {%- liquid
+        assign groups_rendered = 0
+        assign assigned = '|'
+      -%}
+      {%- if is_swatch and swatch_groups != blank -%}
+        {%- for group in swatch_groups -%}
+          {%- liquid
+            assign group_label = group[0]
+            assign names = group[1]
+            if names.size == 0
+              continue
+            endif
+            assign lookup = names | join: '|' | downcase | prepend: '|' | append: '|'
+          -%}
+          {%- capture group_values -%}
+            {%- for value in option.values -%}
+              {%- assign probe = value.name | strip | downcase | prepend: '|' | append: '|' -%}
+              {%- if lookup contains probe -%}
+                {%- assign assigned = assigned | append: value.name | append: '|' -%}
+                {%- render 'product-option-value', value: value, is_swatch: is_swatch, product: product -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endcapture -%}
+          {%- if group_values != blank -%}
+            {%- assign groups_rendered = groups_rendered | plus: 1 -%}
+            <div class="product-option__group">
+              <p class="product-option__group-label">{{ group_label | escape }}</p>
+              <div class="{{ values_class }}">{{ group_values }}</div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+      {%- if groups_rendered > 0 -%}
+        {%- capture rest_values -%}
+          {%- for value in option.values -%}
+            {%- assign probe = '|' | append: value.name | append: '|' -%}
+            {%- unless assigned contains probe -%}
+              {%- render 'product-option-value', value: value, is_swatch: is_swatch, product: product -%}
+            {%- endunless -%}
+          {%- endfor -%}
+        {%- endcapture -%}
+        {%- if rest_values != blank -%}
+          <div class="product-option__group">
+            <p class="product-option__group-label">{{ option.name }}</p>
+            <div class="{{ values_class }}">{{ rest_values }}</div>
+          </div>
+        {%- endif -%}
+      {%- else -%}
+        <div class="product-option__group">
+          <div class="{{ values_class }}">
+            {%- for value in option.values -%}
+              {%- render 'product-option-value', value: value, is_swatch: is_swatch, product: product -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endfor -%}
+</div>
+{%- endif -%}

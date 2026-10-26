@@ -1,0 +1,47 @@
+{%- comment -%}
+  Predictive search results for the search drawer
+  (app/components/SearchResultsPredictive.tsx + PageLayout.tsx SearchAside).
+  {% render 'predictive-results', products: predictive_search.products, term: predictive_search.terms %}
+  Rendered by sections/predictive-search.liquid through the Section Rendering
+  API; collection.js injects the output into `[data-predictive-results]`.
+{%- endcomment -%}
+{%- liquid
+  assign term = term | strip
+  assign term_param = term | url_param_escape
+  assign search_href = routes.search_url | append: '?q=' | append: term_param | append: '&type=product'
+-%}
+{%- if products.size > 0 -%}
+  <section class="predictive-search-result" aria-labelledby="predictive-search-products-heading">
+    <h4 id="predictive-search-products-heading" class="eyebrow predictive-search-result__heading">Products</h4>
+    <ul class="predictive-search-result__list">
+      {%- for product in products -%}
+        {%- liquid
+          assign variant = product.selected_or_first_available_variant
+          assign thumb = variant.image | default: product.featured_image
+          assign product_href = product.url | append: '?q=' | append: term_param
+        -%}
+        <li class="predictive-search-result-item">
+          <a class="predictive-search-result-item__link" href="{{ product_href }}" data-predictive-link>
+            <span class="predictive-search-result-item__media" aria-hidden="true">
+              {%- if thumb -%}
+                {{ thumb | image_url: width: 168, height: 168, crop: 'center' | image_tag: widths: '56, 112, 168', sizes: '56px', loading: 'lazy', decoding: 'async', alt: '', width: 56, height: 56, style: 'width:100%;aspect-ratio:1/1' }}
+              {%- endif -%}
+            </span>
+            <span class="predictive-search-result-item__body">
+              <span class="predictive-search-result-item__title">{{ product.title | escape }}</span>
+              {%- if variant -%}{%- render 'price', price: variant.price, compare_at_price: variant.compare_at_price, size: 'sm' -%}{%- endif -%}
+            </span>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </section>
+  {%- if term != blank -%}
+    <a class="btn btn--outline btn--md btn--block" href="{{ search_href }}" data-predictive-link><span class="btn__label">View all results for “{{ term | escape }}”</span></a>
+  {%- endif -%}
+{%- elsif term != blank -%}
+  <div class="predictive-search__empty">
+    <p class="predictive-search__status">No results for <q>{{ term | escape }}</q></p>
+    <p class="predictive-search__hint">Try a different spelling or search for “pillow”, “comforter” or “bundle”.</p>
+  </div>
+{%- endif -%}

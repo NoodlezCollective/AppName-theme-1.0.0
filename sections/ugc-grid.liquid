@@ -1,0 +1,178 @@
+{%- comment -%}
+  "Sleep Better With {AppName}" video grid (app/components/home/UgcGrid.tsx).
+  A tile plays inline (native <video> or YouTube/Vimeo iframe swapped in by
+  assets/home.js), links to the product, or just shows the poster.
+{%- endcomment -%}
+{%- liquid
+  assign brand = settings.brand_name
+  assign heading = section.settings.heading | replace: '{AppName}', brand
+  assign subheading = section.settings.subheading | replace: '{AppName}', brand
+-%}
+{%- if section.blocks.size > 0 -%}
+  <section class="section section--tight" aria-labelledby="ugc-heading">
+    <div class="container">
+      <div class="section-heading section-heading--center">
+        <h2 id="ugc-heading" class="section-heading__title">{{ heading }}</h2>
+        {%- if subheading != blank -%}<p class="section-heading__subtitle">{{ subheading }}</p>{%- endif -%}
+      </div>
+      <div class="ugc-grid">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign title = block.settings.title | replace: '{AppName}', brand
+            assign video = block.settings.video
+            assign external = block.settings.video_url
+            assign product = block.settings.product
+            assign poster = block.settings.poster
+            if poster == blank and video != blank
+              assign poster = video.preview_image
+            endif
+            assign poster_alt = poster.alt | default: block.settings.poster_alt | replace: '{AppName}', brand
+            if poster_alt == blank
+              assign poster_alt = title
+            endif
+            assign placeholder_index = forloop.index0 | modulo: 4 | plus: 1
+            assign placeholder = 'placeholder-ugc-' | append: placeholder_index | append: '.svg'
+            assign embed_url = ''
+            if external != blank
+              if external.type == 'youtube'
+                assign embed_url = 'https://www.youtube-nocookie.com/embed/' | append: external.id | append: '?autoplay=1&amp;rel=0'
+              elsif external.type == 'vimeo'
+                assign embed_url = 'https://player.vimeo.com/video/' | append: external.id | append: '?autoplay=1'
+              endif
+            endif
+            assign playable = false
+            if video != blank and video.sources.size > 0
+              assign playable = true
+            elsif embed_url != blank
+              assign playable = true
+            endif
+            if poster != blank
+              assign poster_url = poster | image_url: width: 1200
+            else
+              assign poster_url = placeholder | asset_url
+            endif
+          -%}
+          {%- capture poster_markup -%}
+            {%- if poster != blank -%}
+              {%- render 'image', image: poster, alt: poster_alt, sizes: '(min-width: 64em) 25vw, 50vw' -%}
+            {%- else -%}
+              {%- render 'image', placeholder: placeholder, alt: poster_alt, width: 670, height: 1114 -%}
+            {%- endif -%}
+          {%- endcapture -%}
+          {%- capture overlay -%}
+            <span class="ugc-card__overlay"><span class="ugc-card__title">{{ title }}</span></span>
+          {%- endcapture -%}
+          {%- capture play -%}
+            <span class="ugc-card__play" aria-hidden="true">{%- render 'icon', name: 'play', size: 40 -%}</span>
+          {%- endcapture -%}
+          {%- if playable -%}
+            <button type="button" class="ugc-card" aria-label="Play video: {{ title | escape }}" data-video-card data-video-play {{ block.shopify_attributes }}>
+              {{ poster_markup }}
+              {{ overlay }}
+              {{ play }}
+              <template data-video-player>
+                {%- if video != blank and video.sources.size > 0 -%}
+                  <video controls autoplay playsinline poster="{{ poster_url }}" aria-label="{{ title | escape }}">
+                    {%- for source in video.sources -%}
+                      <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                    {%- endfor -%}
+                  </video>
+                {%- else -%}
+                  <iframe src="{{ embed_url }}" title="{{ title | escape }}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
+                {%- endif -%}
+              </template>
+            </button>
+          {%- elsif product != blank -%}
+            <a class="ugc-card" href="{{ product.url }}" aria-label="{{ title | escape }} – shop the product" {{ block.shopify_attributes }}>
+              {{ poster_markup }}
+              {{ overlay }}
+              {{ play }}
+            </a>
+          {%- else -%}
+            <div class="ugc-card" {{ block.shopify_attributes }}>
+              {{ poster_markup }}
+              {{ overlay }}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+  <script src="{{ 'home.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Video grid",
+  "max_blocks": 8,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Sleep Better With {AppName}"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Watch why everyone is making the switch to {AppName}!"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "video",
+      "name": "Video",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Watch the video"
+        },
+        {
+          "type": "image_picker",
+          "id": "poster",
+          "label": "Poster image",
+          "info": "Placeholder artwork is used until one is chosen."
+        },
+        {
+          "type": "text",
+          "id": "poster_alt",
+          "label": "Poster alt text",
+          "info": "Used when the image has no alt text of its own; falls back to the title."
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video",
+          "info": "A Shopify-hosted video. Takes priority over the external video URL."
+        },
+        {
+          "type": "video_url",
+          "id": "video_url",
+          "label": "External video URL",
+          "accept": ["youtube", "vimeo"]
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product",
+          "info": "Without a video the tile links to this product."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video grid",
+      "blocks": [
+        {"type": "video", "settings": {"title": "Does your pillow do this? A chiropractor tests the CloudAlign.", "poster_alt": "Chiropractor demonstrating the CloudAlign pillow", "product": "cloudalign-pillow"}},
+        {"type": "video", "settings": {"title": "This is the dual sided comforter.", "poster_alt": "Customer unfolding the dual-sided CloudCool comforter", "product": "cloudcool-cooling-comforter"}},
+        {"type": "video", "settings": {"title": "I kept my {AppName} pillow.", "poster_alt": "Customer holding a {AppName} pillow", "product": "cloudalign-pillow"}},
+        {"type": "video", "settings": {"title": "No more hassling to put your duvet cover on again.", "poster_alt": "Customer with the CloudControl comforter", "product": "cloudcontrol-comforter"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,24 @@
+{%- liquid
+  assign og_title = page_title | default: shop.name
+  assign og_description = page_description | default: shop.description | default: shop.name
+  assign og_type = 'website'
+  if request.page_type == 'product'
+    assign og_type = 'product'
+    assign og_image = product.featured_media.preview_image
+  elsif request.page_type == 'article'
+    assign og_type = 'article'
+    assign og_image = article.image
+  elsif request.page_type == 'collection'
+    assign og_image = collection.image
+  endif
+-%}
+<title>{{ og_title }}{% unless page_title contains shop.name %} | {{ shop.name }}{% endunless %}</title>
+<meta name="description" content="{{ og_description | strip_html | escape }}">
+<meta property="og:title" content="{{ og_title | escape }}">
+<meta property="og:description" content="{{ og_description | strip_html | escape }}">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:url" content="{{ canonical_url }}">
+{%- if og_image %}
+<meta property="og:image" content="http:{{ og_image | image_url: width: 1200 }}">
+<meta property="og:image:secure_url" content="https:{{ og_image | image_url: width: 1200 }}">
+{%- endif %}

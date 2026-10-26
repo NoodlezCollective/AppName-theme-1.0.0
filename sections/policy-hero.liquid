@@ -1,0 +1,122 @@
+{%- comment -%}
+  Indigo banner above policy and information pages (app/components/PolicyHero.tsx).
+  The headline, subheadline and image default per policy page handle
+  (app/lib/content/policies.ts) and can be overridden in the section settings.
+  With the page.policies template it renders the index banner
+  (app/routes/policies._index.tsx).
+{%- endcomment -%}
+{%- liquid
+  assign default_eyebrow = page.title
+  assign default_headline = page.title
+  assign default_subheadline = ''
+  assign placeholder = 'placeholder-about-hero.svg'
+  assign placeholder_alt = 'A stack of {AppName} pillows'
+
+  case page.handle
+    when 'privacy-policy'
+      assign default_headline = "Sleep Easy, Your Data's Safe"
+      assign default_subheadline = 'From checkout to sweet dreams, we keep your details private, never shared, always protected.'
+      assign placeholder = 'placeholder-lifestyle-1.svg'
+      assign placeholder_alt = 'Customer hugging a {AppName} pillow'
+    when 'shipping-policy'
+      assign default_headline = 'From Our Door To Yours'
+      assign default_subheadline = 'Where we deliver, how long it takes and what it costs, in plain language.'
+      assign placeholder = 'placeholder-lifestyle-2.svg'
+      assign placeholder_alt = 'A {AppName} parcel ready to ship'
+    when 'terms-of-service'
+      assign default_headline = 'Our Terms, Made Simple'
+      assign default_subheadline = 'Because clarity matters as much as comfort.'
+      assign placeholder = 'placeholder-lifestyle-1.svg'
+      assign placeholder_alt = 'Customer hugging a {AppName} pillow'
+    when 'refund-policy'
+      assign default_headline = 'Love It, Or Send It Back'
+      assign default_subheadline = '30 days to decide, no restocking fees and real people to help if anything is wrong.'
+    when 'contact-information'
+      assign default_headline = "We're Here To Help"
+      assign default_subheadline = 'Real people, real replies: how to reach us and when we are around.'
+      assign placeholder = 'placeholder-lifestyle-2.svg'
+      assign placeholder_alt = 'The {AppName} customer service team'
+    when 'legal-notice'
+      assign default_headline = 'The Legal Details'
+      assign default_subheadline = 'Who operates this website and how your rights are protected.'
+  endcase
+
+  if template.suffix == 'policies'
+    assign default_eyebrow = '{AppName}'
+    assign default_headline = 'Policies'
+    assign default_subheadline = 'The fine print, in plain language: how we ship, how returns work and how we look after your information.'
+  endif
+
+  assign eyebrow = section.settings.eyebrow | default: default_eyebrow | replace: '{AppName}', settings.brand_name
+  assign headline = section.settings.headline | default: default_headline | replace: '{AppName}', settings.brand_name
+  assign subheadline = section.settings.subheadline | default: default_subheadline | replace: '{AppName}', settings.brand_name
+  assign image = section.settings.image
+  assign image_alt = section.settings.image_alt | default: image.alt | default: placeholder_alt | replace: '{AppName}', settings.brand_name
+-%}
+<div class="policy-page">
+  <div class="container">
+    <section class="policy-hero" aria-labelledby="policy-hero-heading">
+      <div class="policy-hero__content">
+        {%- if settings.rating_label != blank -%}
+          {%- render 'stars', rating: 5, label: settings.rating_label, size: 'md' -%}
+        {%- endif -%}
+        {%- if eyebrow != blank -%}<p class="policy-hero__eyebrow">{{ eyebrow }}</p>{%- endif -%}
+        <h1 id="policy-hero-heading" class="policy-hero__heading">{{ headline }}</h1>
+        {%- if subheadline != blank -%}<p class="policy-hero__sub">{{ subheadline }}</p>{%- endif -%}
+      </div>
+      {%- if section.settings.show_image -%}
+        <div class="policy-hero__media">
+          {%- if image != blank -%}
+            {{ image | image_url: width: 1376 | image_tag: widths: '400, 600, 800, 1000, 1376', sizes: '(min-width: 64em) 50vw, 100vw', loading: 'eager', decoding: 'async', alt: image_alt }}
+          {%- else -%}
+            <img src="{{ placeholder | asset_url }}" alt="{{ image_alt | escape }}" width="1376" height="760" loading="eager" decoding="async">
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </section>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Policy banner",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Leave a field empty to use the storefront's copy for this policy (privacy-policy, shipping-policy, terms-of-service, refund-policy, contact-information, legal-notice)."
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "info": "Defaults to the page title."
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Headline"
+    },
+    {
+      "type": "text",
+      "id": "subheadline",
+      "label": "Subheadline"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "Show image",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "Image alt text"
+    }
+  ]
+}
+{% endschema %}

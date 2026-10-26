@@ -1,0 +1,33 @@
+{%- assign brand_token = '{AppName}' -%}
+{%- comment -%}
+  Not-found page (app/components/ErrorView.tsx with status 404).
+{%- endcomment -%}
+<section class="route-error container">
+  <p class="route-error__code" aria-hidden="true">404</p>
+  <h1>{{ section.settings.heading }}</h1>
+  <p class="text-muted" style="max-width:480px">{{ section.settings.body | replace: brand_token, settings.brand_name }}</p>
+  <div style="display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center">
+    <a class="btn btn--primary btn--md" href="{{ routes.root_url }}"><span class="btn__label">Back to home</span></a>
+    <a class="btn btn--outline btn--md" href="{{ routes.all_products_collection_url }}"><span class="btn__label">Shop all</span></a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "404 page",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "We couldn’t find that page"
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Body",
+      "default": "The page may have moved or the link might be out of date. Let’s get you back to better sleep."
+    }
+  ]
+}
+{% endschema %}

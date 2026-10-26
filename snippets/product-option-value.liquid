@@ -1,0 +1,48 @@
+{%- comment -%}
+  One option value control (OptionValueControl in VariantSelector.tsx):
+  a swatch or a pill. Values that belong to another product of a combined
+  listing render as links; variants of this product render as buttons that
+  product.js turns into a variant change.
+  {% render 'product-option-value', value: value, is_swatch: true, product: product %}
+{%- endcomment -%}
+{%- liquid
+  assign exists = true
+  if value.variant == blank
+    assign exists = false
+  endif
+  assign available = value.available
+  if is_swatch
+    assign classes = 'swatch'
+  else
+    assign classes = 'option-pill'
+  endif
+  if value.selected
+    assign classes = classes | append: ' is-selected'
+  endif
+  unless available
+    assign classes = classes | append: ' is-unavailable'
+  endunless
+  assign accessible = value.name
+  unless available
+    assign accessible = value.name | append: ' (sold out)'
+  endunless
+  assign other_product = false
+  if value.product_url != blank
+    assign target_handle = value.product_url | split: '/products/' | last | split: '?' | first | split: '/' | first
+    if target_handle != blank and target_handle != product.handle
+      assign other_product = true
+    endif
+  endif
+-%}
+{%- capture content -%}
+  {%- if is_swatch -%}
+    <span class="swatch__dot"{% if value.swatch.color != blank %} style="background-color:{{ value.swatch.color }}"{% endif %}>{% if value.swatch.image != blank %}<img src="{{ value.swatch.image | image_url: width: 72, height: 72, crop: 'center' }}" alt="" width="36" height="36" loading="lazy">{% endif %}</span>
+  {%- else -%}
+    <span class="option-pill__label">{{ value.name }}</span>
+  {%- endif -%}
+{%- endcapture -%}
+{%- if other_product -%}
+<a class="{{ classes }}" href="{{ value.product_url }}"{% if value.selected %} aria-current="true"{% endif %} aria-label="{{ accessible | escape }}" title="{{ value.name | escape }}">{{ content | strip }}</a>
+{%- else -%}
+<button type="button" class="{{ classes }}" aria-pressed="{% if value.selected %}true{% else %}false{% endif %}" aria-label="{{ accessible | escape }}" title="{{ value.name | escape }}"{% unless exists %} disabled{% endunless %} data-option-value="{{ value.name | escape }}"{% if value.variant %} data-variant-id="{{ value.variant.id }}"{% endif %}>{{ content | strip }}</button>
+{%- endif -%}

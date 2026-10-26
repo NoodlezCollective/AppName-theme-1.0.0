@@ -1,0 +1,71 @@
+{%- comment -%}
+  Featured reviews carousel (app/components/product/ReviewsCarousel.tsx) from
+  the `mellow_review` metaobjects in `mellow.featured_reviews`. Reviews
+  without a body are skipped; nothing renders without reviews. The viewport
+  shows one review; the others wait in a <template> that product.js swaps in.
+  {% render 'product-reviews-carousel', product: product, id_prefix: 'reviews' %}
+{%- endcomment -%}
+{%- liquid
+  assign id_prefix = id_prefix | default: 'reviews'
+  assign reviews = product.metafields.mellow.featured_reviews.value
+  assign count = 0
+  for review in reviews
+    assign body = review.body.value | strip
+    if body != blank
+      assign count = count | plus: 1
+    endif
+  endfor
+-%}
+{%- if count > 0 -%}
+  {%- capture slides -%}
+    {%- assign index = 0 -%}
+    {%- for review in reviews -%}
+      {%- liquid
+        assign body = review.body.value | strip
+        if body == blank
+          continue
+        endif
+        assign index = index | plus: 1
+        assign rating = nil
+        if review.rating.value.rating != blank
+          assign rating = review.rating.value.rating | times: 5.0 | divided_by: review.rating.value.scale_max
+        elsif review.rating.value != blank
+          assign rating = review.rating.value | plus: 0.0
+          if rating < 0 or rating > 5
+            assign rating = nil
+          endif
+        endif
+        assign title = review.title.value | strip
+        assign author = review.author.value | strip | default: 'Customer'
+        assign date = review.date.value
+      -%}
+      <article class="reviews__slide" aria-roledescription="slide" aria-label="Review {{ index }} of {{ count }}">
+        {%- if rating != nil -%}{%- render 'stars', rating: rating, size: 'md' -%}{%- endif -%}
+        {%- if title != blank -%}<h3 class="reviews__title">{{ title | escape }}</h3>{%- endif -%}
+        <blockquote class="reviews__body"><p>{{ body | escape }}</p></blockquote>
+        <p class="reviews__meta">
+          <span class="reviews__author">{{ author | escape }}</span>
+          {%- if review.verified.value == true -%}<span class="reviews__verified">{% render 'icon', name: 'check', size: 14, stroke_width: 2.25 %}Verified buyer</span>{%- endif -%}
+          {%- if date != blank -%}<time class="reviews__date" datetime="{{ date | date: '%Y-%m-%d' }}">{{ date | date: '%b %-d, %Y' }}</time>{%- endif -%}
+        </p>
+      </article>
+    {%- endfor -%}
+  {%- endcapture -%}
+  {%- assign first_slide = slides | split: '</article>' | first | append: '</article>' | strip -%}
+<section class="reviews" aria-roledescription="carousel" aria-labelledby="{{ id_prefix }}-heading" data-reviews>
+  <h2 id="{{ id_prefix }}-heading" class="sr-only">Customer reviews</h2>
+  <div class="reviews__viewport" aria-live="polite" data-reviews-viewport>{{ first_slide }}</div>
+  {%- if count > 1 -%}
+    <template data-reviews-slides>{{ slides | strip }}</template>
+    <div class="reviews__controls">
+      <button type="button" class="reviews__arrow" aria-label="Previous review" data-reviews-prev>{% render 'icon', name: 'chevron-left', size: 16 %}</button>
+      <div class="reviews__dots" data-reviews-dots>
+        {%- for i in (1..count) -%}
+          <button type="button" class="reviews__dot{% if i == 1 %} is-active{% endif %}" aria-label="Go to review {{ i }}"{% if i == 1 %} aria-current="true"{% endif %} data-reviews-dot="{{ forloop.index0 }}"></button>
+        {%- endfor -%}
+      </div>
+      <button type="button" class="reviews__arrow" aria-label="Next review" data-reviews-next>{% render 'icon', name: 'chevron-right', size: 16 %}</button>
+    </div>
+  {%- endif -%}
+</section>
+{%- endif -%}

@@ -1,0 +1,84 @@
+{%- comment -%}
+  FAQ accordion (app/components/home/Faq.tsx + ui/Accordion.tsx): native
+  <details>/<summary>; the plus icon rotates into a minus when open (theme.css).
+{%- endcomment -%}
+{%- liquid
+  assign brand = settings.brand_name
+  assign heading = section.settings.heading | replace: '{AppName}', brand
+-%}
+{%- if section.blocks.size > 0 -%}
+  <section class="section section--tight" aria-labelledby="faq-heading" id="faq">
+    <div class="container faq">
+      <div class="section-heading section-heading--center">
+        <h2 id="faq-heading" class="section-heading__title">{{ heading }}</h2>
+      </div>
+      <div class="accordion">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign question = block.settings.question | replace: '{AppName}', brand
+            assign answer = block.settings.answer | replace: '{AppName}', brand
+          -%}
+          <details class="accordion__item"{% if block.settings.open %} open{% endif %} {{ block.shopify_attributes }}>
+            <summary class="accordion__summary">
+              <span class="accordion__title">{{ question }}</span>
+              <span class="accordion__icon" aria-hidden="true">{%- render 'icon', name: 'plus', size: 16, stroke_width: 2 -%}</span>
+            </summary>
+            <div class="accordion__panel"><p>{{ answer }}</p></div>
+          </details>
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "FAQ",
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Questions, Answered"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "How does the 30-day trial work?"
+        },
+        {
+          "type": "textarea",
+          "id": "answer",
+          "label": "Answer",
+          "default": "Sleep on any {AppName} product for 30 nights. If it is not the best sleep you have had, start a return from your account and we will make it right."
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "Open by default",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ",
+      "blocks": [
+        {"type": "item", "settings": {"question": "How does the 30-day trial work?", "answer": "Sleep on any {AppName} product for 30 nights. If it is not the best sleep you have had, start a return from your account and we will make it right."}},
+        {"type": "item", "settings": {"question": "Are {AppName} comforters and pillows machine washable?", "answer": "Yes. Every comforter and pillow cover is designed to be washed at home on a gentle cycle and tumble dried low."}},
+        {"type": "item", "settings": {"question": "Which side of the CloudCool comforter is the cool side?", "answer": "The smooth, silk-touch side is the cooling side. The soft knit side is for cooler nights. Flip it whenever you like."}},
+        {"type": "item", "settings": {"question": "How long does shipping take?", "answer": "Orders ship within 1-2 business days and typically arrive in 3-6 business days. Tracking is emailed as soon as your order leaves our warehouse."}}
+      ]
+    }
+  ]
+}
+{% endschema %}

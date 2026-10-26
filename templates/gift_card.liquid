@@ -1,0 +1,97 @@
+{% layout none %}
+{%- comment -%}
+  Gift card page (opened from the gift card email). Standalone document that
+  shares the theme stylesheet; the QR code uses Shopify's vendored qrcode.js
+  with gift_card.qr_identifier.
+{%- endcomment -%}
+{%- liquid
+  assign formatted_initial_value = gift_card.initial_value | money_without_trailing_zeros
+  assign formatted_balance = gift_card.balance | money
+-%}
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="{{ settings.color_primary }}">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Your {{ formatted_initial_value }} gift card | {{ settings.brand_name }}</title>
+    <link rel="preconnect" href="https://cdn.shopify.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="icon" type="image/svg+xml" href="{{ 'favicon.svg' | asset_url }}">
+    {%- render 'css-variables' -%}
+    {{ 'theme.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer></script>
+    {{ content_for_header }}
+  </head>
+  <body class="template-gift-card">
+    <main id="main-content" tabindex="-1">
+      <div class="content-page container container--text">
+        <header class="page-header page-header--center">
+          <p class="eyebrow page-header__eyebrow">{{ settings.brand_name }}</p>
+          <h1>Here’s your gift card</h1>
+          <p class="page-header__description">A {{ formatted_initial_value }} gift card to spend on better sleep at {{ settings.brand_name }}.</p>
+        </header>
+
+        <section class="account-card account-order__block" aria-label="Gift card">
+          <div class="order-card__main">
+            <div class="order-card__heading">
+              <h2 class="account-card__subtitle">Gift card balance</h2>
+              <p class="order-card__total"><span>{{ formatted_balance }}</span></p>
+            </div>
+            <div class="order-card__badges">
+              {%- if gift_card.enabled == false or gift_card.expired -%}
+                <span class="badge badge--accent">Expired</span>
+              {%- elsif gift_card.balance != gift_card.initial_value -%}
+                <span class="badge badge--primary badge--soft">Partly used</span>
+              {%- else -%}
+                <span class="badge badge--success">Ready to use</span>
+              {%- endif -%}
+            </div>
+          </div>
+
+          <dl class="order-totals">
+            <div class="order-totals__row">
+              <dt>Initial value</dt>
+              <dd><span>{{ formatted_initial_value }}</span></dd>
+            </div>
+            {%- if gift_card.expires_on -%}
+              <div class="order-totals__row">
+                <dt>Expires</dt>
+                <dd><span>{{ gift_card.expires_on | date: '%b %-d, %Y' }}</span></dd>
+              </div>
+            {%- endif -%}
+            <div class="order-totals__row order-totals__row--total">
+              <dt>Gift card code</dt>
+              <dd><span id="gift-card-code">{{ gift_card.code | format_code }}</span></dd>
+            </div>
+          </dl>
+
+          <p class="text-muted">Enter this code at checkout or show the QR code in store.</p>
+          <div id="gift-card-qr" data-identifier="{{ gift_card.qr_identifier | escape }}" style="display:flex;justify-content:center;margin-block:1.5rem" aria-label="Gift card QR code" role="img"></div>
+
+          <div class="account-form__actions" style="justify-content:center">
+            <a class="btn btn--primary btn--md" href="{{ routes.root_url }}"><span class="btn__label">Start shopping</span></a>
+            {%- if gift_card.pass_url -%}
+              <a class="btn btn--outline btn--md" href="{{ gift_card.pass_url }}"><span class="btn__label">Add to Apple Wallet</span></a>
+            {%- endif -%}
+            <button class="btn btn--ghost btn--md" type="button" onclick="window.print()"><span class="btn__label">Print</span></button>
+          </div>
+        </section>
+      </div>
+    </main>
+    <script>
+      window.addEventListener('DOMContentLoaded', function () {
+        var target = document.getElementById('gift-card-qr');
+        if (!target || typeof QRCode === 'undefined') return;
+        new QRCode(target, {
+          text: target.getAttribute('data-identifier'),
+          width: 120,
+          height: 120
+        });
+      });
+    </script>
+  </body>
+</html>

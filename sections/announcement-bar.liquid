@@ -1,0 +1,65 @@
+{%- assign brand_token = '{AppName}' -%}
+{%- comment -%}
+  Scrolling announcement strip (app/components/AnnouncementBar.tsx).
+  The messages are repeated so each half of the loop is wider than any
+  viewport; only the first copy is exposed to assistive technology. The
+  pause toggle (ui/PauseToggle.tsx) is wired in assets/theme.js.
+{%- endcomment -%}
+{%- liquid
+  assign message_count = 0
+  for block in section.blocks
+    if block.settings.text != blank
+      assign message_count = message_count | plus: 1
+    endif
+  endfor
+  if message_count > 0
+    assign copies = 12.0 | divided_by: message_count | ceil
+    if copies < 1
+      assign copies = 1
+    endif
+  endif
+-%}
+{%- if message_count > 0 -%}
+  {%- capture items -%}
+    {%- for block in section.blocks -%}
+      {%- if block.settings.text != blank -%}
+        <span class="announcement-bar__item" {{ block.shopify_attributes }}>{{ block.settings.text | replace: brand_token, settings.brand_name }}</span>
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+  <div class="announcement-bar" role="region" aria-label="Announcements" data-announcement-bar data-section-id="{{ section.id }}">
+    {%- render 'marquee', content: items, duration: 45, gap: 18, copies: copies -%}
+    <button type="button" class="announcement-bar__toggle" aria-label="Pause announcements" aria-pressed="false" data-marquee-toggle><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="5" y="4" width="5" height="16" rx="1.5"></rect><rect x="14" y="4" width="5" height="16" rx="1.5"></rect></svg></button>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "tag": "div",
+  "class": "section-announcement-bar",
+  "max_blocks": 12,
+  "settings": [],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Up to 50% Off Sitewide"
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {"type": "announcement", "settings": {"text": "Up to 50% Off Sitewide"}},
+      {"type": "announcement", "settings": {"text": "Save More When You Bundle"}},
+      {"type": "announcement", "settings": {"text": "Free Sleep Mask On Orders $120+"}}
+    ]
+  }
+}
+{% endschema %}

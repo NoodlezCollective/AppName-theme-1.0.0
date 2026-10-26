@@ -1,0 +1,20 @@
+{%- comment -%}
+  Formats an integer with thousands separators: {% render 'number', value: 51644 %} -> 51,644
+  (Intl.NumberFormat('en-US') in the storefront).
+{%- endcomment -%}
+{%- liquid
+  assign n = value | round | append: ''
+  assign len = n | size
+  assign out = ''
+  for i in (1..len)
+    assign idx = i | minus: 1
+    assign ch = n | slice: idx, 1
+    assign remaining = len | minus: idx
+    assign mod = remaining | modulo: 3
+    if idx > 0 and mod == 0
+      assign out = out | append: ','
+    endif
+    assign out = out | append: ch
+  endfor
+  echo out
+-%}

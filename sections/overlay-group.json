@@ -1,0 +1,19 @@
+{
+  "type": "aside",
+  "name": "Overlay group",
+  "sections": {
+    "cart-drawer": {
+      "type": "cart-drawer",
+      "settings": {}
+    },
+    "search-drawer": {
+      "type": "search-drawer",
+      "settings": {}
+    },
+    "mobile-menu": {
+      "type": "mobile-menu",
+      "settings": {}
+    }
+  },
+  "order": ["cart-drawer", "search-drawer", "mobile-menu"]
+}

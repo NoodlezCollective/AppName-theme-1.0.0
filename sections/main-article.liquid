@@ -1,0 +1,48 @@
+{%- comment -%}
+  Journal article (app/routes/blogs.$blogHandle.$articleHandle.tsx).
+{%- endcomment -%}
+{%- liquid
+  assign image_alt = article.image.alt | default: article.title
+-%}
+<article class="content-page article container container--text">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="{{ blog.url }}">{{ blog.title }}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ article.title }}</span>
+  </nav>
+
+  <header class="article__header">
+    <p class="article__meta">
+      <time datetime="{{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' }}">{{ article.published_at | date: '%B %-d, %Y' }}</time>
+      {%- if section.settings.show_author and article.author != blank %} &middot; By {{ article.author }}{% endif -%}
+    </p>
+    <h1>{{ article.title }}</h1>
+  </header>
+
+  {%- if article.image != blank -%}
+    <figure class="article__hero">
+      {{ article.image | image_url: width: 1600, height: 900, crop: 'center' | image_tag: widths: '400, 600, 800, 1000, 1200, 1600', sizes: '(min-width: 64em) 760px, 100vw', loading: 'eager', decoding: 'async', alt: image_alt, style: 'width:100%;aspect-ratio:16/9' }}
+    </figure>
+  {%- endif -%}
+
+  <div class="prose article__body">{{ article.content }}</div>
+
+  <footer class="article__footer">
+    <a class="btn btn--outline btn--sm" href="{{ blog.url }}"><span class="btn__label">More from {{ blog.title }}</span></a>
+    <a class="btn btn--ghost btn--sm" href="{{ routes.all_products_collection_url }}"><span class="btn__label">Shop best sellers</span></a>
+  </footer>
+</article>
+
+{% schema %}
+{
+  "name": "Article",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "Show author",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

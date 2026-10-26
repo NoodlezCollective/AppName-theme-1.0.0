@@ -1,0 +1,67 @@
+{%- assign brand_token = '{AppName}' -%}
+{%- comment -%}
+  Shopify page body (when the about page has one) followed by the closing
+  call-to-action band (app/routes/pages.about.tsx, DEFAULT_ABOUT_CONTENT.closing).
+{%- endcomment -%}
+{%- liquid
+  assign cta_url = section.settings.cta_url | default: routes.all_products_collection_url
+-%}
+{%- if section.settings.show_page_content and page.content != blank -%}
+<section class="section section--tight" aria-label="{{ page.title | escape }}">
+  <div class="container">
+    <div class="prose" style="margin-inline:auto">{{ page.content }}</div>
+  </div>
+</section>
+{%- endif -%}
+<section class="section section--tight" aria-labelledby="about-cta-heading">
+  <div class="container">
+    <div class="cta-band">
+      <h2 id="about-cta-heading">{{ section.settings.heading | replace: brand_token, settings.brand_name }}</h2>
+      {%- if section.settings.body != blank -%}
+        <p>{{ section.settings.body | replace: brand_token, settings.brand_name }}</p>
+      {%- endif -%}
+      {%- if section.settings.cta_label != blank -%}
+        <a class="btn btn--light btn--lg" href="{{ cta_url }}"><span class="btn__label">{{ section.settings.cta_label }}</span></a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "About closing",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_page_content",
+      "label": "Show the page body above the call to action",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Ready to sleep {AppName}?"
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Body",
+      "default": "Try any product for 30 nights. If you do not sleep better, returns are on us."
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Button label",
+      "default": "Shop Best Sellers"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Button link",
+      "info": "Defaults to the all-products collection."
+    }
+  ],
+  "presets": [{"name": "About closing"}]
+}
+{% endschema %}

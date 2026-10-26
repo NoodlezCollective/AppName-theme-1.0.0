@@ -1,0 +1,91 @@
+{%- comment -%}
+  Sticky lavender header (app/components/Header.tsx): primary navigation,
+  wordmark / logo (ui/Logo.tsx) and the account / search / cart actions.
+  The menu comes from the "main-menu" link list, otherwise the storefront's
+  FALLBACK_HEADER_MENU (app/lib/menu.ts). The cart toggle is re-rendered
+  through the Section Rendering API (?sections=header) by assets/theme.js.
+{%- endcomment -%}
+{%- liquid
+  assign menu = linklists['main-menu']
+  assign base = routes.root_url
+  if base == '/'
+    assign base = ''
+  endif
+  if customer
+    assign account_label = 'My account'
+  else
+    assign account_label = 'Sign in'
+  endif
+  assign cart_count = cart.item_count
+  if cart_count == 1
+    assign cart_label = 'Cart, 1 item'
+  else
+    assign cart_label = 'Cart, ' | append: cart_count | append: ' items'
+  endif
+  assign fallback_titles = 'Shop,Bath,Bundles,About' | split: ','
+  assign bath_url = routes.collections_url | append: '/bath'
+  assign bundles_url = routes.collections_url | append: '/bundles'
+  assign about_url = base | append: '/pages/about'
+  assign fallback_urls = routes.all_products_collection_url | append: ',' | append: bath_url | append: ',' | append: bundles_url | append: ',' | append: about_url | split: ','
+-%}
+<header class="site-header" data-section-id="{{ section.id }}" data-section-type="header">
+  <div class="container site-header__inner">
+    <button class="icon-btn site-header__mobile-toggle" aria-label="Open menu" aria-haspopup="dialog" aria-expanded="false" data-drawer-open="mobile">{% render 'icon', name: 'menu' %}</button>
+    <nav class="site-header__nav" aria-label="Primary">
+      {%- if menu != blank and menu.links.size > 0 -%}
+        {%- for link in menu.links -%}
+          {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
+          {%- if link.url contains '://' -%}
+            <a class="nav-link" href="{{ link.url }}">{{ link.title }}</a>
+          {%- else -%}
+            <a class="nav-link {% if link.current %}is-active{% endif %} " href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title }}</a>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for title in fallback_titles -%}
+          {%- assign url = fallback_urls[forloop.index0] -%}
+          {%- assign active = false -%}
+          {%- if request.path == url -%}{%- assign active = true -%}{%- endif -%}
+          <a class="nav-link {% if active %}is-active{% endif %} " href="{{ url }}"{% if active %} aria-current="page"{% endif %}>{{ title }}</a>
+        {%- endfor -%}
+      {%- endif -%}
+    </nav>
+    <div class="site-header__logo">
+      <a class="logo" aria-label="{{ settings.brand_name | escape }} – home" href="{{ routes.root_url }}">
+        {%- if section.settings.logo != blank -%}
+          {{ section.settings.logo | image_url: width: 480 | image_tag: class: 'logo__image', alt: settings.brand_name, loading: 'eager' }}
+        {%- else -%}
+          <span class="logo__wordmark" aria-hidden="true">{{ settings.brand_name }}</span>
+        {%- endif -%}
+      </a>
+    </div>
+    <nav class="site-header__actions" aria-label="Account and cart">
+      <a aria-label="{{ account_label }}" title="{{ account_label }}" class="icon-btn site-header__account" href="{{ routes.account_url }}">{% render 'icon', name: 'user' %}</a>
+      <button class="icon-btn" aria-label="Search" aria-haspopup="dialog" data-drawer-open="search">{% render 'icon', name: 'search' %}</button>
+      <a href="{{ routes.cart_url }}" class="icon-btn cart-toggle" aria-label="{{ cart_label }}" data-drawer-open="cart" data-cart-toggle data-cart-count="{{ cart_count }}" data-cart-render="header">
+        {%- render 'icon', name: 'cart' -%}
+        {%- if cart_count > 0 -%}<span class="cart-toggle__count" aria-hidden="true">{{ cart_count }}</span>{%- endif -%}
+      </a>
+    </nav>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "tag": "div",
+  "class": "section-header",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image",
+      "info": "Replaces the brand-name wordmark."
+    },
+    {
+      "type": "paragraph",
+      "content": "Navigation uses the \"main-menu\" menu. Without it the storefront's default menu (Shop, Bath, Bundles, About) is shown."
+    }
+  ]
+}
+{% endschema %}

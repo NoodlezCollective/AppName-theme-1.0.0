@@ -1,0 +1,91 @@
+{%- assign brand_token = '{AppName}' -%}
+{%- comment -%}
+  Journal (app/routes/blogs._index.tsx header and empty state, article cards
+  from app/routes/blogs.$blogHandle._index.tsx).
+{%- endcomment -%}
+<div class="content-page container">
+  <header class="page-header page-header--center">
+    <p class="eyebrow page-header__eyebrow">{{ settings.brand_name }}</p>
+    <h1>{{ blog.title }}</h1>
+    {%- if section.settings.description != blank -%}
+      <p class="page-header__description">{{ section.settings.description | replace: brand_token, settings.brand_name }}</p>
+    {%- endif -%}
+  </header>
+
+  {%- paginate blog.articles by section.settings.articles_per_page -%}
+    {%- if blog.articles.size > 0 -%}
+      {%- if paginate.previous -%}
+        <div class="content-pagination">
+          <a class="btn btn--outline btn--sm" href="{{ paginate.previous.url }}">Load previous</a>
+        </div>
+      {%- endif -%}
+      <ul class="article-grid">
+        {%- for article in blog.articles -%}
+          {%- liquid
+            assign loading = 'lazy'
+            if forloop.index0 < 3
+              assign loading = 'eager'
+            endif
+            assign excerpt = article.excerpt_or_content | strip_html | strip_newlines | truncate: 160
+            assign image_alt = article.image.alt | default: article.title
+          -%}
+          <li class="article-card">
+            <a class="article-card__link" href="{{ article.url }}">
+              <div class="article-card__media">
+                {%- if article.image != blank -%}
+                  {{ article.image | image_url: width: 1200, height: 800, crop: 'center' | image_tag: widths: '400, 600, 800, 1000, 1200', sizes: '(min-width: 64em) 33vw, (min-width: 40em) 50vw, 100vw', loading: loading, decoding: 'async', alt: image_alt, style: 'width:100%;aspect-ratio:3/2' }}
+                {%- endif -%}
+              </div>
+              <div class="article-card__body">
+                <p class="article-card__meta">
+                  <time datetime="{{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' }}">{{ article.published_at | date: '%B %-d, %Y' }}</time>
+                  {%- if article.author != blank %} &middot; {{ article.author }}{% endif -%}
+                </p>
+                <h2 class="article-card__title">{{ article.title }}</h2>
+                {%- if excerpt != blank -%}<p class="article-card__excerpt">{{ excerpt }}</p>{%- endif -%}
+                <span class="article-card__cta">Read more {% render 'icon', name: 'arrow-right', size: 16 %}</span>
+              </div>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+      {%- if paginate.next -%}
+        <div class="content-pagination">
+          <a class="btn btn--outline btn--sm" href="{{ paginate.next.url }}">Load more articles</a>
+        </div>
+      {%- endif -%}
+    {%- else -%}
+      <div class="empty-state content-empty">
+        <h2 class="empty-state__title">No stories yet</h2>
+        <p>We’re writing our first articles. In the meantime, explore the products everyone is talking about.</p>
+        <div class="empty-state__actions">
+          <a class="btn btn--primary btn--md" href="{{ routes.all_products_collection_url }}"><span class="btn__label">Shop best sellers</span></a>
+          <a class="btn btn--ghost btn--md" href="{{ routes.root_url }}"><span class="btn__label">Back to home</span></a>
+        </div>
+      </div>
+    {%- endif -%}
+  {%- endpaginate -%}
+</div>
+
+{% schema %}
+{
+  "name": "Blog",
+  "settings": [
+    {
+      "type": "text",
+      "id": "description",
+      "label": "Description",
+      "default": "Sleep science, product care and stories from the {AppName} team."
+    },
+    {
+      "type": "range",
+      "id": "articles_per_page",
+      "label": "Articles per page",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "default": 10
+    }
+  ]
+}
+{% endschema %}

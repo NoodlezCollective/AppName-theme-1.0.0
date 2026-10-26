@@ -1,0 +1,125 @@
+{%- comment -%}
+  Search results page (app/routes/search.tsx + SearchForm.tsx + SearchResults.tsx).
+  Products only: the form sends `type=product` with `q`; cards link with the
+  term appended (`?q=…`) like urlWithTrackingParams().
+{%- endcomment -%}
+{%- liquid
+  assign term = search.terms | strip
+  assign term_param = term | url_param_escape
+  assign has_term = false
+  if term != blank
+    assign has_term = true
+  endif
+  assign has_results = false
+  if search.performed and has_term and search.results_count > 0
+    assign has_results = true
+  endif
+  assign card_sizes = '(min-width: 64em) 30vw, (min-width: 40em) 50vw, 100vw'
+  assign suggestions = section.settings.suggestions | split: ','
+-%}
+<div class="search-page container" data-section-id="{{ section.id }}">
+  <header class="page-header page-header--center search-header">
+    <p class="eyebrow page-header__eyebrow">Search</p>
+    <h1>Search</h1>
+    <form method="get" action="{{ routes.search_url }}" role="search" class="search-form" data-search-form>
+      <div class="search-form__field">
+        <label class="sr-only" for="search-page-input">Search products, pages and articles</label>
+        {%- render 'icon', name: 'search', size: 22, class: 'search-form__icon' -%}
+        <input id="search-page-input" name="q" placeholder="{{ section.settings.placeholder | escape }}" type="search" autocomplete="off" value="{{ term | escape }}">
+        <input type="hidden" name="type" value="product">
+        <button class="btn btn--primary btn--md" type="submit"><span class="btn__label">Search</span></button>
+      </div>
+    </form>
+  </header>
+  {%- if has_results -%}
+    {%- paginate search.results by section.settings.results_per_page -%}
+      {%- liquid
+        capture total_text
+          render 'number', value: search.results_count
+        endcapture
+      -%}
+      <p class="search-summary" aria-live="polite">{{ total_text }} {% if search.results_count == 1 %}result{% else %}results{% endif %} for <q>{{ term | escape }}</q></p>
+      <div class="search-results">
+        <section class="search-section" aria-labelledby="search-products-heading">
+          <h2 id="search-products-heading" class="eyebrow search-section__title">Products</h2>
+          <div class="paginated-section">
+            {%- if paginate.previous -%}
+              <div class="paginated-section__nav paginated-section__nav--previous">
+                <a class="btn btn--outline btn--md" href="{{ paginate.previous.url }}" data-load-more="previous"><span class="btn__label">Load previous</span></a>
+              </div>
+            {%- endif -%}
+            <div aria-label="Product results" class="product-grid" role="region">
+              {%- for item in search.results -%}
+                {%- if item.object_type == 'product' -%}
+                  {%- liquid
+                    assign loading = 'lazy'
+                    if paginate.current_offset == 0 and forloop.index0 < 6
+                      assign loading = 'eager'
+                    endif
+                    assign item_url = item.url | append: '?q=' | append: term_param
+                  -%}
+                  {%- render 'product-card', product: item, heading_level: 3, loading: loading, sizes: card_sizes, url: item_url -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+            {%- if paginate.next -%}
+              <div class="paginated-section__nav paginated-section__nav--next">
+                <a class="btn btn--outline btn--md" href="{{ paginate.next.url }}" data-load-more="next"><span class="btn__label">Load more</span></a>
+              </div>
+            {%- endif -%}
+          </div>
+        </section>
+      </div>
+    {%- endpaginate -%}
+  {%- else -%}
+    <div class="empty-state search-empty">
+      <p class="empty-state__title">{% if has_term %}No results for <q>{{ term | escape }}</q>{% else %}What are you looking for?{% endif %}</p>
+      <p>{% if has_term %}Check the spelling or try a broader term. You can also browse everything we make for better sleep.{% else %}Search by product, fabric or feeling. Popular searches:{% endif %}</p>
+      <ul class="search-empty__suggestions" aria-label="Suggested searches">
+        {%- for suggestion in suggestions -%}
+          {%- assign suggestion_text = suggestion | strip -%}
+          {%- if suggestion_text != blank -%}
+            <li>
+              <a class="chip chip--link" href="{{ routes.search_url }}?q={{ suggestion_text | url_param_escape }}&type=product">{{ suggestion_text | escape }}</a>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+      <div class="empty-state__actions">
+        <a class="btn btn--primary btn--md" href="{{ routes.all_products_collection_url }}"><span class="btn__label">Shop all products</span></a>
+        <a class="btn btn--outline btn--md" href="{{ routes.collections_url }}"><span class="btn__label">Browse collections</span></a>
+      </div>
+    </div>
+  {%- endif -%}
+</div>
+<script src="{{ 'collection.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Search",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "Input placeholder",
+      "default": "Search pillows, comforters, bundles…"
+    },
+    {
+      "type": "text",
+      "id": "suggestions",
+      "label": "Suggested searches (comma separated)",
+      "default": "pillow, cooling comforter, body pillow, bundle"
+    },
+    {
+      "type": "range",
+      "id": "results_per_page",
+      "label": "Results per page",
+      "min": 4,
+      "max": 48,
+      "step": 4,
+      "default": 12
+    }
+  ]
+}
+{% endschema %}

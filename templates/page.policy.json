@@ -1,0 +1,13 @@
+{
+  "sections": {
+    "hero": {
+      "type": "policy-hero",
+      "settings": {}
+    },
+    "main": {
+      "type": "main-page",
+      "settings": {}
+    }
+  },
+  "order": ["hero", "main"]
+}

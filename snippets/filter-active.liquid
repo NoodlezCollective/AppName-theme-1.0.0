@@ -1,0 +1,51 @@
+{%- comment -%}
+  Applied filters as removable chips (app/components/collection/ActiveFilters.tsx).
+  {% render 'filter-active', filters: collection.filters, clear_url: '/collections/x', active_count: 2 %}
+  Renders nothing without an active filter. Price chips read "$20 – $120",
+  "From $20" or "Up to $120" like formatPriceRange().
+{%- endcomment -%}
+{%- if active_count > 0 -%}
+<div class="active-filters">
+  <ul class="active-filters__list" aria-label="Active filters">
+    {%- for filter in filters -%}
+      {%- if filter.type == 'price_range' -%}
+        {%- liquid
+          assign has_min = false
+          assign has_max = false
+          if filter.min_value.value != blank
+            assign has_min = true
+          endif
+          if filter.max_value.value != blank
+            assign has_max = true
+          endif
+          if has_min and has_max
+            assign max_text = filter.max_value.value | money_without_trailing_zeros
+            assign min_text = filter.min_value.value | money_without_trailing_zeros
+            assign chip_label = min_text | append: ' – ' | append: max_text
+          elsif has_min
+            assign chip_label = filter.min_value.value | money_without_trailing_zeros | prepend: 'From '
+          elsif has_max
+            assign chip_label = filter.max_value.value | money_without_trailing_zeros | prepend: 'Up to '
+          endif
+        -%}
+        {%- if has_min or has_max -%}
+          <li>
+            <a class="chip" href="{{ filter.url_to_remove }}" aria-label="Remove filter: {{ chip_label | escape }}" data-listing-link="chip">
+              <span>{{ chip_label }}</span>{% render 'icon', name: 'close', size: 14 %}
+            </a>
+          </li>
+        {%- endif -%}
+      {%- else -%}
+        {%- for value in filter.active_values -%}
+          <li>
+            <a class="chip" href="{{ value.url_to_remove }}" aria-label="Remove filter: {{ value.label | escape }}" data-listing-link="chip">
+              <span>{{ value.label | escape }}</span>{% render 'icon', name: 'close', size: 14 %}
+            </a>
+          </li>
+        {%- endfor -%}
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+  <a class="active-filters__clear link" href="{{ clear_url }}" data-listing-link="clear">Clear all</a>
+</div>
+{%- endif -%}

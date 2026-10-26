@@ -1,0 +1,148 @@
+{%- assign brand_token = '{AppName}' -%}
+{%- comment -%}
+  Deep indigo footer (app/components/Footer.tsx): social-proof call to action
+  card, the "footer" link list's child lists as ruled columns (a list titled
+  "Social" renders icon links), the brand name as a giant watermark and the
+  copyright line. Without a "footer" link list the storefront's
+  FALLBACK_FOOTER_MENU (app/lib/menu.ts) is rendered.
+{%- endcomment -%}
+{%- liquid
+  assign menu = linklists['footer']
+  assign base = routes.root_url
+  if base == '/'
+    assign base = ''
+  endif
+  assign cta_url = settings.footer_cta_url | default: routes.all_products_collection_url
+  assign brand = settings.brand_name | default: '{AppName}'
+  assign watermark_chars = brand | size
+  if watermark_chars < 4
+    assign watermark_chars = 4
+  endif
+  assign has_groups = false
+  if menu != blank
+    for link in menu.links
+      if link.links.size > 0
+        assign has_groups = true
+      endif
+    endfor
+  endif
+-%}
+<footer class="site-footer" data-section-id="{{ section.id }}">
+  <div class="container">
+    <div class="footer-cta">
+      <div class="footer-cta__body">
+        {%- render 'stars', rating: 5, label: settings.rating_label, size: 'sm' -%}
+        <p class="footer-cta__heading">{{ settings.footer_cta_heading | replace: brand_token, brand }}</p>
+      </div>
+      <a class="btn btn--light btn--md" href="{{ cta_url }}"><span class="btn__label">{{ settings.footer_cta_label | replace: brand_token, brand }}</span></a>
+    </div>
+
+    <div class="site-footer__columns">
+      {%- if menu != blank and menu.links.size > 0 -%}
+        {%- if has_groups -%}
+          {%- for group in menu.links -%}
+            {%- if group.links.size == 0 -%}{%- continue -%}{%- endif -%}
+            {%- assign group_key = group.title | downcase | strip -%}
+            <nav aria-labelledby="footer-{{ group.handle }}">
+              <h2 class="site-footer__heading" id="footer-{{ group.handle }}">{{ group.title }}</h2>
+              {%- if group_key == 'social' -%}
+                <ul class="site-footer__social">
+                  {%- for link in group.links -%}
+                    {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
+                    {%- assign key = link.title | downcase -%}
+                    {%- assign icon = 'arrow-right' -%}
+                    {%- if key contains 'instagram' -%}{%- assign icon = 'instagram' -%}{%- elsif key contains 'facebook' -%}{%- assign icon = 'facebook' -%}{%- elsif key contains 'tiktok' -%}{%- assign icon = 'tiktok' -%}{%- endif -%}
+                    <li><a class="site-footer__social-link" href="{{ link.url }}" aria-label="{{ link.title | escape }}" title="{{ link.title | escape }}"{% if link.url contains '://' %} rel="noopener noreferrer" target="_blank"{% endif %}>{% render 'icon', name: icon, size: 20 %}</a></li>
+                  {%- endfor -%}
+                </ul>
+              {%- else -%}
+                <ul class="site-footer__links">
+                  {%- for link in group.links -%}
+                    {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
+                    {%- if link.url contains '://' -%}
+                      <li><a href="{{ link.url }}" rel="noopener noreferrer" target="_blank">{{ link.title }}</a></li>
+                    {%- else -%}
+                      <li><a {% if link.current %}aria-current="page" class="active"{% else %}class=""{% endif %} href="{{ link.url }}">{{ link.title }}</a></li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+            </nav>
+          {%- endfor -%}
+        {%- else -%}
+          <nav aria-labelledby="footer-links">
+            <h2 class="site-footer__heading" id="footer-links">Explore</h2>
+            <ul class="site-footer__links">
+              {%- for link in menu.links -%}
+                {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
+                {%- if link.url contains '://' -%}
+                  <li><a href="{{ link.url }}" rel="noopener noreferrer" target="_blank">{{ link.title }}</a></li>
+                {%- else -%}
+                  <li><a {% if link.current %}aria-current="page" class="active"{% else %}class=""{% endif %} href="{{ link.url }}">{{ link.title }}</a></li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          </nav>
+        {%- endif -%}
+      {%- else -%}
+        {%- comment -%} FALLBACK_FOOTER_MENU: policies live at /pages/<handle> in the theme. {%- endcomment -%}
+        {%- assign group_handles = 'shop,learn,support' | split: ',' -%}
+        {%- assign group_titles = 'Shop,Learn,Support' | split: ',' -%}
+        {%- assign pillows_url = routes.collections_url | append: '/pillows' -%}
+        {%- assign comforters_url = routes.collections_url | append: '/comforters' -%}
+        {%- assign bath_url = routes.collections_url | append: '/bath' -%}
+        {%- assign bundles_url = routes.collections_url | append: '/bundles' -%}
+        {%- assign shop_links = 'Pillows|' | append: pillows_url | append: ',Comforters|' | append: comforters_url | append: ',Bath|' | append: bath_url | append: ',Bundles|' | append: bundles_url -%}
+        {%- assign about_url = base | append: '/pages/about' -%}
+        {%- assign blog_url = base | append: '/blogs/news' -%}
+        {%- assign learn_links = 'About Us|' | append: about_url | append: ',Blog|' | append: blog_url -%}
+        {%- assign contact_url = base | append: '/pages/contact-information' -%}
+        {%- assign privacy_url = base | append: '/pages/privacy-policy' -%}
+        {%- assign terms_url = base | append: '/pages/terms-of-service' -%}
+        {%- assign refund_url = base | append: '/pages/refund-policy' -%}
+        {%- assign shipping_url = base | append: '/pages/shipping-policy' -%}
+        {%- assign legal_url = base | append: '/pages/legal-notice' -%}
+        {%- assign support_links = 'Contact Us|' | append: contact_url | append: ',Account|' | append: routes.account_url | append: ',Privacy Policy|' | append: privacy_url | append: ',Terms of Service|' | append: terms_url | append: ',Returns|' | append: refund_url | append: ',Shipping Policy|' | append: shipping_url | append: ',Legal Notice|' | append: legal_url -%}
+        {%- for handle in group_handles -%}
+          {%- case handle -%}
+            {%- when 'shop' -%}{%- assign items = shop_links | split: ',' -%}
+            {%- when 'learn' -%}{%- assign items = learn_links | split: ',' -%}
+            {%- else -%}{%- assign items = support_links | split: ',' -%}
+          {%- endcase -%}
+          <nav aria-labelledby="footer-fallback-footer-{{ handle }}">
+            <h2 class="site-footer__heading" id="footer-fallback-footer-{{ handle }}">{{ group_titles[forloop.index0] }}</h2>
+            <ul class="site-footer__links">
+              {%- for item in items -%}
+                {%- assign parts = item | split: '|' -%}
+                {%- assign url = parts[1] -%}
+                {%- assign active = false -%}
+                {%- if request.path == url -%}{%- assign active = true -%}{%- endif -%}
+                <li><a {% if active %}aria-current="page" class="active"{% else %}class=""{% endif %} href="{{ url }}">{{ parts[0] }}</a></li>
+              {%- endfor -%}
+            </ul>
+          </nav>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
+    <p class="site-footer__watermark" aria-hidden="true" style="--watermark-chars:{{ watermark_chars }}">{{ brand }}</p>
+
+    <div class="site-footer__bottom">
+      <p>{{ settings.copyright | replace: brand_token, brand }}</p>
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "tag": "div",
+  "class": "section-footer",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Columns come from the \"footer\" menu: each top-level item with sub-items is a column; a column titled \"Social\" shows icon links. The call to action, watermark and copyright use the theme settings (Brand and Footer)."
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,88 @@
+{%- comment -%}
+  "Explore Our Most Loved Sleep Products" (app/components/home/FeaturedProducts.tsx).
+  Products come from the chosen collection (default handle most-loved); when it
+  is missing or empty the grid falls back to the all-products collection, which
+  is the closest Liquid has to the storefront's best-sellers query.
+{%- endcomment -%}
+{%- liquid
+  assign brand = settings.brand_name
+  assign heading = section.settings.heading | replace: '{AppName}', brand
+  assign subheading = section.settings.subheading | replace: '{AppName}', brand
+  assign cta_label = section.settings.cta_label | replace: '{AppName}', brand
+  assign limit = section.settings.products_to_show | default: 6
+  assign collection = section.settings.collection
+  if collection == blank
+    assign collection = collections['most-loved']
+  endif
+  assign collection_handle = collection.handle | default: 'most-loved'
+  assign products = collection.products
+  if products.size == 0
+    assign products = collections.all.products
+  endif
+-%}
+<section class="section section--tight" aria-labelledby="featured-products-heading" id="shop">
+  <div class="container container--narrow">
+    <div class="section-heading section-heading--center">
+      <h2 id="featured-products-heading" class="section-heading__title">{{ heading }}</h2>
+      {%- if subheading != blank -%}<p class="section-heading__subtitle">{{ subheading }}</p>{%- endif -%}
+    </div>
+    {%- if products.size > 0 -%}
+      <div class="product-grid">
+        {%- for product in products limit: limit -%}
+          {%- if forloop.index0 < 3 -%}
+            {%- render 'product-card', product: product, loading: 'eager', cta_label: cta_label, heading_level: 3 -%}
+          {%- else -%}
+            {%- render 'product-card', product: product, loading: 'lazy', cta_label: cta_label, heading_level: 3 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <div class="empty-state">
+        <p class="empty-state__title">Products are on their way</p>
+        <p>Add products to the “{{ collection_handle }}” collection in Shopify to feature them here.</p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Featured products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Explore Our Most Loved Sleep Products"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "From adaptive comforters to cloud-like pillows, every {AppName} product is designed to make sleep effortless."
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Defaults to the collection with the handle \"most-loved\". When it is missing or empty, products from the all-products collection are shown."
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Products to show",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Card button label",
+      "default": "Shop Now"
+    }
+  ],
+  "presets": [{"name": "Featured products"}]
+}
+{% endschema %}

@@ -1,0 +1,91 @@
+{%- comment -%}
+  Proof rings (app/components/home/StatRings.tsx). The values render complete
+  so the proof is never missing from the first paint; assets/home.js counts
+  them up when the section scrolls into view (not under reduced motion).
+  Circumference of the r=44 ring: 2 * PI * 44 = 276.46015351590177.
+{%- endcomment -%}
+{%- liquid
+  assign brand = settings.brand_name
+  assign heading = section.settings.heading | replace: '{AppName}', brand
+-%}
+{%- if section.blocks.size > 0 -%}
+  <section class="section section--tight stat-rings" aria-labelledby="stat-rings-heading" data-stat-rings>
+    <div class="container">
+      <h2 id="stat-rings-heading" class="stat-rings__heading">{{ heading }}</h2>
+      <ul class="stat-rings__list">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign value = block.settings.value | round
+            if value > 100
+              assign value = 100
+            endif
+            if value < 0
+              assign value = 0
+            endif
+            assign remaining = 100 | minus: value
+            assign dash = 276.46015351590177 | times: remaining | divided_by: 100.0
+            assign label = block.settings.label | replace: '{AppName}', brand
+          -%}
+          <li class="stat-ring" data-stat-ring data-value="{{ value }}" {{ block.shopify_attributes }}>
+            <svg class="stat-ring__svg" viewBox="0 0 100 100" aria-hidden="true">
+              <circle class="stat-ring__track" cx="50" cy="50" r="44"></circle>
+              <circle class="stat-ring__fill" cx="50" cy="50" r="44" stroke-dasharray="276.46015351590177" stroke-dashoffset="{{ dash }}" data-stat-ring-fill></circle>
+            </svg>
+            <span class="stat-ring__value" aria-hidden="true" data-stat-ring-value>{{ value }}%</span>
+            <p class="stat-ring__label"><span class="sr-only">{{ value }}% </span>{{ label }}</p>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </section>
+  <script src="{{ 'home.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Proof rings",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Sleepers who switched"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Statistic",
+      "settings": [
+        {
+          "type": "range",
+          "id": "value",
+          "label": "Percentage",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 95
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "sleep at their ideal temperature"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Proof rings",
+      "blocks": [
+        {"type": "stat", "settings": {"value": 95, "label": "sleep at their ideal temperature"}},
+        {"type": "stat", "settings": {"value": 97, "label": "would recommend {AppName} to family and friends"}},
+        {"type": "stat", "settings": {"value": 99, "label": "have left a 5-star review"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

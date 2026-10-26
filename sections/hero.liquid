@@ -1,0 +1,96 @@
+{%- comment -%}
+  Homepage hero (app/components/home/Hero.tsx). Copy defaults from
+  app/lib/content/defaults.ts; the headline keeps its line breaks.
+{%- endcomment -%}
+{%- liquid
+  assign brand = settings.brand_name
+  assign rating_label = section.settings.rating_label | replace: '{AppName}', brand
+  assign headline = section.settings.headline | replace: '{AppName}', brand | strip | escape | newline_to_br | replace: '<br />', '<br>' | replace: '<br/>', '<br>' | strip_newlines | replace: '<br><br>', '<br>'
+  assign subheadline = section.settings.subheadline | replace: '{AppName}', brand
+  assign cta_label = section.settings.cta_label | replace: '{AppName}', brand
+  assign cta_url = section.settings.cta_url | default: routes.all_products_collection_url
+  assign image = section.settings.image
+  assign image_alt = image.alt | default: section.settings.image_alt | replace: '{AppName}', brand
+-%}
+<section class="hero" aria-labelledby="hero-heading">
+  <div class="hero__media">
+    {%- if image != blank -%}
+      {%- render 'image', image: image, alt: image_alt, sizes: '100vw', loading: 'eager', fetchpriority: 'high' -%}
+    {%- else -%}
+      {%- render 'image', placeholder: 'placeholder-hero.svg', alt: image_alt, width: 1600, height: 900, loading: 'eager', fetchpriority: 'high' -%}
+    {%- endif -%}
+  </div>
+  <div class="container">
+    <div class="hero__content">
+      {%- if rating_label != blank -%}
+        {%- render 'stars', rating: section.settings.rating, label: rating_label, size: 'md' -%}
+      {%- endif -%}
+      <h1 id="hero-heading" class="hero__headline">{{ headline }}</h1>
+      <p class="hero__subheadline">{{ subheadline }}</p>
+      <a class="btn btn--primary btn--lg hero__cta" href="{{ cta_url }}"><span class="btn__label">{{ cta_label }}</span></a>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "rating_label",
+      "label": "Rating label",
+      "default": "124,952+ Happy Sleepers",
+      "info": "Leave empty to hide the stars."
+    },
+    {
+      "type": "range",
+      "id": "rating",
+      "label": "Rating",
+      "min": 0,
+      "max": 5,
+      "step": 0.5,
+      "default": 5
+    },
+    {
+      "type": "textarea",
+      "id": "headline",
+      "label": "Headline",
+      "default": "Shop Premium\nCooling Comforters\n& Pillows For Better Sleep",
+      "info": "Line breaks are kept."
+    },
+    {
+      "type": "textarea",
+      "id": "subheadline",
+      "label": "Subheadline",
+      "default": "Pillows that align. Comforters that adapt. Smarter sleep essentials, designed for every night."
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Button label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Button link",
+      "info": "Defaults to the all-products collection."
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Placeholder artwork is shown until an image is chosen."
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "Image alt text",
+      "default": "Three friends relaxing on a bed layered with {AppName} pillows and comforters",
+      "info": "Used when the image has no alt text of its own."
+    }
+  ],
+  "presets": [{"name": "Hero"}]
+}
+{% endschema %}

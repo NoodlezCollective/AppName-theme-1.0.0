@@ -1,0 +1,80 @@
+{%- comment -%}
+  "You may also like" grid (app/components/product/RecommendedProducts.tsx).
+  Shopify's product recommendations load through the Section Rendering API:
+  the first render is the storefront's skeleton, product.js fetches this
+  section from routes.product_recommendations_url and swaps it in, or removes
+  it when there is nothing to recommend.
+{%- endcomment -%}
+{%- liquid
+  assign heading = section.settings.heading | default: 'You may also like'
+  assign heading = heading | replace: '{AppName}', settings.brand_name
+  assign limit = section.settings.limit | default: 4
+-%}
+{%- if recommendations.performed -%}
+  {%- if recommendations.products_count > 0 -%}
+    <section class="section section--tight recommended" aria-labelledby="recommended-heading" data-recommended>
+      <div class="container">
+        <div class="section-heading section-heading--center">
+          <h2 id="recommended-heading" class="section-heading__title">{{ heading }}</h2>
+        </div>
+        <div class="product-grid product-grid--4">
+          {%- for recommended_product in recommendations.products -%}
+            {%- render 'product-card', product: recommended_product, loading: 'lazy', sizes: '(min-width: 64em) 25vw, (min-width: 40em) 50vw, 100vw' -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+{%- elsif product != blank -%}
+  <section class="section section--tight recommended" aria-label="{{ heading | escape }}" aria-busy="true" data-recommended data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ limit }}&intent=related">
+    <div class="container">
+      <div class="section-heading section-heading--center">
+        <h2 class="section-heading__title">{{ heading }}</h2>
+      </div>
+      <div class="product-grid product-grid--4">
+        {%- for i in (1..4) -%}
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton skeleton--media"></div>
+            <div class="skeleton skeleton--line" style="width:55%"></div>
+            <div class="skeleton skeleton--line" style="width:80%"></div>
+            <div class="skeleton skeleton--line" style="width:35%"></div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+  <script src="{{ 'product.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Recommended products",
+  "tag": "div",
+  "class": "section-recommended-products",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Products to show",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Recommended products"
+    }
+  ]
+}
+{% endschema %}

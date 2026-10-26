@@ -1,0 +1,22 @@
+{%- comment -%}
+  Paragraphs from a multi-line text or rich text metafield
+  (parseParagraphs in app/lib/content/metafields.ts). Each non-blank line
+  becomes a <p>; rich text is reduced to its text. Outputs nothing when the
+  field is empty.
+  {% render 'product-accordion-paragraphs', field: product.metafields.mellow.care %}
+{%- endcomment -%}
+{%- liquid
+  if field.type == 'rich_text_field'
+    assign text = field | metafield_text
+  else
+    assign text = field.value
+  endif
+  assign lines = text | newline_to_br | split: '<br />'
+  for line in lines
+    assign clean = line | strip
+    if clean != blank
+      assign clean = clean | escape
+      echo '<p>' | append: clean | append: '</p>'
+    endif
+  endfor
+-%}

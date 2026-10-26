@@ -1,0 +1,43 @@
+{%- comment -%}
+  Cart page (app/routes/cart.tsx + CartMain layout="page").
+  Lines, summary and the empty state come from the shared snippets
+  cart-line, cart-summary and cart-empty (owned by the header/footer task),
+  which carry the data attributes assets/theme.js listens for.
+{%- endcomment -%}
+{%- liquid
+  assign count = cart.item_count
+  if count == 1
+    assign count_text = '1 item'
+  else
+    assign count_text = count | append: ' items'
+  endif
+-%}
+<div class="container cart-page">
+  <header class="page-header cart-page__header">
+    <p class="eyebrow page-header__eyebrow">{{ settings.brand_name }}</p>
+    <h1>Your cart{% if count > 0 %}<span class="cart-page__count"> {{ count_text }}</span>{% endif %}</h1>
+  </header>
+  <section class="cart cart--page" aria-label="Cart">
+    <p class="sr-only" aria-live="polite" aria-atomic="true">{% if count > 0 %}{{ count_text }} in your cart.{% else %}Your cart is empty.{% endif %}</p>
+    {%- if count > 0 -%}
+      <div class="cart__lines">
+        <h2 id="cart-page-lines-title" class="sr-only">Items in your cart</h2>
+        <ul class="cart-lines" aria-labelledby="cart-page-lines-title">
+          {%- for line in cart.items -%}
+            {%- render 'cart-line', line: line, index: forloop.index, layout: 'page' -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+      {%- render 'cart-summary', cart: cart, layout: 'page' -%}
+    {%- else -%}
+      {%- render 'cart-empty', layout: 'page' -%}
+    {%- endif -%}
+  </section>
+</div>
+
+{% schema %}
+{
+  "name": "Cart page",
+  "settings": []
+}
+{% endschema %}

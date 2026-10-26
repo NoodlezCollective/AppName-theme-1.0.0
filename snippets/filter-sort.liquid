@@ -1,0 +1,33 @@
+{%- comment -%}
+  Pill shaped sort <select> (app/components/collection/SortSelect.tsx).
+  {% render 'filter-sort', current: collection.sort_by, default_sort: collection.default_sort_by, catalog: false, id: 'x-sort' %}
+  Option values are the storefront's ids; `data-sort-by` carries the Shopify
+  `sort_by` value collection.js navigates with (the collection default clears
+  the parameter, like applySortParams()). `catalog: true` is the /collections/all
+  list (CATALOG_SORT_OPTIONS: no "Featured").
+{%- endcomment -%}
+{%- liquid
+  assign id = id | default: 'sort-select'
+  if catalog
+    assign option_list = 'best-selling|Best selling|best-selling,price-asc|Price: low to high|price-ascending,price-desc|Price: high to low|price-descending,newest|Newest|created-descending,title|Alphabetically: A–Z|title-ascending'
+  else
+    assign option_list = 'featured|Featured|manual,best-selling|Best selling|best-selling,price-asc|Price: low to high|price-ascending,price-desc|Price: high to low|price-descending,newest|Newest|created-descending,title|Alphabetically: A–Z|title-ascending'
+  endif
+  assign options = option_list | split: ','
+  assign current = current | default: default_sort
+  if catalog and current == 'manual'
+    assign current = 'best-selling'
+  endif
+-%}
+<div class="sort-select">
+  <label class="sort-select__label" for="{{ id }}">Sort by</label>
+  <div class="sort-select__control">
+    <select id="{{ id }}" name="sort" data-sort-select data-default="{{ default_sort }}">
+      {%- for option in options -%}
+        {%- assign parts = option | split: '|' -%}
+        <option value="{{ parts[0] }}" data-sort-by="{{ parts[2] }}"{% if parts[2] == current %} selected{% endif %}>{{ parts[1] }}</option>
+      {%- endfor -%}
+    </select>
+    {%- render 'icon', name: 'chevron-down', size: 16, class: 'sort-select__icon' -%}
+  </div>
+</div>

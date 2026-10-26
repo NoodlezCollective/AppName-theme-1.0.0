@@ -1,0 +1,16 @@
+{%- comment -%}
+  Theme-editor colour overrides for the design tokens in assets/theme.css.
+  The defaults equal the tokens, so an untouched theme renders exactly like
+  the storefront preview.
+{%- endcomment -%}
+<style>
+  :root {
+    --color-primary: {{ settings.color_primary }};
+    --color-heading: {{ settings.color_primary }};
+    --color-accent: {{ settings.color_accent }};
+    --color-ink: {{ settings.color_ink }};
+    --color-midnight: {{ settings.color_ink }};
+    --color-lavender: {{ settings.color_lavender }};
+    --color-surface: {{ settings.color_background }};
+  }
+</style>

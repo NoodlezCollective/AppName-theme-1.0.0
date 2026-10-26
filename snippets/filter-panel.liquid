@@ -1,0 +1,51 @@
+{%- comment -%}
+  Collection filters as a native GET form (app/components/collection/FilterPanel.tsx).
+  {% render 'filter-panel', filters: collection.filters, action: collection.url, uid: 'filters-x', heading_id: 'x-heading', sort_by: collection.sort_by, clear_url: '/collections/x', active_count: 2, symbol: '$' %}
+  Groups are ordered like the storefront: availability, price, product type,
+  swatches, then everything else. collection.js submits the form on every
+  checkbox change through the Section Rendering API; without JS it is a plain
+  GET to Shopify.
+{%- endcomment -%}
+<form class="filters" method="get" action="{{ action }}" data-filter-form>
+  <div class="filters__header">
+    <h2 class="filters__title" id="{{ heading_id }}" tabindex="-1">Filters{% if active_count > 0 %}<span class="filters__badge">{{ active_count }}</span>{% endif %}</h2>
+    <div class="filters__header-actions">
+      {%- if active_count > 0 -%}<a class="filters__clear link" href="{{ clear_url }}" data-listing-link="clear">Clear all</a>{%- endif -%}
+      <button class="icon-btn filters__close" type="button" aria-label="Close filters">{% render 'icon', name: 'close', size: 24 %}</button>
+    </div>
+  </div>
+  {%- if sort_by != blank -%}<input type="hidden" name="sort_by" value="{{ sort_by | escape }}">{%- endif -%}
+  <div class="accordion filters__groups">
+    {%- for rank in (0..4) -%}
+      {%- for filter in filters -%}
+        {%- liquid
+          assign filter_rank = 4
+          assign has_values = false
+          if filter.type == 'price_range'
+            assign filter_rank = 1
+            if filter.range_max > 0
+              assign has_values = true
+            endif
+          else
+            if filter.values.size > 0
+              assign has_values = true
+            endif
+            if filter.param_name == 'filter.v.availability'
+              assign filter_rank = 0
+            elsif filter.param_name == 'filter.p.product_type'
+              assign filter_rank = 2
+            elsif filter.presentation == 'swatch'
+              assign filter_rank = 3
+            endif
+          endif
+        -%}
+        {%- if has_values and filter_rank == rank -%}
+          {%- render 'filter-group', filter: filter, uid: uid, symbol: symbol -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
+  </div>
+  <div class="filters__footer">
+    <button class="btn btn--primary btn--md btn--block" type="button" data-filters-close><span class="btn__label">Show results</span></button>
+  </div>
+</form>

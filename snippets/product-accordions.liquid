@@ -1,0 +1,24 @@
+{%- comment -%}
+  Overview (description), Materials and Care accordions
+  (app/components/product/ProductAccordions.tsx, Accordion.tsx). Items whose
+  content is missing are omitted; multi-line text becomes paragraphs and rich
+  text is flattened to its text paragraphs.
+  {% render 'product-accordions', product: product %}
+{%- endcomment -%}
+{%- capture materials -%}{%- render 'product-accordion-paragraphs', field: product.metafields.mellow.materials -%}{%- endcapture -%}
+{%- capture care -%}{%- render 'product-accordion-paragraphs', field: product.metafields.mellow.care -%}{%- endcapture -%}
+{%- assign description = product.description | strip -%}
+{%- capture items -%}
+  {%- if description != blank -%}
+    {%- render 'product-accordion-item', title: 'Overview', content: product.description -%}
+  {%- endif -%}
+  {%- if materials != blank -%}
+    {%- render 'product-accordion-item', title: 'Materials', content: materials -%}
+  {%- endif -%}
+  {%- if care != blank -%}
+    {%- render 'product-accordion-item', title: 'Care', content: care -%}
+  {%- endif -%}
+{%- endcapture -%}
+{%- if items != blank -%}
+<div class="accordion product-accordions">{{ items }}</div>
+{%- endif -%}

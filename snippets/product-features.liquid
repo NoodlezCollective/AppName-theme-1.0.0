@@ -1,0 +1,8 @@
+{%- comment -%}
+  Feature bullets from `mellow.features` (app/components/product/ProductFeatures.tsx).
+  {% render 'product-features', product: product %}
+{%- endcomment -%}
+{%- assign features = product.metafields.mellow.features.value -%}
+{%- if features.size > 0 -%}
+  {%- render 'product-icon-list', items: features, class: 'feature-list product-features', size: 20 -%}
+{%- endif -%}

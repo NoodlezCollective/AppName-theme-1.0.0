@@ -1,0 +1,24 @@
+{%- comment -%}
+  Infinite horizontal scroller (app/components/ui/Marquee.tsx).
+  {% capture items %}…{% endcapture %}
+  {% render 'marquee', content: items, duration: 45, gap: 18, copies: 1, pause_on_hover: true, paused: false, label: 'Announcements', class: '' %}
+  Only the first copy is exposed to assistive technology; the others are
+  aria-hidden and inert.
+{%- endcomment -%}
+{%- liquid
+  assign duration = duration | default: 40
+  assign gap = gap | default: 48
+  assign copies = copies | default: 1
+  if pause_on_hover == nil
+    assign pause_on_hover = true
+  endif
+  assign repeats = copies | times: 2 | minus: 1
+-%}
+<div class="marquee{% if pause_on_hover %} marquee--pause{% endif %}{% if paused %} marquee--paused{% endif %}{% if class %} {{ class }}{% endif %}" style="--marquee-duration:{{ duration }}s;--marquee-gap:{{ gap }}px"{% if label %} aria-label="{{ label | escape }}" role="region"{% endif %}>
+  <div class="marquee__track">
+    <div class="marquee__group">{{ content }}</div>
+    {%- for i in (1..repeats) -%}
+      <div class="marquee__group" aria-hidden="true" inert="">{{ content }}</div>
+    {%- endfor -%}
+  </div>
+</div>

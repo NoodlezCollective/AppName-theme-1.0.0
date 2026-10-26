@@ -1,0 +1,19 @@
+{%- comment -%}
+  Pill shaped −/+ quantity control (app/components/product/QuantitySelector.tsx).
+  The input belongs to the add-to-cart form through its `form` attribute, so a
+  plain form post carries the quantity. The buttons are aria-disabled at the
+  bounds instead of disabled so they keep focus.
+  {% render 'product-quantity', value: 1, id: 'product-quantity', form_id: 'product-form' %}
+{%- endcomment -%}
+{%- liquid
+  assign value = value | default: 1
+  assign id = id | default: 'product-quantity'
+-%}
+<div class="quantity" data-quantity>
+  <label class="quantity__label" for="{{ id }}">Quantity</label>
+  <div class="quantity__control">
+    <button type="button" class="quantity__button" aria-label="Decrease quantity"{% if value <= 1 %} aria-disabled="true"{% endif %} data-quantity-decrease>{% render 'icon', name: 'minus', size: 16, stroke_width: 2 %}</button>
+    <input id="{{ id }}" class="quantity__input" type="number" inputmode="numeric" min="1" step="1" value="{{ value }}" name="quantity"{% if form_id %} form="{{ form_id }}"{% endif %} data-quantity-input>
+    <button type="button" class="quantity__button" aria-label="Increase quantity" data-quantity-increase>{% render 'icon', name: 'plus', size: 16, stroke_width: 2 %}</button>
+  </div>
+</div>

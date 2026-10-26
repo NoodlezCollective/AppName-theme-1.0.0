@@ -1,0 +1,107 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "{AppName}",
+    "theme_version": "1.0.0",
+    "theme_author": "{AppName}",
+    "theme_documentation_url": "https://github.com/noodlezcollective/noodlez",
+    "theme_support_url": "https://github.com/noodlezcollective/noodlez"
+  },
+  {
+    "name": "Brand",
+    "settings": [
+      {
+        "type": "text",
+        "id": "brand_name",
+        "label": "Brand name",
+        "default": "{AppName}",
+        "info": "Shown in the wordmark, the footer watermark and wherever copy says {AppName}. The store name in Shopify settings is not used."
+      },
+      {
+        "type": "text",
+        "id": "rating_label",
+        "label": "Rating label",
+        "default": "124,952+ Happy Sleepers",
+        "info": "Next to the five stars on banners and the footer card."
+      },
+      {
+        "type": "text",
+        "id": "cart_heading",
+        "label": "Cart drawer title",
+        "default": "Your Sleep Stack"
+      }
+    ]
+  },
+  {
+    "name": "Colours",
+    "settings": [
+      {"type": "color", "id": "color_primary", "label": "Primary (indigo)", "default": "#4c4184"},
+      {"type": "color", "id": "color_accent", "label": "Accent (peach)", "default": "#ffa38b"},
+      {"type": "color", "id": "color_ink", "label": "Text (ink)", "default": "#242833"},
+      {"type": "color", "id": "color_lavender", "label": "Lavender", "default": "#e0e0ff"},
+      {"type": "color", "id": "color_background", "label": "Background", "default": "#ffffff"}
+    ]
+  },
+  {
+    "name": "Trust and savings",
+    "settings": [
+      {
+        "type": "textarea",
+        "id": "trust_badges",
+        "label": "Trust badges",
+        "default": "shield|30-Day Trial\ntruck|Hassle-Free Returns",
+        "info": "One per line as icon|Label. Icons: snowflake, heat, couch, wash, feather, moon, sparkle, leaf, shield, truck, check."
+      },
+      {
+        "type": "text",
+        "id": "savings_note",
+        "label": "Savings note",
+        "default": "Savings based on comparable value."
+      },
+      {
+        "type": "textarea",
+        "id": "savings_explanation",
+        "label": "Savings explanation",
+        "default": "Compare-at prices reflect the comparable retail value of similar bedding sold at full price. Your savings are the difference between that value and the {AppName} price."
+      }
+    ]
+  },
+  {
+    "name": "Cart reward",
+    "settings": [
+      {
+        "type": "number",
+        "id": "free_gift_threshold",
+        "label": "Free gift threshold",
+        "default": 120,
+        "info": "In the shop currency. 0 switches the reward bar off."
+      },
+      {
+        "type": "text",
+        "id": "free_gift_label",
+        "label": "Free gift label",
+        "default": "a free Silk Sleep Mask"
+      },
+      {
+        "type": "text",
+        "id": "free_gift_code",
+        "label": "Discount code shown once the threshold is met",
+        "default": "SLEEPMASK"
+      }
+    ]
+  },
+  {
+    "name": "Footer",
+    "settings": [
+      {
+        "type": "text",
+        "id": "footer_cta_heading",
+        "label": "Call-to-action heading",
+        "default": "Cloud-like comfort is just a click away. Try {AppName} today."
+      },
+      {"type": "text", "id": "footer_cta_label", "label": "Call-to-action button", "default": "Sleep Better"},
+      {"type": "url", "id": "footer_cta_url", "label": "Call-to-action link"},
+      {"type": "text", "id": "copyright", "label": "Copyright line", "default": "© Copyright {AppName} LLC"}
+    ]
+  }
+]

@@ -1,0 +1,56 @@
+{%- assign brand_token = '{AppName}' -%}
+{%- comment -%}
+  Cart drawer (app/components/PageLayout.tsx CartAside + Aside.tsx) holding
+  CartMain layout="aside" (app/components/CartMain.tsx). assets/theme.js
+  re-renders the [data-cart-render="cart-drawer"] element from
+  `?sections=cart-drawer` after every cart change.
+{%- endcomment -%}
+{%- liquid
+  assign count = cart.item_count
+  if count == 1
+    assign count_text = '1 item'
+  else
+    assign count_text = count | append: ' items'
+  endif
+-%}
+<div aria-modal="true" aria-hidden="true" class="overlay " role="dialog" aria-labelledby="cart-drawer-title" data-drawer="cart" data-section-id="{{ section.id }}">
+  <button class="close-outside" aria-label="Close" tabindex="-1" data-drawer-close></button>
+  <aside class="drawer drawer--cart">
+    <header class="drawer__header">
+      <h3 id="cart-drawer-title" class="drawer__title">{{ settings.cart_heading | replace: brand_token, settings.brand_name }}</h3>
+      <button class="icon-btn drawer__close" aria-label="Close" data-drawer-close>{% render 'icon', name: 'close' %}</button>
+    </header>
+    <div class="drawer__body" data-cart-render="cart-drawer">
+      <section class="cart cart--aside" aria-label="Cart contents" data-cart-main="aside" data-cart-count="{{ count }}">
+        <p class="sr-only" aria-live="polite" aria-atomic="true">{% if count > 0 %}{{ count_text }} in your cart.{% else %}Your cart is empty.{% endif %}</p>
+        {%- if count > 0 -%}
+          <div class="cart__lines">
+            <h2 id="cart-aside-lines-title" class="sr-only">Items in your cart</h2>
+            <ul class="cart-lines" aria-labelledby="cart-aside-lines-title">
+              {%- for line in cart.items -%}
+                {%- render 'cart-line', line: line, index: forloop.index, layout: 'aside' -%}
+              {%- endfor -%}
+            </ul>
+          </div>
+          {%- render 'cart-summary', cart: cart, layout: 'aside' -%}
+        {%- else -%}
+          {%- render 'cart-empty', layout: 'aside' -%}
+        {%- endif -%}
+      </section>
+    </div>
+  </aside>
+</div>
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "tag": "div",
+  "class": "section-cart-drawer",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "The title, free-gift reward and trust badges come from the theme settings (Brand, Cart reward, Trust and savings)."
+    }
+  ]
+}
+{% endschema %}

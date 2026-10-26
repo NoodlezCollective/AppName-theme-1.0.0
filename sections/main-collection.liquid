@@ -1,0 +1,203 @@
+{%- comment -%}
+  Collection listing (app/routes/collections.$handle.tsx + collections.all.tsx:
+  CollectionHeader, ProductListing, PaginatedResourceSection).
+  /collections/all is the "Shop All" catalog: no filters and the catalog sort
+  options, exactly like the storefront.
+{%- endcomment -%}
+{%- liquid
+  assign is_all = false
+  if collection.handle == 'all'
+    assign is_all = true
+  endif
+  assign eyebrow = section.settings.eyebrow
+  assign title = collection.title
+  assign description = collection.description | strip_html | strip
+  assign image = collection.image
+  if is_all
+    assign eyebrow = section.settings.all_eyebrow
+    assign title = section.settings.all_title | replace: '{AppName}', settings.brand_name
+    assign description = section.settings.all_description | replace: '{AppName}', settings.brand_name
+    assign image = nil
+  endif
+
+  assign show_filters = true
+  if is_all and section.settings.all_filters == false
+    assign show_filters = false
+  endif
+  assign group_count = 0
+  assign active_count = 0
+  for filter in collection.filters
+    if filter.type == 'price_range'
+      if filter.range_max > 0
+        assign group_count = group_count | plus: 1
+      endif
+      if filter.min_value.value != blank or filter.max_value.value != blank
+        assign active_count = active_count | plus: 1
+      endif
+    elsif filter.values.size > 0
+      assign group_count = group_count | plus: 1
+      assign active_count = active_count | plus: filter.active_values.size
+    endif
+  endfor
+  if group_count == 0
+    assign show_filters = false
+  endif
+
+  assign sort_by = collection.sort_by
+  assign clear_url = collection.url
+  if sort_by != blank
+    assign clear_url = collection.url | append: '?sort_by=' | append: sort_by
+  endif
+  assign uid = 'filters-' | append: section.id
+  assign heading_id = uid | append: '-heading'
+  assign sort_id = uid | append: '-sort'
+  assign symbol = 0 | money | remove: '0' | remove: '.' | remove: ',' | strip
+  assign card_sizes = '(min-width: 64em) 30vw, (min-width: 40em) 50vw, 100vw'
+-%}
+<div class="collection-page container" data-collection-listing data-section-id="{{ section.id }}">
+  <header class="collection-header{% if image %} collection-header--has-image{% endif %}">
+    <div class="collection-header__content">
+      {%- if eyebrow != blank -%}<p class="eyebrow">{{ eyebrow }}</p>{%- endif -%}
+      <h1 class="collection-header__title">{{ title }}</h1>
+      {%- if description != blank -%}<p class="collection-header__description">{{ description }}</p>{%- endif -%}
+    </div>
+    {%- if image -%}
+      <div class="collection-header__media">
+        {{ image | image_url: width: 1500, height: 1000, crop: 'center' | image_tag: widths: '200, 400, 600, 800, 1000, 1500', sizes: '(min-width: 48em) 40vw, 100vw', loading: 'eager', decoding: 'async', alt: image.alt, style: 'width:100%;aspect-ratio:3/2' }}
+      </div>
+    {%- endif -%}
+  </header>
+  {%- paginate collection.products by section.settings.products_per_page -%}
+    {%- liquid
+      assign shown = collection.products.size
+      capture shown_text
+        render 'number', value: shown
+      endcapture
+      assign count_label = shown_text
+      if paginate.next
+        assign count_label = count_label | append: '+ products'
+      elsif shown == 1
+        assign count_label = count_label | append: ' product'
+      else
+        assign count_label = count_label | append: ' products'
+      endif
+    -%}
+    <div class="collection-layout{% if show_filters %} collection-layout--with-filters{% endif %}">
+      {%- if show_filters -%}
+        <div id="{{ uid }}-panel" class="collection-layout__sidebar" aria-labelledby="{{ uid }}-heading" role="complementary">
+          {%- render 'filter-panel', filters: collection.filters, action: collection.url, uid: uid, heading_id: heading_id, sort_by: sort_by, clear_url: clear_url, active_count: active_count, symbol: symbol -%}
+        </div>
+      {%- endif -%}
+      <div class="collection-layout__main">
+        <div class="paginated-section">
+          <div class="collection-toolbar">
+            <p class="collection-toolbar__count" aria-live="polite" tabindex="-1">{{ count_label }}</p>
+            <div class="collection-toolbar__actions">
+              {%- if show_filters -%}
+                <button class="btn btn--outline btn--sm filters-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="{{ uid }}-panel">{% render 'icon', name: 'filter', size: 18 %}Filters{% if active_count > 0 %}<span class="filters-toggle__count">{{ active_count }}<span class="sr-only"> active</span></span>{% endif %}</button>
+              {%- endif -%}
+              {%- render 'filter-sort', current: collection.sort_by, default_sort: collection.default_sort_by, catalog: is_all, id: sort_id -%}
+            </div>
+          </div>
+          {%- if show_filters -%}
+            {%- render 'filter-active', filters: collection.filters, clear_url: clear_url, active_count: active_count -%}
+          {%- endif -%}
+          {%- if paginate.previous -%}
+            <div class="paginated-section__nav paginated-section__nav--previous">
+              <a class="btn btn--outline btn--md" href="{{ paginate.previous.url }}" data-load-more="previous"><span class="btn__label">Load previous</span></a>
+            </div>
+          {%- endif -%}
+          {%- if collection.products.size == 0 -%}
+            {%- if active_count > 0 -%}
+              <div class="empty-state">
+                <p class="empty-state__title">No products match your filters</p>
+                <p>Try removing a filter or clearing them all to see everything.</p>
+                <div class="empty-state__actions">
+                  <a class="btn btn--primary btn--md" href="{{ clear_url }}" data-listing-link="clear"><span class="btn__label">Clear all filters</span></a>
+                </div>
+              </div>
+            {%- else -%}
+              <div class="empty-state">
+                <p class="empty-state__title">Nothing here yet</p>
+                <p>This collection is empty right now. Explore everything else we make for better sleep.</p>
+                <div class="empty-state__actions">
+                  <a class="btn btn--primary btn--md" href="{{ routes.all_products_collection_url }}"><span class="btn__label">Shop all</span></a>
+                </div>
+              </div>
+            {%- endif -%}
+          {%- else -%}
+            <div aria-label="Products" class="product-grid" role="region">
+              {%- for product in collection.products -%}
+                {%- liquid
+                  assign loading = 'lazy'
+                  if paginate.current_offset == 0 and forloop.index0 < 6
+                    assign loading = 'eager'
+                  endif
+                -%}
+                {%- render 'product-card', product: product, heading_level: 2, loading: loading, sizes: card_sizes -%}
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+          {%- if paginate.next -%}
+            <div class="paginated-section__nav paginated-section__nav--next">
+              <a class="btn btn--outline btn--md" href="{{ paginate.next.url }}" data-load-more="next"><span class="btn__label">Load more</span></a>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  {%- endpaginate -%}
+</div>
+<script src="{{ 'collection.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Collection",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 4,
+      "max": 48,
+      "step": 4,
+      "default": 12
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Collection"
+    },
+    {
+      "type": "header",
+      "content": "Shop All (/collections/all)"
+    },
+    {
+      "type": "text",
+      "id": "all_eyebrow",
+      "label": "Eyebrow",
+      "default": "Shop"
+    },
+    {
+      "type": "text",
+      "id": "all_title",
+      "label": "Title",
+      "default": "Shop All"
+    },
+    {
+      "type": "textarea",
+      "id": "all_description",
+      "label": "Description",
+      "default": "Every {AppName} pillow, comforter, bath essential and bundle in one place."
+    },
+    {
+      "type": "checkbox",
+      "id": "all_filters",
+      "label": "Show filters on Shop All",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

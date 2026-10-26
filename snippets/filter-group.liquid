@@ -1,0 +1,98 @@
+{%- comment -%}
+  One collection filter group inside the filters accordion
+  (app/components/collection/FilterPanel.tsx: ListOptions, SwatchOptions,
+  PriceRangeFields wrapped by ui/Accordion.tsx).
+  {% render 'filter-group', filter: filter, uid: 'filters-x', symbol: '$' %}
+  Shopify filter objects replace the Hydrogen URL convention: inputs are named
+  by `filter_value.param_name` (filter.v.availability, filter.p.product_type,
+  filter.v.option.color, filter.v.price.gte/lte) and submit straight to Shopify.
+{%- endcomment -%}
+{%- liquid
+  assign active_count = 0
+  if filter.type == 'price_range'
+    if filter.min_value.value != blank or filter.max_value.value != blank
+      assign active_count = 1
+    endif
+  else
+    assign active_count = filter.active_values.size
+  endif
+  assign group_prefix = filter.param_name | replace: '.', '-'
+  assign group_prefix = uid | append: '-' | append: group_prefix
+-%}
+<details class="accordion__item" open>
+  <summary class="accordion__summary">
+    <span class="accordion__title">{{ filter.label | escape }}{% if active_count > 0 %}<span class="filters__badge">{{ active_count }}</span>{% endif %}</span>
+    <span class="accordion__icon" aria-hidden="true">{% render 'icon', name: 'plus', size: 16, stroke_width: 2 %}</span>
+  </summary>
+  <div class="accordion__panel">
+    {%- if filter.type == 'price_range' -%}
+      {%- liquid
+        assign range_max = filter.range_max | money_without_currency | replace: ',', '' | times: 1 | ceil
+        assign min_val = ''
+        if filter.min_value.value != blank
+          assign min_val = filter.min_value.value | money_without_currency | replace: ',', '' | times: 1
+          assign rem = min_val | modulo: 1
+          if rem == 0
+            assign min_val = min_val | round
+          endif
+        endif
+        assign max_val = ''
+        if filter.max_value.value != blank
+          assign max_val = filter.max_value.value | money_without_currency | replace: ',', '' | times: 1
+          assign rem = max_val | modulo: 1
+          if rem == 0
+            assign max_val = max_val | round
+          endif
+        endif
+      -%}
+      <div class="price-filter">
+        <div class="price-filter__fields">
+          <div class="price-filter__field">
+            <label for="{{ uid }}-price-min">Min</label>
+            <div class="price-filter__input">
+              <span class="price-filter__symbol" aria-hidden="true">{{ symbol }}</span>
+              <input id="{{ uid }}-price-min" type="number" inputmode="decimal" name="{{ filter.min_value.param_name }}" min="0" step="1" placeholder="0" value="{{ min_val }}">
+            </div>
+          </div>
+          <span class="price-filter__separator" aria-hidden="true">–</span>
+          <div class="price-filter__field">
+            <label for="{{ uid }}-price-max">Max</label>
+            <div class="price-filter__input">
+              <span class="price-filter__symbol" aria-hidden="true">{{ symbol }}</span>
+              <input id="{{ uid }}-price-max" type="number" inputmode="decimal" name="{{ filter.max_value.param_name }}" min="0" step="1" placeholder="{{ range_max }}" value="{{ max_val }}">
+            </div>
+          </div>
+        </div>
+        <button class="btn btn--secondary btn--sm price-filter__apply" type="submit"><span class="btn__label">Apply price</span></button>
+      </div>
+    {%- elsif filter.presentation == 'swatch' -%}
+      <ul class="swatch-options">
+        {%- for value in filter.values -%}
+          {%- assign value_id = value.value | handleize -%}
+          {%- assign input_id = group_prefix | append: '-' | append: value_id -%}
+          <li>
+            <label class="swatch-option" for="{{ input_id }}">
+              <input id="{{ input_id }}" class="swatch-option__input sr-only" type="checkbox" name="{{ value.param_name }}" value="{{ value.value | escape }}"{% if value.active %} checked{% endif %}>
+              <span class="swatch-option__dot"{% if value.swatch.color %} style="--swatch-color:{{ value.swatch.color }}"{% endif %} aria-hidden="true">{% render 'icon', name: 'check', size: 14, stroke_width: 2.25, class: 'swatch-option__check' %}</span>
+              <span class="swatch-option__label">{{ value.label | escape }}</span>
+            </label>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- else -%}
+      <ul class="filter-options">
+        {%- for value in filter.values -%}
+          {%- assign value_id = value.value | handleize -%}
+          {%- assign input_id = group_prefix | append: '-' | append: value_id -%}
+          <li>
+            <label class="filter-option" for="{{ input_id }}">
+              <input id="{{ input_id }}" type="checkbox" name="{{ value.param_name }}" value="{{ value.value | escape }}"{% if value.active %} checked{% endif %}>
+              <span class="filter-option__label">{{ value.label | escape }}</span>
+              <span class="filter-option__count">{{ value.count }}<span class="sr-only">{% if value.count == 1 %} product{% else %} products{% endif %}</span></span>
+            </label>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</details>

@@ -1,0 +1,46 @@
+{%- comment -%}
+  Icon bullet list from "icon|Text" entries (parseFeatures / splitIconPrefix in
+  app/lib/content/metafields.ts). The prefix counts as an icon only when it is
+  a known key; otherwise the whole entry is the text. Entries without an icon
+  rotate through `defaults` (comma separated keys).
+  {% render 'product-icon-list', items: list, class: 'feature-list product-features', item_class: '', label: '', size: 20, defaults: 'snowflake,heat,couch,wash,feather,moon' %}
+  Renders nothing when no entry has text.
+{%- endcomment -%}
+{%- liquid
+  assign size = size | default: 20
+  assign defaults = defaults | default: 'snowflake,heat,couch,wash,feather,moon'
+  assign default_icons = defaults | split: ','
+  assign known = '|snowflake|heat|couch|wash|feather|moon|sparkle|leaf|shield|truck|check|'
+-%}
+{%- capture rows -%}
+  {%- for entry in items -%}
+    {%- liquid
+      assign icon = ''
+      assign text = entry | strip
+      if entry contains '|'
+        assign parts = entry | split: '|'
+        assign key = parts[0] | strip | downcase
+        assign probe = '|' | append: key | append: '|'
+        if key != '' and known contains probe
+          assign icon = key
+          assign text = entry | remove_first: parts[0] | remove_first: '|' | strip
+        endif
+      endif
+      if text == blank
+        continue
+      endif
+      if icon == ''
+        assign slot = forloop.index0 | modulo: default_icons.size
+        assign icon = default_icons[slot] | strip
+      endif
+      assign stroke_width = 1.75
+      if icon == 'check'
+        assign stroke_width = 2.25
+      endif
+    -%}
+    <li{% if item_class %} class="{{ item_class }}"{% endif %}>{% render 'icon', name: icon, size: size, stroke_width: stroke_width, feature: true %}<span>{{ text | escape }}</span></li>
+  {%- endfor -%}
+{%- endcapture -%}
+{%- if rows != blank -%}
+<ul class="{{ class }}"{% if label %} aria-label="{{ label | escape }}"{% endif %}>{{ rows }}</ul>
+{%- endif -%}

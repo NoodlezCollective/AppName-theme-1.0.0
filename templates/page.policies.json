@@ -1,0 +1,27 @@
+{
+  "sections": {
+    "hero": {
+      "type": "policy-hero",
+      "settings": {
+        "eyebrow": "{AppName}",
+        "headline": "Policies",
+        "subheadline": "The fine print, in plain language: how we ship, how returns work and how we look after your information.",
+        "image_alt": "A stack of {AppName} pillows"
+      }
+    },
+    "list": {
+      "type": "policies-index",
+      "blocks": {
+        "privacy": {"type": "policy", "settings": {"handle": "privacy-policy", "title": "Privacy Policy", "description": "How we collect, use and protect your personal information."}},
+        "shipping": {"type": "policy", "settings": {"handle": "shipping-policy", "title": "Shipping Policy", "description": "Processing times, delivery estimates and tracking."}},
+        "terms": {"type": "policy", "settings": {"handle": "terms-of-service", "title": "Terms of Service", "description": "The terms that apply when you shop with {AppName}."}},
+        "refund": {"type": "policy", "settings": {"handle": "refund-policy", "title": "Return and Refund Policy", "description": "Our 30-day return window and how refunds and exchanges work."}},
+        "contact": {"type": "policy", "settings": {"handle": "contact-information", "title": "Contact Information", "description": "Business details, how to reach us and when we reply."}},
+        "legal": {"type": "policy", "settings": {"handle": "legal-notice", "title": "Legal Notice", "description": "Who operates this website, hosting and intellectual property."}}
+      },
+      "block_order": ["privacy", "shipping", "terms", "refund", "contact", "legal"],
+      "settings": {}
+    }
+  },
+  "order": ["hero", "list"]
+}

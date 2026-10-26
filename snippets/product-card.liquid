@@ -1,0 +1,71 @@
+{%- comment -%}
+  Product card (app/components/ProductCard.tsx).
+  {% render 'product-card', product: product, loading: 'lazy', cta_label: 'Shop Now', show_description: true, show_cta: true, class: '', sizes: '…', heading_level: 3, url: product.url %}
+{%- endcomment -%}
+{%- liquid
+  assign loading = loading | default: 'lazy'
+  assign cta_label = cta_label | default: 'Shop Now'
+  if show_description == nil
+    assign show_description = true
+  endif
+  if show_cta == nil
+    assign show_cta = true
+  endif
+  assign sizes = sizes | default: '(min-width: 64em) 400px, (min-width: 48em) 50vw, 100vw'
+  assign heading_level = heading_level | default: 3
+  assign heading_tag = 'h' | append: heading_level
+  assign url = url | default: product.url
+  assign image = product.featured_image
+  assign rating = nil
+  if product.metafields.reviews.rating.value != blank
+    assign rating = product.metafields.reviews.rating.value.rating | times: 5.0 | divided_by: product.metafields.reviews.rating.value.scale_max
+  endif
+  assign rating_count = product.metafields.reviews.rating_count.value
+  assign badge = product.metafields.mellow.badge.value | strip
+  assign description = product.metafields.mellow.short_description.value | strip
+  if description == blank
+    comment
+      ProductCard.tsx truncate(): collapse whitespace, cut at 200 characters on
+      the last space (never before character 60) and add an ellipsis.
+    endcomment
+    assign clean = product.description | replace: '</p>', ' </p>' | strip_html | newline_to_br | replace: '<br />', ' ' | replace: '<br>', ' ' | strip_newlines | replace: '  ', ' ' | replace: '  ', ' ' | strip
+    if clean.size <= 200
+      assign description = clean
+    else
+      assign cut = clean | slice: 0, 200
+      assign last_word = cut | split: ' ' | last
+      assign keep = 200 | minus: last_word.size | minus: 1
+      if cut contains ' '
+        if keep < 60
+          assign keep = 60
+        endif
+      else
+        assign keep = 60
+      endif
+      assign description = cut | slice: 0, keep | append: '…'
+    endif
+  endif
+  assign price = product.price_min
+  assign compare_at = product.compare_at_price_min
+-%}
+<article class="product-card{% if class %} {{ class }}{% endif %}">
+  <a class="product-card__media" href="{{ url }}" aria-hidden="true" tabindex="-1">
+    {%- if image -%}
+      {%- assign alt = image.alt | default: product.title -%}
+      {%- render 'image', image: image, alt: alt, aspect_ratio: '1/1', loading: loading, sizes: sizes -%}
+    {%- else -%}
+      <div class="product-card__placeholder" aria-hidden="true"></div>
+    {%- endif -%}
+    {%- if badge != blank -%}<span class="badge badge--accent product-card__badge">{{ badge }}</span>{%- endif -%}
+    {%- unless product.available -%}<span class="badge badge--neutral product-card__soldout">Sold out</span>{%- endunless -%}
+  </a>
+  <div class="product-card__body">
+    {%- if rating != nil -%}{%- render 'stars', rating: rating, count: rating_count, size: 'sm' -%}{%- endif -%}
+    <{{ heading_tag }} class="product-card__title"><a href="{{ url }}">{{ product.title }}</a></{{ heading_tag }}>
+    {%- if show_description and description != blank -%}<p class="product-card__description">{{ description }}</p>{%- endif -%}
+    {%- render 'price', price: price, compare_at_price: compare_at, class: 'product-card__price' -%}
+    {%- if show_cta -%}
+      <a class="btn btn--primary btn--md btn--block product-card__cta" href="{{ url }}" aria-label="{{ cta_label | escape }}: {{ product.title | escape }}"><span class="btn__label">{{ cta_label }}</span></a>
+    {%- endif -%}
+  </div>
+</article>

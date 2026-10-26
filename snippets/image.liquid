@@ -1,0 +1,21 @@
+{%- comment -%}
+  Responsive Shopify image matching hydrogen-react's <Image> output
+  (srcset of CDN widths, width:100% and an aspect ratio).
+  {% render 'image', image: product.featured_image, alt: '…', sizes: '(min-width: 64em) 400px, 100vw', loading: 'lazy', aspect_ratio: '1/1', class: '', fetchpriority: 'high' %}
+  With a placeholder: {% render 'image', placeholder: 'placeholder-hero.svg', alt: '', width: 1600, height: 900 %}
+  Square crops (aspect_ratio '1/1') use crop: 'center' like the storefront.
+{%- endcomment -%}
+{%- liquid
+  assign loading = loading | default: 'lazy'
+  assign sizes = sizes | default: '100vw'
+-%}
+{%- if image != blank -%}
+  {%- if aspect_ratio == '1/1' -%}
+    {{ image | image_url: width: 1200, height: 1200, crop: 'center' | image_tag: widths: '200, 400, 600, 800, 1000, 1200', sizes: sizes, loading: loading, decoding: 'async', alt: alt, class: class, style: 'width:100%;aspect-ratio:1/1', fetchpriority: fetchpriority }}
+  {%- else -%}
+    {{ image | image_url: width: 1600 | image_tag: widths: '400, 600, 800, 1000, 1200, 1600', sizes: sizes, loading: loading, decoding: 'async', alt: alt, class: class, fetchpriority: fetchpriority }}
+  {%- endif -%}
+{%- elsif placeholder != blank -%}
+  {%- assign width = width | default: 1200 -%}{%- assign height = height | default: 1200 -%}
+  <img src="{{ placeholder | asset_url }}" alt="{{ alt | escape }}" width="{{ width }}" height="{{ height }}" loading="{{ loading }}" decoding="async"{% if class %} class="{{ class }}"{% endif %}{% if aspect_ratio %} style="width:100%;aspect-ratio:{{ aspect_ratio }}"{% endif %}{% if fetchpriority %} fetchpriority="{{ fetchpriority }}"{% endif %}>
+{%- endif -%}

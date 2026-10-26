@@ -1,0 +1,59 @@
+{%- comment -%}
+  Customer registration, styled with the account classes (app/styles/account.css).
+{%- endcomment -%}
+<div class="account">
+  <header class="account-header">
+    <div class="container">
+      <p class="eyebrow">My account</p>
+      <h1 class="account-header__title">Create an account</h1>
+    </div>
+  </header>
+  <div class="container account-content">
+    <div class="account-section account-register">
+      <header class="account-section__header">
+        <h2>Join {{ settings.brand_name }}</h2>
+        <p class="text-muted">Save your details for a faster checkout and keep every order in one place.</p>
+      </header>
+
+      {%- form 'create_customer', class: 'account-card account-form', novalidate: 'novalidate' -%}
+        <fieldset class="account-form__fieldset">
+          <legend class="account-card__subtitle">Your details</legend>
+          <div class="account-form__messages" aria-live="polite">
+            {%- if form.errors -%}
+              <p class="form-message form-message--error">{{ form.errors | default_errors }}</p>
+            {%- endif -%}
+          </div>
+          <div class="account-form__grid">
+            <div class="field">
+              <label for="register-first-name">First name</label>
+              <input type="text" id="register-first-name" name="customer[first_name]" autocomplete="given-name" placeholder="First name" value="{{ form.first_name }}">
+            </div>
+            <div class="field">
+              <label for="register-last-name">Last name</label>
+              <input type="text" id="register-last-name" name="customer[last_name]" autocomplete="family-name" placeholder="Last name" value="{{ form.last_name }}">
+            </div>
+            <div class="field field--full">
+              <label for="register-email">Email*</label>
+              <input type="email" id="register-email" name="customer[email]" autocomplete="email" autocorrect="off" autocapitalize="off" placeholder="you@example.com" value="{{ form.email }}" required>
+            </div>
+            <div class="field field--full">
+              <label for="register-password">Password*</label>
+              <input type="password" id="register-password" name="customer[password]" autocomplete="new-password" placeholder="At least 5 characters" minlength="5" required>
+            </div>
+          </div>
+        </fieldset>
+        <div class="account-form__footer">
+          <p class="text-muted">Already have an account? <a href="{{ routes.account_login_url }}">Sign in</a></p>
+          <button class="btn btn--primary btn--md" type="submit"><span class="btn__label">Create account</span></button>
+        </div>
+      {%- endform -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Create account",
+  "settings": []
+}
+{% endschema %}

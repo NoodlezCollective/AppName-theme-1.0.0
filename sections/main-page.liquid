@@ -1,0 +1,71 @@
+{%- comment -%}
+  Page body (app/routes/pages.$handle.tsx). With the page.policy template it
+  renders the policy layout (app/routes/policies.$handle.tsx): breadcrumbs,
+  prose and the footer buttons, below sections/policy-hero.liquid. A policy
+  page whose body is still empty shows the storefront's own document from
+  snippets/policy-body-<handle>.liquid (app/lib/content/policies.ts).
+{%- endcomment -%}
+{%- liquid
+  assign policies_handle = section.settings.policies_page | default: 'policies'
+  assign policies_url = pages[policies_handle].url
+  if policies_url == blank
+    assign policies_url = routes.root_url | append: 'pages/' | append: policies_handle
+  endif
+-%}
+{%- if template.suffix == 'policy' -%}
+  <article class="content-page">
+    <div class="container container--text policy-page__body">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="{{ policies_url }}">Policies</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{{ page.title }}</span>
+      </nav>
+      <div class="prose">
+        {%- if page.content != blank -%}
+          {{ page.content }}
+        {%- else -%}
+          {%- case page.handle -%}
+            {%- when 'privacy-policy' -%}
+              {%- render 'policy-body-privacy-policy' -%}
+            {%- when 'terms-of-service' -%}
+              {%- render 'policy-body-terms-of-service' -%}
+            {%- when 'refund-policy' -%}
+              {%- render 'policy-body-refund-policy' -%}
+            {%- when 'shipping-policy' -%}
+              {%- render 'policy-body-shipping-policy' -%}
+            {%- when 'contact-information' -%}
+              {%- render 'policy-body-contact-information' -%}
+            {%- when 'legal-notice' -%}
+              {%- render 'policy-body-legal-notice' -%}
+          {%- endcase -%}
+        {%- endif -%}
+      </div>
+      <footer class="policy__footer">
+        <a class="btn btn--outline btn--sm" href="{{ policies_url }}"><span class="btn__label">All policies</span></a>
+        <a class="btn btn--ghost btn--sm" href="{{ routes.all_products_collection_url }}"><span class="btn__label">Continue shopping</span></a>
+      </footer>
+    </div>
+  </article>
+{%- else -%}
+  <article class="content-page container container--text">
+    <header class="page-header">
+      <p class="eyebrow page-header__eyebrow">{{ settings.brand_name }}</p>
+      <h1>{{ page.title }}</h1>
+    </header>
+    <div class="prose">{{ page.content }}</div>
+  </article>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Page body",
+  "settings": [
+    {
+      "type": "page",
+      "id": "policies_page",
+      "label": "Policies index page",
+      "info": "Target of the Policies breadcrumb on policy pages (template page.policies). Defaults to the page with the handle policies."
+    }
+  ]
+}
+{% endschema %}

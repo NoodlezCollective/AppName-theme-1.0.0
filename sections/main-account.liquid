@@ -1,0 +1,119 @@
+{%- comment -%}
+  Account overview (app/routes/account.tsx layout + account.orders._index.tsx).
+  Orders come from customer.orders; badges follow
+  app/components/account/OrderStatusBadge.tsx and orderUtils.ts.
+{%- endcomment -%}
+{%- liquid
+  if customer.first_name != blank
+    assign heading = 'Welcome, ' | append: customer.first_name
+  else
+    assign heading = 'Welcome to your account.'
+  endif
+-%}
+<div class="account">
+  <header class="account-header">
+    <div class="container">
+      <p class="eyebrow">My account</p>
+      <h1 class="account-header__title">{{ heading }}</h1>
+      <nav class="account-tabs" aria-label="Account">
+        <a class="account-tab is-active" href="{{ routes.account_url }}" aria-current="page">Orders</a>
+        <a class="account-tab" href="{{ routes.account_addresses_url }}">Addresses</a>
+        <div class="account-tabs__logout">
+          <a class="account-tab account-tab--button" href="{{ routes.account_logout_url }}">Sign out</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+  <div class="container account-content">
+    <div class="account-section orders">
+      <header class="account-section__header">
+        <h2>Orders</h2>
+        <p class="text-muted">Track deliveries, review past purchases and find order details.</p>
+      </header>
+      <div class="account-orders" aria-live="polite">
+        {%- paginate customer.orders by 20 -%}
+          {%- if customer.orders.size > 0 -%}
+            {%- if paginate.previous -%}
+              <div class="account-pagination">
+                <a class="btn btn--outline btn--sm" href="{{ paginate.previous.url }}">Load previous orders</a>
+              </div>
+            {%- endif -%}
+            <ul class="order-list">
+              {%- for order in customer.orders -%}
+                {%- liquid
+                  assign payment_status = order.financial_status
+                  case payment_status
+                    when 'paid'
+                      assign payment_tone = 'success'
+                    when 'refunded' or 'partially_refunded' or 'voided'
+                      assign payment_tone = 'accent'
+                    else
+                      assign payment_tone = 'primary'
+                  endcase
+                  assign fulfillment_status = order.fulfillment_status
+                  case fulfillment_status
+                    when 'fulfilled'
+                      assign fulfillment_tone = 'success'
+                    when 'restocked'
+                      assign fulfillment_tone = 'accent'
+                    else
+                      assign fulfillment_tone = 'primary'
+                  endcase
+                -%}
+                <li class="order-card">
+                  <div class="order-card__main">
+                    <div class="order-card__heading">
+                      <h3 class="order-card__number"><a href="{{ order.customer_url }}">Order #{{ order.order_number }}</a></h3>
+                      <p class="order-card__date">Placed <time datetime="{{ order.created_at | date: '%Y-%m-%dT%H:%M:%S%z' }}">{{ order.created_at | date: '%b %-d, %Y' }}</time></p>
+                    </div>
+                    <div class="order-card__badges">
+                      {%- if payment_status != blank -%}
+                        <span class="badge badge--{{ payment_tone }}{% if payment_tone == 'primary' %} badge--soft{% endif %}"><span class="sr-only">Payment: </span>{{ order.financial_status_label }}</span>
+                      {%- endif -%}
+                      {%- if fulfillment_status != blank -%}
+                        <span class="badge badge--{{ fulfillment_tone }}{% if fulfillment_tone == 'primary' %} badge--soft{% endif %}"><span class="sr-only">Fulfillment: </span>{{ order.fulfillment_status_label }}</span>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                  <dl class="order-card__meta">
+                    {%- if order.confirmation_number != blank -%}
+                      <div>
+                        <dt>Confirmation</dt>
+                        <dd>{{ order.confirmation_number }}</dd>
+                      </div>
+                    {%- endif -%}
+                    <div>
+                      <dt>Total</dt>
+                      <dd class="order-card__total"><span>{{ order.total_price | money }}</span></dd>
+                    </div>
+                  </dl>
+                  <div class="order-card__actions">
+                    <a class="btn btn--outline btn--sm" href="{{ order.customer_url }}"><span class="btn__label">View order</span></a>
+                  </div>
+                </li>
+              {%- endfor -%}
+            </ul>
+            {%- if paginate.next -%}
+              <div class="account-pagination">
+                <a class="btn btn--outline btn--sm" href="{{ paginate.next.url }}">Load more orders</a>
+              </div>
+            {%- endif -%}
+          {%- else -%}
+            <div class="empty-state">
+              <h3 class="empty-state__title">No orders yet</h3>
+              <p>When you place an order it will show up here with its tracking and receipt.</p>
+              <a class="btn btn--primary btn--md" href="{{ routes.all_products_collection_url }}"><span class="btn__label">Start shopping</span></a>
+            </div>
+          {%- endif -%}
+        {%- endpaginate -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Account overview",
+  "settings": []
+}
+{% endschema %}

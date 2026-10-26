@@ -1,0 +1,47 @@
+{%- comment -%}
+  Quantity tiers as a radio group (app/components/product/PackTiers.tsx).
+  `tiers` is the output of product-pack-tier-list; `quantity` the selected
+  quantity. Renders nothing with fewer than two tiers or without a price.
+  {% render 'product-pack-tiers', tiers: tiers, quantity: 1, variant: variant, id_prefix: 'pack-tier' %}
+{%- endcomment -%}
+{%- capture newline %}
+{% endcapture -%}
+{%- liquid
+  assign id_prefix = id_prefix | default: 'pack-tier'
+  assign rows = tiers | strip | split: newline
+  assign price = variant.price
+  assign compare = variant.compare_at_price
+  assign has_compare = false
+  if compare != blank and compare > price
+    assign has_compare = true
+  endif
+-%}
+{%- if rows.size > 1 and variant != blank -%}
+<fieldset class="pack-tiers" data-pack-tiers>
+  <legend class="pack-tiers__legend">Choose your pack</legend>
+  <div class="pack-tiers__list">
+    {%- for row in rows -%}
+      {%- liquid
+        assign parts = row | split: '|'
+        assign qty = parts[0] | plus: 0
+        assign label = parts[1]
+        assign note = row | remove_first: parts[0] | remove_first: '|' | remove_first: parts[1] | remove_first: '|' | strip
+        assign input_id = id_prefix | append: '-' | append: qty
+        assign total = price | times: qty
+        assign compare_total = compare | times: qty
+      -%}
+      <label class="pack-tier{% if qty == quantity %} is-selected{% endif %}" for="{{ input_id }}" data-pack-tier>
+        <input class="pack-tier__input" id="{{ input_id }}" type="radio" name="{{ id_prefix }}-pack" value="{{ qty }}"{% if qty == quantity %} checked{% endif %}>
+        <span class="pack-tier__body">
+          <span class="pack-tier__label">{{ label | escape }}</span>
+          {%- if note != blank -%}<span class="pack-tier__note">{{ note | escape }}</span>{%- endif -%}
+        </span>
+        <span class="pack-tier__price">
+          <span class="pack-tier__total" data-pack-total>{{ total | money }}</span>
+          <s class="pack-tier__compare" data-pack-compare{% unless has_compare %} hidden{% endunless %}><span class="sr-only">Comparable value </span><span data-pack-compare-amount>{% if has_compare %}{{ compare_total | money_without_trailing_zeros }}{% endif %}</span></s>
+        </span>
+      </label>
+    {%- endfor -%}
+  </div>
+</fieldset>
+{%- endif -%}

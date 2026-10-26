@@ -1,0 +1,47 @@
+{%- comment -%}
+  Parses `mellow.pack_tiers` ("quantity|Label|Note" entries) the way
+  parsePackTiers does: entries without a whole-number quantity of at least 1
+  are skipped, duplicates keep the first, the result is sorted by quantity and
+  cut to 4. Echoes one tier per line as "000002|Label|Note" (zero-padded
+  quantity so a string sort orders them); callers split on newlines.
+  {% capture tiers %}{% render 'product-pack-tier-list', product: product %}{% endcapture %}
+{%- endcomment -%}
+{%- capture newline %}
+{% endcapture -%}
+{%- liquid
+  assign entries = product.metafields.mellow.pack_tiers.value
+  assign keyed = ''
+  assign seen = '|'
+  for entry in entries
+    assign parts = entry | split: '|'
+    assign qty_raw = parts[0] | strip
+    assign qty = qty_raw | plus: 0 | floor
+    if qty < 1
+      continue
+    endif
+    assign probe = '|' | append: qty | append: '|'
+    if seen contains probe
+      continue
+    endif
+    assign seen = seen | append: qty | append: '|'
+    assign padded = qty | prepend: '000000' | slice: -6, 6
+    assign label = parts[1] | strip
+    if label == blank
+      assign label = qty | append: ' pack'
+    endif
+    assign note = ''
+    if parts.size > 2
+      assign note = entry | remove_first: parts[0] | remove_first: '|' | remove_first: parts[1] | remove_first: '|' | strip
+    endif
+    assign keyed = keyed | append: padded | append: '|' | append: label | append: '|' | append: note | append: newline
+  endfor
+  assign sorted = keyed | split: newline | sort
+  assign out = ''
+  for tier in sorted limit: 4
+    if tier == blank
+      continue
+    endif
+    assign out = out | append: tier | append: newline
+  endfor
+  echo out
+-%}

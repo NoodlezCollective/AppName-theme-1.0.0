@@ -1,0 +1,37 @@
+{%- comment -%}
+  Search drawer (app/components/PageLayout.tsx SearchAside): the predictive
+  search form. Results are rendered into [data-predictive-results] by
+  assets/collection.js (collection/search task) from sections/predictive-search.
+{%- endcomment -%}
+<div aria-modal="true" aria-hidden="true" class="overlay " role="dialog" aria-labelledby="search-drawer-title" data-drawer="search" data-section-id="{{ section.id }}">
+  <button class="close-outside" aria-label="Close" tabindex="-1" data-drawer-close></button>
+  <aside class="drawer drawer--search">
+    <header class="drawer__header">
+      <h3 id="search-drawer-title" class="drawer__title">Search</h3>
+      <button class="icon-btn drawer__close" aria-label="Close" data-drawer-close>{% render 'icon', name: 'close' %}</button>
+    </header>
+    <div class="drawer__body">
+      <div class="predictive-search" data-predictive-search>
+        <form method="get" action="{{ routes.search_url }}" class="predictive-search-form" data-predictive-search-form>
+          <div class="predictive-search__field">
+            <label class="sr-only" for="predictive-search-input">Search products</label>
+            {%- render 'icon', name: 'search', size: 20, class: 'predictive-search__icon' -%}
+            <input id="predictive-search-input" name="q" placeholder="Search pillows, comforters, bundles…" type="search" list="predictive-search-queries" autocomplete="off" data-predictive-search-input>
+            <button class="btn btn--primary btn--sm" type="button" data-predictive-search-submit><span class="btn__label">Search</span></button>
+          </div>
+        </form>
+        <div data-predictive-results><div class="sr-only" aria-live="polite" aria-atomic="true"></div></div>
+      </div>
+    </div>
+  </aside>
+</div>
+<script src="{{ 'collection.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Search drawer",
+  "tag": "div",
+  "class": "section-search-drawer",
+  "settings": []
+}
+{% endschema %}

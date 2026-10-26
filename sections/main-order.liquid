@@ -1,0 +1,156 @@
+{%- comment -%}
+  Order details (app/routes/account.orders.$id.tsx) from the order object.
+  Shopify orders carry shipping, so a Shipping row sits between Tax and Total.
+{%- endcomment -%}
+{%- liquid
+  assign status = order.fulfillment_status
+  case status
+    when 'fulfilled'
+      assign status_tone = 'success'
+    when 'restocked'
+      assign status_tone = 'accent'
+    else
+      assign status_tone = 'primary'
+  endcase
+  if customer.first_name != blank
+    assign heading = 'Welcome, ' | append: customer.first_name
+  else
+    assign heading = 'Welcome to your account.'
+  endif
+-%}
+<div class="account">
+  <header class="account-header">
+    <div class="container">
+      <p class="eyebrow">My account</p>
+      <h1 class="account-header__title">{{ heading }}</h1>
+      <nav class="account-tabs" aria-label="Account">
+        <a class="account-tab is-active" href="{{ routes.account_url }}">Orders</a>
+        <a class="account-tab" href="{{ routes.account_addresses_url }}">Addresses</a>
+        <div class="account-tabs__logout">
+          <a class="account-tab account-tab--button" href="{{ routes.account_logout_url }}">Sign out</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+  <div class="container account-content">
+    <div class="account-section account-order">
+      <a class="account-back" href="{{ routes.account_url }}">{%- render 'icon', name: 'chevron-left', size: 16 -%}Back to orders</a>
+
+      <header class="account-section__header account-order__header">
+        <div>
+          <h2>Order {{ order.name }}</h2>
+          <p class="text-muted">
+            Placed <time datetime="{{ order.created_at | date: '%Y-%m-%dT%H:%M:%S%z' }}">{{ order.created_at | date: '%b %-d, %Y' }}</time>
+            {%- if order.confirmation_number != blank %} &middot; Confirmation {{ order.confirmation_number }}{% endif -%}
+          </p>
+        </div>
+        <div class="order-card__badges">
+          {%- if status != blank -%}
+            <span class="badge badge--{{ status_tone }}{% if status_tone == 'primary' %} badge--soft{% endif %}"><span class="sr-only">Fulfillment: </span>{{ order.fulfillment_status_label }}</span>
+          {%- endif -%}
+        </div>
+      </header>
+
+      <div class="account-order__grid">
+        <section class="account-card account-order__items" aria-label="Items">
+          <table class="order-table">
+            <thead>
+              <tr>
+                <th scope="col">Product</th>
+                <th scope="col" class="is-numeric">Price</th>
+                <th scope="col" class="is-numeric">Qty</th>
+              </tr>
+            </thead>
+            <tbody>
+              {%- for line_item in order.line_items -%}
+                {%- liquid
+                  assign line_title = line_item.product.title | default: line_item.title
+                  assign variant_title = line_item.variant.title
+                  assign image_alt = line_item.image.alt | default: line_title
+                -%}
+                <tr>
+                  <td>
+                    <div class="order-table__product">
+                      <div class="order-table__media">
+                        {%- if line_item.image != blank -%}
+                          {{ line_item.image | image_url: width: 192, height: 192, crop: 'center' | image_tag: widths: '64, 128, 192', sizes: '64px', width: 64, height: 64, loading: 'lazy', decoding: 'async', alt: image_alt, style: 'width:100%;aspect-ratio:1/1' }}
+                        {%- endif -%}
+                      </div>
+                      <div class="order-table__details">
+                        <p class="order-table__title">{{ line_title }}</p>
+                        {%- if variant_title != blank and variant_title != 'Default Title' -%}
+                          <p class="order-table__variant">{{ variant_title }}</p>
+                        {%- endif -%}
+                        {%- if line_item.line_level_total_discount > 0 -%}
+                          <p class="order-table__discount">Discount −<span>{{ line_item.line_level_total_discount | money }}</span></p>
+                        {%- endif -%}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="is-numeric"><span>{{ line_item.final_price | money }}</span></td>
+                  <td class="is-numeric">{{ line_item.quantity }}</td>
+                </tr>
+              {%- endfor -%}
+            </tbody>
+          </table>
+
+          <dl class="order-totals">
+            {%- if order.total_discounts > 0 -%}
+              <div class="order-totals__row order-totals__row--discount">
+                <dt>Discounts</dt>
+                <dd>−<span>{{ order.total_discounts | money }}</span></dd>
+              </div>
+            {%- endif -%}
+            <div class="order-totals__row">
+              <dt>Subtotal</dt>
+              <dd><span>{{ order.line_items_subtotal_price | money }}</span></dd>
+            </div>
+            <div class="order-totals__row">
+              <dt>Tax</dt>
+              <dd><span>{{ order.tax_price | money }}</span></dd>
+            </div>
+            <div class="order-totals__row">
+              <dt>Shipping</dt>
+              <dd><span>{{ order.shipping_price | money }}</span></dd>
+            </div>
+            <div class="order-totals__row order-totals__row--total">
+              <dt>Total</dt>
+              <dd><span>{{ order.total_price | money }}</span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <aside class="account-card account-order__aside" aria-label="Delivery">
+          <div class="account-order__block">
+            <h3 class="account-card__subtitle">Shipping address</h3>
+            {%- if order.shipping_address != blank -%}
+              <address class="account-address">{{ order.shipping_address | format_address }}</address>
+            {%- else -%}
+              <p class="text-muted">No shipping address on this order.</p>
+            {%- endif -%}
+          </div>
+
+          <div class="account-order__block">
+            <h3 class="account-card__subtitle">Status</h3>
+            {%- if status != blank -%}
+              <span class="badge badge--{{ status_tone }}{% if status_tone == 'primary' %} badge--soft{% endif %}">{{ order.fulfillment_status_label }}</span>
+            {%- else -%}
+              <p class="text-muted">Not available yet.</p>
+            {%- endif -%}
+          </div>
+
+          {%- if order.order_status_url != blank -%}
+            <a class="btn btn--outline btn--sm" href="{{ order.order_status_url }}" rel="noreferrer" target="_blank"><span class="btn__label">Track your order</span></a>
+          {%- endif -%}
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Order",
+  "settings": []
+}
+{% endschema %}

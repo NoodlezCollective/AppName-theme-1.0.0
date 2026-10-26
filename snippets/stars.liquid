@@ -1,0 +1,62 @@
+{%- comment -%}
+  Five coral stars with partial fill (app/components/ui/Stars.tsx).
+  {% render 'stars', rating: 4.9, count: 51644, label: '…', size: 'sm' | 'md' | 'lg', class: '' %}
+  Renders nothing without a numeric rating. `count` renders "(51,644)";
+  `label` overrides it.
+{%- endcomment -%}
+{%- liquid
+  assign size = size | default: 'md'
+  case size
+    when 'sm'
+      assign px = 14
+    when 'lg'
+      assign px = 22
+    else
+      assign px = 18
+  endcase
+  assign rating_number = rating | plus: 0.0
+  assign has_rating = false
+  if rating != blank and rating != nil
+    assign has_rating = true
+  endif
+  if rating_number > 5
+    assign rating_number = 5.0
+  endif
+  if rating_number < 0
+    assign rating_number = 0.0
+  endif
+  assign rating_text = rating_number | round: 1 | append: ''
+  unless rating_text contains '.'
+    assign rating_text = rating_text | append: '.0'
+  endunless
+  assign text = label
+  if text == blank and count != blank and count != nil
+    capture count_text
+      render 'number', value: count
+    endcapture
+    assign text = '(' | append: count_text | append: ')'
+  endif
+  if count != blank and count != nil
+    capture count_label
+      render 'number', value: count
+    endcapture
+  endif
+-%}
+{%- if has_rating -%}
+<div class="stars stars--{{ size }}{% if class %} {{ class }}{% endif %}" role="img" aria-label="Rated {{ rating_text }} out of 5{% if count != blank and count != nil %} from {{ count_label }} reviews{% endif %}">
+  <span class="stars__row" aria-hidden="true">
+    {%- for i in (0..4) -%}
+      {%- assign fill = rating_number | minus: i -%}
+      {%- if fill > 1 -%}{%- assign fill = 1 -%}{%- endif -%}
+      <span class="stars__star" style="width:{{ px }}px">
+        {%- render 'icon', name: 'star', size: px, class: 'stars__base' -%}
+        {%- if fill > 0 -%}
+          {%- assign pct = fill | times: 100 | round -%}
+          <span class="stars__fill" style="width:{{ pct }}%">{%- render 'icon', name: 'star', size: px -%}</span>
+        {%- endif -%}
+      </span>
+    {%- endfor -%}
+  </span>
+  {%- if text != blank -%}<span class="stars__label">{{ text }}</span>{%- endif -%}
+</div>
+{%- endif -%}

@@ -1,0 +1,119 @@
+{%- assign brand_token = '{AppName}' -%}
+{%- comment -%}
+  Collections index (app/routes/collections._index.tsx + CollectionCard.tsx).
+{%- endcomment -%}
+<div class="collections-page container" data-section-id="{{ section.id }}">
+  <header class="page-header page-header--center collections-header">
+    {%- if section.settings.eyebrow != blank -%}<p class="eyebrow page-header__eyebrow">{{ section.settings.eyebrow }}</p>{%- endif -%}
+    <h1>{{ section.settings.title | replace: brand_token, settings.brand_name }}</h1>
+    {%- if section.settings.description != blank -%}<p class="page-header__description">{{ section.settings.description | replace: brand_token, settings.brand_name }}</p>{%- endif -%}
+    {%- if section.settings.cta_label != blank -%}
+      <div class="collections-header__actions">
+        <a class="btn btn--outline btn--md" href="{{ routes.all_products_collection_url }}"><span class="btn__label">{{ section.settings.cta_label }}</span></a>
+      </div>
+    {%- endif -%}
+  </header>
+  {%- paginate collections by section.settings.collections_per_page -%}
+    <div class="paginated-section">
+      {%- if paginate.previous -%}
+        <div class="paginated-section__nav paginated-section__nav--previous">
+          <a class="btn btn--outline btn--md" href="{{ paginate.previous.url }}" data-load-more="previous"><span class="btn__label">Load previous</span></a>
+        </div>
+      {%- endif -%}
+      {%- if collections.size == 0 -%}
+        <div class="empty-state">
+          <p class="empty-state__title">No collections yet</p>
+          <p>Browse every product while we organise the shelves.</p>
+          <div class="empty-state__actions">
+            <a class="btn btn--primary btn--md" href="{{ routes.all_products_collection_url }}"><span class="btn__label">Shop all</span></a>
+          </div>
+        </div>
+      {%- else -%}
+        <div aria-label="Collections" class="collection-grid" role="region">
+          {%- for collection in collections -%}
+            {%- liquid
+              assign loading = 'lazy'
+              if paginate.current_offset == 0 and forloop.index0 < 6
+                assign loading = 'eager'
+              endif
+              comment
+                truncate(description, 90): cut at the last space (never before 60 chars) and add an ellipsis.
+              endcomment
+              assign description = collection.description | strip_html | strip_newlines | strip
+              if description.size > 90
+                assign cut = description | slice: 0, 90
+                assign words = cut | split: ' '
+                assign last_word = words | last
+                assign cut_length = cut.size | minus: last_word.size
+                if cut_length < 60
+                  assign cut_length = 60
+                endif
+                assign description = cut | slice: 0, cut_length | strip | append: '…'
+              endif
+              assign image = collection.image
+            -%}
+            <a class="collection-card{% unless image %} collection-card--text{% endunless %}" href="{{ collection.url }}">
+              {%- if image -%}
+                {{ image | image_url: width: 1200, height: 900, crop: 'center' | image_tag: widths: '200, 400, 600, 800, 1000, 1200', sizes: '(min-width: 64em) 33vw, (min-width: 40em) 50vw, 100vw', loading: loading, decoding: 'async', alt: image.alt, style: 'width:100%;aspect-ratio:4/3' }}
+              {%- endif -%}
+              <span class="collection-card__overlay" aria-hidden="true"></span>
+              <span class="collection-card__body">
+                <h2 class="collection-card__title">{{ collection.title | escape }}</h2>
+                {%- if description != blank -%}<span class="collection-card__description">{{ description }}</span>{%- endif -%}
+                <span class="collection-card__cta">Shop now {% render 'icon', name: 'arrow-right', size: 16 %}</span>
+              </span>
+            </a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+      {%- if paginate.next -%}
+        <div class="paginated-section__nav paginated-section__nav--next">
+          <a class="btn btn--outline btn--md" href="{{ paginate.next.url }}" data-load-more="next"><span class="btn__label">Load more</span></a>
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endpaginate -%}
+</div>
+<script src="{{ 'collection.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Collections list",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Browse"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Collections"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Find your perfect sleep setup: pillows, comforters, bath essentials and bundles, all designed to make sleep effortless."
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Button label",
+      "default": "Shop all products"
+    },
+    {
+      "type": "range",
+      "id": "collections_per_page",
+      "label": "Collections per page",
+      "min": 4,
+      "max": 48,
+      "step": 4,
+      "default": 12
+    }
+  ]
+}
+{% endschema %}
