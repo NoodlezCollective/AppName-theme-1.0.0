@@ -47,7 +47,7 @@
             {%- render 'product-stars', rating: rating, size: 18 -%}
             {%- if rating_count > 0 -%}
               {%- capture count_text -%}{%- render 'number', value: rating_count -%}{%- endcapture -%}
-              <span class="sp-reviews__based">{{ section.settings.based_on | replace: '{count}', count_text }}</span>
+              <span class="sp-reviews__based">{% echo section.settings.based_on | replace: '{count}', count_text %}</span>
             {%- endif -%}
           </div>
         </div>

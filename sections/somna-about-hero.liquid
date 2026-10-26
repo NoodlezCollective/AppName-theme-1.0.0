@@ -6,9 +6,9 @@
 {{ 'somna-pages.css' | asset_url | stylesheet_tag }}
 <section class="s-pg s-ahero" aria-labelledby="AboutTitle-{{ section.id }}">
   <div class="s-ahero__inner">
-    {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | replace: '{AppName}', settings.brand_name | escape }}</span>{%- endif -%}
-    <h1 class="s-h1 s-balance" id="AboutTitle-{{ section.id }}">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h1>
-    {%- if section.settings.text != blank -%}<p class="s-ahero__sub">{{ section.settings.text | replace: '{AppName}', settings.brand_name }}</p>{%- endif -%}
+    {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{% echo section.settings.eyebrow | replace: '{AppName}', settings.brand_name | escape %}</span>{%- endif -%}
+    <h1 class="s-h1 s-balance" id="AboutTitle-{{ section.id }}">{% echo section.settings.heading | replace: '{AppName}', settings.brand_name | escape %}</h1>
+    {%- if section.settings.text != blank -%}<p class="s-ahero__sub">{% echo section.settings.text | replace: '{AppName}', settings.brand_name %}</p>{%- endif -%}
     {%- if section.settings.show_image -%}
       {%- assign media_alt = section.settings.image_alt | replace: '{AppName}', settings.brand_name -%}
       {%- render 'somna-media',

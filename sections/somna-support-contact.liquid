@@ -10,7 +10,7 @@
   <div class="s-scontact__inner">
     <div class="s-pg-head-center">
       {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | escape }}</span>{%- endif -%}
-      <h2 class="s-h2" id="ContactTitle-{{ section.id }}">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h2>
+      <h2 class="s-h2" id="ContactTitle-{{ section.id }}">{% echo section.settings.heading | replace: '{AppName}', settings.brand_name | escape %}</h2>
     </div>
 
     {%- if section.blocks.size > 0 -%}
@@ -19,7 +19,7 @@
           <div class="s-ccard" {{ block.shopify_attributes }}>
             {%- if block.settings.icon != 'none' -%}<span class="s-ccard__icon">{%- render 'somna-icon', name: block.settings.icon, size: 28 -%}</span>{%- endif -%}
             <h3 class="s-ccard__h3">{{ block.settings.title | escape }}</h3>
-            {%- if block.settings.text != blank -%}<p>{{ block.settings.text | replace: '{AppName}', settings.brand_name | escape }}</p>{%- endif -%}
+            {%- if block.settings.text != blank -%}<p>{% echo block.settings.text | replace: '{AppName}', settings.brand_name | escape %}</p>{%- endif -%}
             {%- if block.settings.link_label != blank -%}
               <a class="s-ccard__strong s-ccard__link" style="text-decoration: underline;" href="{{ block.settings.link | default: '#' }}">{{ block.settings.link_label | escape }}</a>
             {%- endif -%}
@@ -69,7 +69,7 @@
           <button type="submit" class="s-btn">{{ section.settings.button_label | escape }}</button>
         </div>
         <div class="s-stack" style="gap: 16px;" data-somna-done role="status"{% unless contact_sent %} hidden{% endunless %}>
-          <p class="s-pg-status">{{ section.settings.success_text | replace: '{AppName}', settings.brand_name | escape }}</p>
+          <p class="s-pg-status">{% echo section.settings.success_text | replace: '{AppName}', settings.brand_name | escape %}</p>
           <button type="button" class="s-pill-btn" style="align-self: flex-start;" data-somna-reset>Send another message</button>
         </div>
       {%- endform -%}

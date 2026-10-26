@@ -42,7 +42,7 @@
           {%- for block in section.blocks -%}
             <li {{ block.shopify_attributes }}>
               {%- render 'somna-icon', name: block.settings.icon, size: 20 -%}
-              {{- block.settings.text | replace: '{AppName}', brand -}}
+              {%- echo block.settings.text | replace: '{AppName}', brand -%}
             </li>
           {%- endfor -%}
         </ul>

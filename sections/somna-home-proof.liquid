@@ -16,7 +16,7 @@
   assign initial = section.settings.initial | default: name | slice: 0
   assign circumference = 314.1593
 -%}
-<section class="sh sh-proof" aria-label="{{ section.settings.label | replace: '{AppName}', brand | escape }}">
+<section class="sh sh-proof" aria-label="{% echo section.settings.label | replace: '{AppName}', brand | escape %}">
   <div class="sh-inner sh-proof__inner">
     {%- if quote != blank -%}
       <figure class="sh-quote">

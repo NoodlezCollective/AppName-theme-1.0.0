@@ -5,8 +5,8 @@
 {{ 'somna-collection.css' | asset_url | stylesheet_tag }}
 <section class="sc-seo">
   <div class="sc-seo__inner">
-    {%- if section.settings.heading != blank -%}<h2 class="s-h2--sm">{{ section.settings.heading | replace: '{AppName}', brand }}</h2>{%- endif -%}
-    {%- if section.settings.text != blank -%}<div class="sc-seo__text">{{ section.settings.text | replace: '{AppName}', brand }}</div>{%- endif -%}
+    {%- if section.settings.heading != blank -%}<h2 class="s-h2--sm">{% echo section.settings.heading | replace: '{AppName}', brand %}</h2>{%- endif -%}
+    {%- if section.settings.text != blank -%}<div class="sc-seo__text">{% echo section.settings.text | replace: '{AppName}', brand %}</div>{%- endif -%}
   </div>
 </section>
 

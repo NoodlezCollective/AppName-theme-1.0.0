@@ -28,7 +28,7 @@
             <span class="s-topic__mark" aria-hidden="true">{{ topic.settings.mark | escape }}</span>
             <span class="s-topic__text">
               <strong class="s-topic__title">{{ topic_title | escape }}</strong>
-              {%- if topic.settings.subtitle != blank -%}<span class="s-topic__sub">{{ topic.settings.subtitle | replace: '{AppName}', settings.brand_name | escape }}</span>{%- endif -%}
+              {%- if topic.settings.subtitle != blank -%}<span class="s-topic__sub">{% echo topic.settings.subtitle | replace: '{AppName}', settings.brand_name | escape %}</span>{%- endif -%}
             </span>
           </button>
         {%- endfor -%}
@@ -38,7 +38,7 @@
 
   <section class="s-sfaq" id="faq" aria-labelledby="FaqTitle-{{ section.id }}">
     <div class="s-sfaq__inner">
-      <h2 class="s-h2" id="FaqTitle-{{ section.id }}" data-somna-faq-title aria-live="polite">{% if loose_faqs %}{{ section.settings.heading | escape }}{% else %}{{ first_title | replace: '{AppName}', settings.brand_name | escape }}{% endif %}</h2>
+      <h2 class="s-h2" id="FaqTitle-{{ section.id }}" data-somna-faq-title aria-live="polite">{% if loose_faqs %}{{ section.settings.heading | escape }}{% else %}{% echo first_title | replace: '{AppName}', settings.brand_name | escape %}{% endif %}</h2>
       <div id="FaqList-{{ section.id }}">
         {%- if loose_faqs -%}
           <div class="s-faq s-sfaq__panel" data-topic-panel="general">

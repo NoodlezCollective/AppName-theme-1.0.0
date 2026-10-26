@@ -7,7 +7,7 @@
   <div class="s-pg-stack40">
     <div class="s-pg-head-center">
       {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | escape }}</span>{%- endif -%}
-      <h2 class="s-h2">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h2>
+      <h2 class="s-h2">{% echo section.settings.heading | replace: '{AppName}', settings.brand_name | escape %}</h2>
     </div>
     <div class="s-avalues__grid">
       {%- for block in section.blocks -%}
@@ -23,8 +23,8 @@
         -%}
         <div class="s-avalue" {{ block.shopify_attributes }}>
           <span class="s-avalue__n" aria-hidden="true">{{ number }}</span>
-          <h3 class="s-h3">{{ block.settings.title | replace: '{AppName}', settings.brand_name | escape }}</h3>
-          <p class="s-avalue__body">{{ block.settings.text | replace: '{AppName}', settings.brand_name | escape }}</p>
+          <h3 class="s-h3">{% echo block.settings.title | replace: '{AppName}', settings.brand_name | escape %}</h3>
+          <p class="s-avalue__body">{% echo block.settings.text | replace: '{AppName}', settings.brand_name | escape %}</p>
         </div>
       {%- endfor -%}
     </div>

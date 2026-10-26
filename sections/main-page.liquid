@@ -78,7 +78,7 @@
             {%- if doc != blank -%}
               {{ doc }}
             {%- else -%}
-              <p>{{ section.settings.empty_text | replace: '{AppName}', settings.brand_name }}</p>
+              <p>{% echo section.settings.empty_text | replace: '{AppName}', settings.brand_name %}</p>
             {%- endif -%}
           {%- endif -%}
         </article>

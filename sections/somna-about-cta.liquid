@@ -5,8 +5,8 @@
 {{ 'somna-pages.css' | asset_url | stylesheet_tag }}
 <section class="s-pg s-acta">
   <div class="s-acta__card">
-    <h2 class="s-h2">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h2>
-    {%- if section.settings.text != blank -%}<p class="s-acta__sub">{{ section.settings.text | replace: '{AppName}', settings.brand_name | escape }}</p>{%- endif -%}
+    <h2 class="s-h2">{% echo section.settings.heading | replace: '{AppName}', settings.brand_name | escape %}</h2>
+    {%- if section.settings.text != blank -%}<p class="s-acta__sub">{% echo section.settings.text | replace: '{AppName}', settings.brand_name | escape %}</p>{%- endif -%}
     <div class="s-acta__btns">
       {%- if section.settings.primary_label != blank -%}
         <a class="s-btn s-btn--lg" href="{{ section.settings.primary_link | default: routes.all_products_collection_url }}">{{ section.settings.primary_label | escape }}</a>

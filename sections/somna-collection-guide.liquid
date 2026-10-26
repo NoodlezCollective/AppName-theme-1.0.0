@@ -8,8 +8,8 @@
 <section class="sc-guide">
   <div class="sc-guide__inner">
     <div class="sc-guide__head">
-      {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | replace: '{AppName}', brand }}</span>{%- endif -%}
-      {%- if section.settings.heading != blank -%}<h2 class="s-h2">{{ section.settings.heading | replace: '{AppName}', brand }}</h2>{%- endif -%}
+      {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{% echo section.settings.eyebrow | replace: '{AppName}', brand %}</span>{%- endif -%}
+      {%- if section.settings.heading != blank -%}<h2 class="s-h2">{% echo section.settings.heading | replace: '{AppName}', brand %}</h2>{%- endif -%}
     </div>
     {%- if section.blocks.size > 0 -%}
       <div class="sc-guide__grid">
@@ -32,7 +32,7 @@
             assign warmth = block.settings.warmth
           -%}
           <div class="sc-guide__card" {{ block.shopify_attributes }}>
-            {%- if block.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ block.settings.eyebrow | replace: '{AppName}', brand }}</span>{%- endif -%}
+            {%- if block.settings.eyebrow != blank -%}<span class="s-eyebrow">{% echo block.settings.eyebrow | replace: '{AppName}', brand %}</span>{%- endif -%}
             <h3 class="sc-guide__name">{{ name }}</h3>
             <div class="sc-guide__warmth">
               <span class="sc-guide__warmth-label">{{ section.settings.warmth_label }}</span>
@@ -40,7 +40,7 @@
                 {%- for i in (1..5) -%}<span class="sc-guide__dot{% if i <= warmth %} is-on{% endif %}"></span>{%- endfor -%}
               </div>
             </div>
-            {%- if block.settings.body != blank -%}<p class="sc-guide__body">{{ block.settings.body | replace: '{AppName}', brand }}</p>{%- endif -%}
+            {%- if block.settings.body != blank -%}<p class="sc-guide__body">{% echo block.settings.body | replace: '{AppName}', brand %}</p>{%- endif -%}
             <a class="sc-guide__link" href="{{ href }}">{{ link_label }}</a>
           </div>
         {%- endfor -%}

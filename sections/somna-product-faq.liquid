@@ -14,8 +14,8 @@
       <div class="s-faq">
         {%- for block in section.blocks -%}
           <details class="s-faq__item" {{ block.shopify_attributes }}>
-            <summary class="s-faq__q">{{ block.settings.question | replace: '{AppName}', brand }}<span class="s-faq__icon" aria-hidden="true"></span></summary>
-            <div class="s-faq__a">{{ block.settings.answer | replace: '{AppName}', brand }}</div>
+            <summary class="s-faq__q">{% echo block.settings.question | replace: '{AppName}', brand %}<span class="s-faq__icon" aria-hidden="true"></span></summary>
+            <div class="s-faq__a">{% echo block.settings.answer | replace: '{AppName}', brand %}</div>
           </details>
         {%- endfor -%}
       </div>

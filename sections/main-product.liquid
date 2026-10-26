@@ -147,7 +147,7 @@
               <s class="sp-price__was" data-price-was{% unless on_sale %} hidden{% endunless %}><span class="s-sr">Regular price </span><span data-price-was-amount>{% if on_sale %}{{ compare_total | money_without_trailing_zeros }}{% endif %}</span></s>
               <span class="sp-price__save" data-price-save{% unless on_sale %} hidden{% endunless %}>{{ save_text }}</span>
             </div>
-            {%- if section.settings.payment_note != blank -%}<span class="sp-price__note">{{ section.settings.payment_note | replace: '{AppName}', brand }}</span>{%- endif -%}
+            {%- if section.settings.payment_note != blank -%}<span class="sp-price__note">{% echo section.settings.payment_note | replace: '{AppName}', brand %}</span>{%- endif -%}
           </div>
 
           {%- capture benefit_rows -%}
@@ -201,13 +201,13 @@
 
           {%- capture trust -%}
             {%- if section.settings.trust_1 != blank -%}
-              <div class="sp-trust__item"><svg width="22" height="22" viewBox="0 0 24 24" fill="#a39bd4" aria-hidden="true" focusable="false"><path d="M2 6h12v10H2zM14 9h4.5l3.5 3.5V16h-8z"/><circle cx="6.5" cy="17.5" r="2" fill="#4c4184"/><circle cx="17.5" cy="17.5" r="2" fill="#4c4184"/></svg>{{ section.settings.trust_1 | replace: '{AppName}', brand }}</div>
+              <div class="sp-trust__item"><svg width="22" height="22" viewBox="0 0 24 24" fill="#a39bd4" aria-hidden="true" focusable="false"><path d="M2 6h12v10H2zM14 9h4.5l3.5 3.5V16h-8z"/><circle cx="6.5" cy="17.5" r="2" fill="#4c4184"/><circle cx="17.5" cy="17.5" r="2" fill="#4c4184"/></svg>{% echo section.settings.trust_1 | replace: '{AppName}', brand %}</div>
             {%- endif -%}
             {%- if section.settings.trust_2 != blank -%}
-              <div class="sp-trust__item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a39bd4" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>{{ section.settings.trust_2 | replace: '{AppName}', brand }}</div>
+              <div class="sp-trust__item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a39bd4" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>{% echo section.settings.trust_2 | replace: '{AppName}', brand %}</div>
             {%- endif -%}
             {%- if section.settings.trust_3 != blank -%}
-              <div class="sp-trust__item"><svg width="22" height="22" viewBox="0 0 24 24" fill="#a39bd4" aria-hidden="true" focusable="false"><path d="M12 2l9 3.4V12c0 5-3.8 8.9-9 10-5.2-1.1-9-5-9-10V5.4z"/></svg>{{ section.settings.trust_3 | replace: '{AppName}', brand }}</div>
+              <div class="sp-trust__item"><svg width="22" height="22" viewBox="0 0 24 24" fill="#a39bd4" aria-hidden="true" focusable="false"><path d="M12 2l9 3.4V12c0 5-3.8 8.9-9 10-5.2-1.1-9-5-9-10V5.4z"/></svg>{% echo section.settings.trust_3 | replace: '{AppName}', brand %}</div>
             {%- endif -%}
           {%- endcapture -%}
           {%- if trust != blank -%}<div class="sp-trust">{{ trust }}</div>{%- endif -%}
@@ -244,7 +244,7 @@
               -%}
               {%- if content != blank and block.settings.title != blank -%}
                 <details class="sp-detail"{% if block.settings.open %} open{% endif %} {{ block.shopify_attributes }}>
-                  <summary class="sp-detail__q">{{ block.settings.title | replace: '{AppName}', brand }}<span class="sp-detail__icon" aria-hidden="true"></span></summary>
+                  <summary class="sp-detail__q">{% echo block.settings.title | replace: '{AppName}', brand %}<span class="sp-detail__icon" aria-hidden="true"></span></summary>
                   <div class="sp-detail__a">{{ content }}</div>
                 </details>
               {%- endif -%}

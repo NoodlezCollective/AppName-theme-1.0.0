@@ -33,15 +33,15 @@
           <tbody>
             {%- for block in section.blocks -%}
               <tr {{ block.shopify_attributes }}>
-                <th scope="row">{{ block.settings.label | replace: '{AppName}', brand }}</th>
+                <th scope="row">{% echo block.settings.label | replace: '{AppName}', brand %}</th>
                 <td class="sh-compare__yes">
                   {%- if block.settings.brand_value != blank -%}
-                    {{ block.settings.brand_value | replace: '{AppName}', brand }}
+                    {% echo block.settings.brand_value | replace: '{AppName}', brand %}
                   {%- else -%}
                     {%- render 'somna-icon', name: 'check', size: 22, stroke_width: 2.25 -%}<span class="s-sr">Yes</span>
                   {%- endif -%}
                 </td>
-                <td>{{ block.settings.other_value | replace: '{AppName}', brand }}</td>
+                <td>{% echo block.settings.other_value | replace: '{AppName}', brand %}</td>
               </tr>
             {%- endfor -%}
           </tbody>

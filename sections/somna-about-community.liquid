@@ -9,8 +9,8 @@
   <div class="s-pg-stack32">
     <div class="s-head-row">
       <div class="s-pg-head">
-        {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | replace: '{AppName}', settings.brand_name | escape }}</span>{%- endif -%}
-        <h2 class="s-h2">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h2>
+        {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{% echo section.settings.eyebrow | replace: '{AppName}', settings.brand_name | escape %}</span>{%- endif -%}
+        <h2 class="s-h2">{% echo section.settings.heading | replace: '{AppName}', settings.brand_name | escape %}</h2>
       </div>
       {%- if section.settings.link_label != blank -%}
         <a class="s-acomm__link" style="text-decoration: underline;" href="{{ instagram_url }}"{% if instagram_url contains '://' %} target="_blank" rel="noopener"{% endif %}>{{ section.settings.link_label | escape }}</a>

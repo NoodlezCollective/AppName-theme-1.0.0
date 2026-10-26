@@ -43,7 +43,7 @@
         {%- if menu != blank and menu.links.size > 0 -%}
           {%- for link in menu.links -%}
             {%- if link.url == blank -%}{%- continue -%}{%- endif -%}
-            <a class="sc-mnav__link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | replace: '{AppName}', brand }}</a>
+            <a class="sc-mnav__link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{% echo link.title | replace: '{AppName}', brand %}</a>
           {%- endfor -%}
         {%- else -%}
           {%- for title in fallback_titles -%}

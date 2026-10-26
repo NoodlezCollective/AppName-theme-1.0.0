@@ -18,8 +18,8 @@
     -%}
     <div class="s-afounder__text">
       {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | escape }}</span>{%- endif -%}
-      <h2 class="s-h2 s-balance">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h2>
-      {%- if section.settings.text != blank -%}<div class="s-pg-p">{{ section.settings.text | replace: '{AppName}', settings.brand_name }}</div>{%- endif -%}
+      <h2 class="s-h2 s-balance">{% echo section.settings.heading | replace: '{AppName}', settings.brand_name | escape %}</h2>
+      {%- if section.settings.text != blank -%}<div class="s-pg-p">{% echo section.settings.text | replace: '{AppName}', settings.brand_name %}</div>{%- endif -%}
       {%- if section.settings.signature != blank or section.settings.signature_image != blank or section.settings.name != blank -%}
         <div class="s-afounder__sign">
           {%- if section.settings.signature_image != blank -%}

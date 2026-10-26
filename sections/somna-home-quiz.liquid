@@ -29,7 +29,7 @@
         {%- assign step = forloop.index -%}
         {%- assign q_id = 'SomnaQuizQ-' | append: section.id | append: '-' | append: step -%}
         <div class="sh-quiz__step" data-sh-quiz-step data-block-id="{{ question.id }}"{% if step > 1 %} hidden{% endif %} {{ question.shopify_attributes }}>
-          <span id="{{ q_id }}" class="sh-quiz__q">{{ step }} of {{ total }} · {{ question.settings.question | replace: '{AppName}', brand }}</span>
+          <span id="{{ q_id }}" class="sh-quiz__q">{{ step }} of {{ total }} · {% echo question.settings.question | replace: '{AppName}', brand %}</span>
           <div class="sh-quiz__opts" role="radiogroup" aria-labelledby="{{ q_id }}">
             {%- assign qi = 0 -%}
             {%- assign first_in_step = true -%}
@@ -38,7 +38,7 @@
                 {%- assign qi = qi | plus: 1 -%}
               {%- elsif qi == step -%}
                 <button type="button" class="s-chip sh-quiz__opt" role="radio" aria-checked="{% if first_in_step %}true{% else %}false{% endif %}" tabindex="{% if first_in_step %}0{% else %}-1{% endif %}" data-sh-quiz-option data-value="{{ block.settings.label | handleize }}"{% if block.settings.url != blank %} data-url="{{ block.settings.url }}"{% endif %} {{ block.shopify_attributes }}>
-                  {{- block.settings.label | replace: '{AppName}', brand -}}
+                  {%- echo block.settings.label | replace: '{AppName}', brand -%}
                 </button>
                 {%- assign first_in_step = false -%}
               {%- endif -%}

@@ -24,7 +24,7 @@
   <select class="sc-sort__select" id="{{ id }}" name="sort_by" data-sort-select data-default="{{ default_sort }}">
     {%- for option in options -%}
       {%- assign parts = option | split: '|' -%}
-      <option value="{{ parts[0] }}" data-sort-by="{{ parts[0] }}"{% if parts[0] == current %} selected{% endif %}>{{ parts[1] | replace: '{c}', ',' }}</option>
+      <option value="{{ parts[0] }}" data-sort-by="{{ parts[0] }}"{% if parts[0] == current %} selected{% endif %}>{% echo parts[1] | replace: '{c}', ',' %}</option>
     {%- endfor -%}
   </select>
 </div>

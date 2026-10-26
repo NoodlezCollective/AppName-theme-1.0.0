@@ -16,4 +16,4 @@
     {%- when 'do-not-sell' -%}{%- render 'policy-body-do-not-sell', part: part -%}
   {%- endcase -%}
 {%- endcapture -%}
-{{- doc | replace: '{AppName}', settings.brand_name -}}
+{%- echo doc | replace: '{AppName}', settings.brand_name -%}

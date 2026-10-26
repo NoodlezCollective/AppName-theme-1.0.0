@@ -80,8 +80,8 @@
         {%- for block in section.blocks -%}
           <div class="sh-feature" {{ block.shopify_attributes }}>
             <span class="sh-feature__icon">{%- render 'somna-icon', name: block.settings.icon, size: 26 -%}</span>
-            <h3 class="s-h3">{{ block.settings.title | replace: '{AppName}', brand }}</h3>
-            {%- if block.settings.body != blank -%}<p>{{ block.settings.body | replace: '{AppName}', brand }}</p>{%- endif -%}
+            <h3 class="s-h3">{% echo block.settings.title | replace: '{AppName}', brand %}</h3>
+            {%- if block.settings.body != blank -%}<p>{% echo block.settings.body | replace: '{AppName}', brand %}</p>{%- endif -%}
           </div>
         {%- endfor -%}
       </div>

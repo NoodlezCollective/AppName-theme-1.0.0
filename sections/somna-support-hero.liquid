@@ -8,8 +8,8 @@
 <section class="s-pg s-shero" aria-labelledby="SupportTitle-{{ section.id }}">
   <div class="s-shero__inner">
     {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | escape }}</span>{%- endif -%}
-    <h1 id="SupportTitle-{{ section.id }}" class="s-h1">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h1>
-    {%- if section.settings.subheading != blank -%}<p class="s-shero__sub">{{ section.settings.subheading | replace: '{AppName}', settings.brand_name | escape }}</p>{%- endif -%}
+    <h1 id="SupportTitle-{{ section.id }}" class="s-h1">{% echo section.settings.heading | replace: '{AppName}', settings.brand_name | escape %}</h1>
+    {%- if section.settings.subheading != blank -%}<p class="s-shero__sub">{% echo section.settings.subheading | replace: '{AppName}', settings.brand_name | escape %}</p>{%- endif -%}
     {%- if section.settings.show_search -%}
       <form class="s-shero__form" role="search" action="{{ routes.search_url }}" method="get" data-somna-help-search>
         <label class="s-sr" for="HelpSearch-{{ section.id }}">{{ section.settings.search_label | escape }}</label>

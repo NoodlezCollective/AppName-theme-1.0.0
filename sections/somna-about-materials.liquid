@@ -8,8 +8,8 @@
   <div class="s-split s-split--rev">
     <div class="s-amat__text">
       {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | escape }}</span>{%- endif -%}
-      <h2 class="s-h2 s-balance">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h2>
-      {%- if section.settings.text != blank -%}<div class="s-pg-p">{{ section.settings.text | replace: '{AppName}', settings.brand_name }}</div>{%- endif -%}
+      <h2 class="s-h2 s-balance">{% echo section.settings.heading | replace: '{AppName}', settings.brand_name | escape %}</h2>
+      {%- if section.settings.text != blank -%}<div class="s-pg-p">{% echo section.settings.text | replace: '{AppName}', settings.brand_name %}</div>{%- endif -%}
       {%- if section.blocks.size > 0 -%}
         <ul class="s-amat__chips">
           {%- for block in section.blocks -%}

@@ -7,7 +7,7 @@
   <div class="s-pg-stack40">
     <div class="s-pg-head">
       {%- if section.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ section.settings.eyebrow | escape }}</span>{%- endif -%}
-      <h2 class="s-h2">{{ section.settings.heading | replace: '{AppName}', settings.brand_name | escape }}</h2>
+      <h2 class="s-h2">{% echo section.settings.heading | replace: '{AppName}', settings.brand_name | escape %}</h2>
     </div>
     <ol class="s-asteps">
       {%- for block in section.blocks -%}
@@ -29,7 +29,7 @@
             <span class="s-astep__n">{{ forloop.index }}</span>
             <h3 class="s-astep__title">{{ block.settings.title | escape }}</h3>
           </div>
-          <p class="s-astep__body">{{ block.settings.text | replace: '{AppName}', settings.brand_name | escape }}</p>
+          <p class="s-astep__body">{% echo block.settings.text | replace: '{AppName}', settings.brand_name | escape %}</p>
         </li>
       {%- endfor -%}
     </ol>

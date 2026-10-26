@@ -30,9 +30,9 @@
           </div>
         {%- endif -%}
         <div class="sp-split__copy">
-          {%- if block.settings.eyebrow != blank -%}<span class="s-eyebrow">{{ block.settings.eyebrow | replace: '{AppName}', brand }}</span>{%- endif -%}
+          {%- if block.settings.eyebrow != blank -%}<span class="s-eyebrow">{% echo block.settings.eyebrow | replace: '{AppName}', brand %}</span>{%- endif -%}
           {%- if title != blank -%}<h2 class="s-h2 s-balance">{{ title }}</h2>{%- endif -%}
-          {%- if block.settings.text != blank -%}<div class="sp-split__text">{{ block.settings.text | replace: '{AppName}', brand }}</div>{%- endif -%}
+          {%- if block.settings.text != blank -%}<div class="sp-split__text">{% echo block.settings.text | replace: '{AppName}', brand %}</div>{%- endif -%}
         </div>
       </div>
     {%- endfor -%}
