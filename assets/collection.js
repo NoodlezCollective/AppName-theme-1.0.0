@@ -9,8 +9,9 @@
  * - "Load more" / "Load previous": fetch the next page, append/prepend the
  *   cards, replace the nav, replaceState.
  * - Mobile filter sheet: modal dialog (inert page, focus trap, Escape).
- * - Predictive search: debounced fetch of sections/predictive-search into the
- *   drawer's [data-predictive-results].
+ * - Predictive search: ARIA combobox in the search drawer; debounced fetch of
+ *   sections/predictive-search (products, collections, query suggestions)
+ *   into the drawer's [data-ps-live] panel.
  */
 (function () {
   'use strict';
@@ -24,8 +25,9 @@
     'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
   var NON_RENDERED = {SCRIPT: 1, STYLE: 1, LINK: 1, TEMPLATE: 1, NOSCRIPT: 1};
   var SEARCH_UNAVAILABLE = 'Search is unavailable right now. Please try again.';
-  var PREDICTIVE_LIMIT = 5;
-  var PREDICTIVE_DEBOUNCE = 250;
+  var PREDICTIVE_LIMIT = 6;
+  var PREDICTIVE_DEBOUNCE = 200;
+  var PREDICTIVE_FIELDS = 'title,product_type,variants.title,vendor,tag';
 
   /* ---------- helpers ---------- */
 
@@ -538,87 +540,222 @@
     });
   }
 
-  /* ---------- Predictive search (SearchFormPredictive.tsx, SearchResultsPredictive.tsx) ---------- */
+  /* ---------- Predictive search (SearchFormPredictive.tsx, SearchResultsPredictive.tsx) ----------
+   * ARIA combobox: the input keeps focus; ArrowDown/ArrowUp move
+   * aria-activedescendant through the visible listbox's role="option" rows,
+   * Enter opens the active option (or submits the search), Escape clears the
+   * active option, then the text, then lets the drawer close.
+   * Panels (sections/search-drawer.liquid): [data-ps-initial] (popular
+   * searches + bestsellers, server-rendered) and [data-ps-live] (fetched
+   * sections/predictive-search -> snippets/predictive-results.liquid).
+   */
 
   function initPredictive(drawer) {
-    var wrap = drawer.querySelector('.predictive-search') || drawer;
+    var wrap =
+      drawer.querySelector('[data-predictive-search]') ||
+      drawer.querySelector('.predictive-search') ||
+      drawer;
     var form = wrap.querySelector('form');
-    var input = wrap.querySelector('input[type="search"]');
+    var input =
+      wrap.querySelector('[data-predictive-search-input]') ||
+      wrap.querySelector('input[type="search"]');
     if (!input) return;
-    var results = wrap.querySelector('[data-predictive-results]');
-    if (!results) {
-      results = document.createElement('div');
-      results.setAttribute('data-predictive-results', '');
-      (form || input).insertAdjacentElement('afterend', results);
+    var panels = wrap.querySelector('[data-predictive-results]');
+    if (!panels) {
+      panels = document.createElement('div');
+      panels.setAttribute('data-predictive-results', '');
+      (form || input).insertAdjacentElement('afterend', panels);
     }
-    var status = wrap.querySelector('[aria-live]');
+    var initial = panels.querySelector('[data-ps-initial]');
+    var live = panels.querySelector('[data-ps-live]');
+    if (!live) {
+      live = document.createElement('div');
+      live.className = 'ss-panel ss-panel--live';
+      live.setAttribute('data-ps-live', '');
+      live.hidden = true;
+      panels.appendChild(live);
+    }
+    var loading = panels.querySelector('[data-ps-loading]');
+    var status = wrap.querySelector('[data-ps-status]') || wrap.querySelector('[aria-live]');
     if (!status) {
       status = document.createElement('div');
-      status.className = 'sr-only';
+      status.className = 's-sr';
+      status.setAttribute('role', 'status');
       status.setAttribute('aria-live', 'polite');
       status.setAttribute('aria-atomic', 'true');
-      results.appendChild(status);
+      wrap.appendChild(status);
     }
-    var submitButton = wrap.querySelector(
-      '[data-predictive-search-submit], .predictive-search__field button[type="button"]',
-    );
+    var overlay = input.closest('.overlay');
+    var submitButton = wrap.querySelector('[data-predictive-search-submit]');
     var endpoint = routes().predictiveSearch || '/search/suggest';
     var searchUrl = routes().search || '/search';
     var timer = null;
     var controller = null;
     var term = '';
+    var activeIndex = -1;
+    var cache = {};
+    var cacheSize = 0;
 
-    function setStatus(text) {
-      status.textContent = text;
+    input.setAttribute('role', 'combobox');
+    input.setAttribute('aria-autocomplete', 'list');
+    input.setAttribute('aria-expanded', 'false');
+
+    function isOpen() {
+      return !overlay || overlay.classList.contains('expanded');
     }
 
-    /** Replaces the rendered results, keeping the live region. */
-    function render(html) {
-      Array.prototype.slice.call(results.childNodes).forEach(function (node) {
-        if (node !== status) node.remove();
+    function setStatus(text) {
+      if (status.textContent !== text) status.textContent = text;
+    }
+
+    function currentPanel() {
+      return live.hidden ? initial : live;
+    }
+
+    function currentListbox() {
+      var panel = currentPanel();
+      return panel ? panel.querySelector('[role="listbox"]') : null;
+    }
+
+    function getOptions() {
+      var listbox = currentListbox();
+      return listbox ? Array.prototype.slice.call(listbox.querySelectorAll('[role="option"]')) : [];
+    }
+
+    function syncCombobox() {
+      var listbox = currentListbox();
+      if (listbox && listbox.id) input.setAttribute('aria-controls', listbox.id);
+      var expanded = isOpen() && getOptions().length > 0;
+      input.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    }
+
+    function setActive(index) {
+      var options = getOptions();
+      options.forEach(function (option) {
+        option.setAttribute('aria-selected', 'false');
       });
-      if (!html) return;
-      var template = document.createElement('template');
-      template.innerHTML = html;
-      results.insertBefore(template.content, status);
+      if (index < 0 || index >= options.length) {
+        activeIndex = -1;
+        input.removeAttribute('aria-activedescendant');
+        return;
+      }
+      activeIndex = index;
+      var option = options[index];
+      option.setAttribute('aria-selected', 'true');
+      input.setAttribute('aria-activedescendant', option.id);
+      if (typeof option.scrollIntoView === 'function') option.scrollIntoView({block: 'nearest'});
+    }
+
+    function setLoading(on) {
+      wrap.classList.toggle('is-loading', on);
+      var listbox = currentListbox();
+      if (listbox) listbox.setAttribute('aria-busy', on ? 'true' : 'false');
+      if (!on) {
+        live.classList.remove('is-stale');
+        if (loading) loading.hidden = true;
+        return;
+      }
+      if (live.hidden) {
+        // First query after the empty state: skeleton rows instead of the
+        // popular searches.
+        if (initial) initial.hidden = true;
+        if (loading) loading.hidden = false;
+      } else {
+        live.classList.add('is-stale');
+      }
+    }
+
+    function showInitial() {
+      setLoading(false);
+      live.hidden = true;
+      live.innerHTML = '';
+      if (initial) initial.hidden = false;
+      setActive(-1);
+      syncCombobox();
+      setStatus('');
+    }
+
+    function showLive(html) {
+      setLoading(false);
+      live.innerHTML = html;
+      live.hidden = false;
+      if (initial) initial.hidden = true;
+      setActive(-1);
+      syncCombobox();
+    }
+
+    function showResults(q, html) {
+      showLive(html);
+      var payload = live.querySelector('[data-ps-payload]');
+      var count = payload ? parseInt(payload.getAttribute('data-count'), 10) || 0 : 0;
+      if (!payload) count = live.querySelectorAll('.ss-option--product').length;
+      setStatus(
+        count > 0
+          ? formatNumber(count) + (count === 1 ? ' result' : ' results') + ' for ' + q
+          : 'No results for ' + q,
+      );
+    }
+
+    function showError() {
+      showLive('<div class="ss-empty"><p class="ss-empty__title"></p></div>');
+      live.querySelector('.ss-empty__title').textContent = SEARCH_UNAVAILABLE;
+      setStatus(SEARCH_UNAVAILABLE);
     }
 
     function goToSearch() {
       var value = input.value.trim();
-      window.location.href =
-        searchUrl + (value ? '?q=' + encodeURIComponent(value) + '&type=product' : '');
+      if (!value) return;
+      window.location.href = searchUrl + '?q=' + encodeURIComponent(value) + '&type=product';
       closeDrawer();
+    }
+
+    function reset() {
+      window.clearTimeout(timer);
+      if (controller) controller.abort();
+      input.value = '';
+      term = '';
+      showInitial();
     }
 
     function closeSearch() {
       input.blur();
-      input.value = '';
-      term = '';
-      if (controller) controller.abort();
-      render('');
-      setStatus('');
+      reset();
       closeDrawer();
+    }
+
+    function navigate(href) {
+      closeSearch();
+      window.location.href = href;
     }
 
     function fetchResults(value) {
       var q = value.trim();
-      term = q;
+      window.clearTimeout(timer);
       if (controller) controller.abort();
+      controller = null;
+      term = q;
       if (!q) {
-        render('');
-        setStatus('');
+        showInitial();
         return;
       }
-      setStatus('Searching…');
-      render('<p class="predictive-search__status">Searching…</p>');
-      controller = new AbortController();
+      var key = q.toLowerCase();
+      if (Object.prototype.hasOwnProperty.call(cache, key)) {
+        showResults(q, cache[key]);
+        return;
+      }
+      setLoading(true);
+      var request = new AbortController();
+      controller = request;
       var url = toUrl(endpoint);
       url.searchParams.set('q', q);
-      url.searchParams.set('resources[type]', 'product');
+      url.searchParams.set('resources[type]', 'product,collection,query');
       url.searchParams.set('resources[limit]', String(PREDICTIVE_LIMIT));
+      url.searchParams.set('resources[limit_scope]', 'each');
+      url.searchParams.set('resources[options][fields]', PREDICTIVE_FIELDS);
+      url.searchParams.set('resources[options][unavailable_products]', 'last');
       url.searchParams.set('section_id', 'predictive-search');
       fetch(url.toString(), {
-        signal: controller.signal,
+        signal: request.signal,
         headers: {Accept: 'text/html'},
         credentials: 'same-origin',
       })
@@ -627,49 +764,108 @@
           return response.text();
         })
         .then(function (html) {
-          if (q !== term) return;
           var doc = new DOMParser().parseFromString(html, 'text/html');
           var section =
             doc.getElementById('shopify-section-predictive-search') ||
             doc.querySelector('.shopify-section') ||
             doc.body;
-          render(section.innerHTML);
-          var total = results.querySelectorAll('.predictive-search-result-item').length;
-          setStatus(
-            total > 0
-              ? formatNumber(total) + (total === 1 ? ' result' : ' results') + ' for ' + q
-              : 'No results for ' + q,
-          );
+          if (cacheSize > 40) {
+            cache = {};
+            cacheSize = 0;
+          }
+          cache[key] = section.innerHTML;
+          cacheSize += 1;
+          if (q !== term) return;
+          controller = null;
+          showResults(q, cache[key]);
         })
         .catch(function (error) {
           if (error && error.name === 'AbortError') return;
           if (q !== term) return;
-          render(
-            '<div class="predictive-search__empty"><p class="predictive-search__status"></p></div>',
-          );
-          results.querySelector('.predictive-search__status').textContent = SEARCH_UNAVAILABLE;
-          setStatus(SEARCH_UNAVAILABLE);
+          controller = null;
+          showError();
         });
+    }
+
+    /** Opens an option: popular/suggested terms search in place, links navigate. */
+    function activate(option) {
+      var searchTerm = option.getAttribute('data-search-term');
+      if (searchTerm !== null) {
+        input.value = searchTerm;
+        fetchResults(searchTerm);
+        focusElement(input);
+        return;
+      }
+      var link = option.querySelector('a[href]');
+      if (link) navigate(link.href);
     }
 
     input.addEventListener('input', function () {
       window.clearTimeout(timer);
+      setActive(-1);
+      if (!input.value.trim()) {
+        fetchResults('');
+        return;
+      }
       timer = window.setTimeout(function () {
         fetchResults(input.value);
       }, PREDICTIVE_DEBOUNCE);
     });
 
+    input.addEventListener('keydown', function (event) {
+      if (event.isComposing) return;
+      var options = getOptions();
+      switch (event.key) {
+        case 'ArrowDown':
+          if (!options.length) return;
+          event.preventDefault();
+          setActive(activeIndex + 1 >= options.length ? 0 : activeIndex + 1);
+          break;
+        case 'ArrowUp':
+          if (!options.length) return;
+          event.preventDefault();
+          if (activeIndex === -1) setActive(options.length - 1);
+          else setActive(activeIndex - 1);
+          break;
+        case 'Enter':
+          event.preventDefault();
+          if (activeIndex >= 0 && options[activeIndex]) {
+            activate(options[activeIndex]);
+          } else {
+            window.clearTimeout(timer);
+            goToSearch();
+          }
+          break;
+        case 'Escape':
+          if (activeIndex >= 0) {
+            event.preventDefault();
+            event.stopPropagation();
+            setActive(-1);
+          } else if (input.value) {
+            event.preventDefault();
+            event.stopPropagation();
+            reset();
+          }
+          // Otherwise the drawer's own Escape handler closes it.
+          break;
+        default:
+      }
+    });
+
     input.addEventListener('focus', function () {
       var value = input.value.trim();
-      if (value === term && (value === '' || results.children.length > 1)) return;
-      fetchResults(input.value);
+      if (value && value !== term) fetchResults(value);
+    });
+
+    input.addEventListener('blur', function () {
+      setActive(-1);
     });
 
     if (form) {
       form.addEventListener('submit', function (event) {
         event.preventDefault();
         event.stopPropagation();
-        if (input.value.trim()) goToSearch();
+        goToSearch();
       });
     }
 
@@ -679,11 +875,50 @@
       });
     }
 
-    results.addEventListener('click', function (event) {
+    // Keep focus in the input when pointing at options.
+    panels.addEventListener('mousedown', function (event) {
+      if (event.target.closest('[role="option"]')) event.preventDefault();
+    });
+
+    panels.addEventListener('click', function (event) {
+      var option = event.target.closest('[role="option"]');
+      if (option && option.hasAttribute('data-search-term')) {
+        event.preventDefault();
+        activate(option);
+        return;
+      }
       var link = event.target.closest('a[href]');
       if (!link) return;
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       closeSearch();
     });
+
+    document.addEventListener('theme:drawer:open', function (event) {
+      if (!event.detail || event.detail.name !== 'search') return;
+      if (!input.value.trim()) showInitial();
+      syncCombobox();
+      // theme.js focuses the close button once the drawer is visible; move
+      // focus on to the search field as soon as that has happened.
+      var dialog = input.closest('[role="dialog"]') || overlay;
+      var attempts = 0;
+      (function focusInput() {
+        var active = document.activeElement;
+        if (active === input) return;
+        if (dialog && dialog.contains(active)) {
+          focusElement(input);
+          return;
+        }
+        if (attempts++ < 20) requestAnimationFrame(focusInput);
+      })();
+    });
+
+    document.addEventListener('theme:drawer:close', function (event) {
+      if (!event.detail || event.detail.name !== 'search') return;
+      setActive(-1);
+      input.setAttribute('aria-expanded', 'false');
+    });
+
+    syncCombobox();
   }
 
   /* ---------- boot ---------- */

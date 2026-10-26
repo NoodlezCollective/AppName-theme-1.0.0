@@ -1,9 +1,24 @@
 {%- comment -%}
-  Search drawer in the Somna drawer look: pill search field with the
-  predictive search results below. Results are rendered into
-  [data-predictive-results] by assets/collection.js (collection/search task)
-  from sections/predictive-search.
+  Search drawer: pill search field implementing the ARIA combobox pattern.
+  - Before typing: [data-ps-initial] shows "Popular searches" chips and a
+    "Bestsellers" list (server-rendered here).
+  - While typing: assets/collection.js (initPredictive) fetches
+    sections/predictive-search (snippets/predictive-results) into [data-ps-live].
+  Both panels hold a role="listbox"; the input's aria-controls points at the
+  visible one. Styles: assets/somna-search.css.
 {%- endcomment -%}
+{{ 'somna-search.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign popular_terms = section.settings.popular_searches | split: ','
+  assign bestsellers = section.settings.bestsellers_collection
+  if bestsellers == blank
+    assign bestsellers = collections['most-loved']
+  endif
+  if bestsellers == blank or bestsellers.products_count == 0
+    assign bestsellers = collections.all
+  endif
+  assign shop_all_href = bestsellers.url | default: routes.all_products_collection_url
+-%}
 <div aria-hidden="true" class="overlay sc-overlay" data-drawer="search" data-section-id="{{ section.id }}">
   <button class="close-outside" aria-label="Close search" tabindex="-1" data-drawer-close></button>
   <aside class="drawer sc-drawer sc-drawer--search" role="dialog" aria-modal="true" aria-labelledby="search-drawer-title">
@@ -12,16 +27,72 @@
       <button type="button" class="drawer__close sc-drawer__close" aria-label="Close search" data-drawer-close>{% render 'somna-icon', name: 'close', size: 20 %}</button>
     </div>
     <div class="sc-drawer__body sc-search">
-      <div class="predictive-search" data-predictive-search>
+      <div class="predictive-search ss" data-predictive-search>
         <form method="get" action="{{ routes.search_url }}" class="predictive-search-form" data-predictive-search-form role="search">
-          <div class="predictive-search__field">
+          <input type="hidden" name="type" value="product">
+          <div class="predictive-search__field ss-field">
             <label class="s-sr" for="predictive-search-input">Search products</label>
             {%- render 'somna-icon', name: 'search', size: 20, class: 'predictive-search__icon' -%}
-            <input id="predictive-search-input" name="q" placeholder="{{ section.settings.placeholder | escape }}" type="search" list="predictive-search-queries" autocomplete="off" data-predictive-search-input>
+            <input
+              id="predictive-search-input"
+              name="q"
+              type="search"
+              placeholder="{{ section.settings.placeholder | escape }}"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              enterkeyhint="search"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded="false"
+              aria-controls="predictive-search-listbox-initial"
+              aria-haspopup="listbox"
+              aria-describedby="predictive-search-hint"
+              data-predictive-search-input
+            >
+            <span class="ss-spinner" aria-hidden="true" data-ps-spinner></span>
             <button class="s-btn s-btn--sm" type="button" data-predictive-search-submit>Search</button>
           </div>
+          <p id="predictive-search-hint" class="s-sr">Use the up and down arrow keys to browse suggestions, Enter to open one, Escape to clear.</p>
         </form>
-        <div data-predictive-results><div class="s-sr" aria-live="polite" aria-atomic="true"></div></div>
+
+        <div class="ss-panels" data-predictive-results>
+          <div class="ss-panel ss-panel--initial" data-ps-initial>
+            <div class="ss-listbox" id="predictive-search-listbox-initial" role="listbox" aria-label="Popular searches and bestsellers">
+              {%- if popular_terms.size > 0 -%}
+                <ul class="ss-group ss-group--chips" role="group" aria-labelledby="ps-h-popular">
+                  <li class="ss-group__heading" id="ps-h-popular" role="presentation">{{ section.settings.popular_heading | escape }}</li>
+                  {%- for raw_term in popular_terms -%}
+                    {%- assign popular_term = raw_term | strip -%}
+                    {%- if popular_term != blank -%}
+                      <li class="ss-option ss-option--chip" role="option" id="ps-i-q-{{ forloop.index }}" aria-selected="false" data-search-term="{{ popular_term | escape }}">
+                        <span class="s-chip ss-chip">{% render 'somna-icon', name: 'search', size: 14, class: 'ss-chip__icon' %}<span>{{ popular_term | escape }}</span></span>
+                      </li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+              {%- if section.settings.show_bestsellers and bestsellers.products.size > 0 -%}
+                <ul class="ss-group ss-group--products" role="group" aria-labelledby="ps-h-bestsellers">
+                  <li class="ss-group__heading" id="ps-h-bestsellers" role="presentation">{{ section.settings.bestsellers_heading | escape }}</li>
+                  {%- for product in bestsellers.products limit: 4 -%}
+                    {%- assign option_id = 'ps-i-p-' | append: forloop.index -%}
+                    {%- render 'somna-search-card', product: product, id: option_id, term: blank -%}
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+            </div>
+            {%- if section.settings.show_bestsellers -%}
+              <a class="s-btn s-btn--md s-btn--lavender s-btn--block ss-all" href="{{ shop_all_href }}">Shop all bestsellers</a>
+            {%- endif -%}
+          </div>
+          <div class="ss-panel ss-panel--live" data-ps-live hidden></div>
+          <div class="ss-loading" data-ps-loading hidden aria-hidden="true">
+            <span class="ss-skel"></span><span class="ss-skel"></span><span class="ss-skel"></span>
+          </div>
+        </div>
+        <div class="s-sr" role="status" aria-live="polite" aria-atomic="true" data-ps-status></div>
       </div>
     </div>
   </aside>
@@ -39,6 +110,41 @@
       "id": "placeholder",
       "label": "Placeholder",
       "default": "Search pillows, comforters, bundles…"
+    },
+    {
+      "type": "header",
+      "content": "Before typing"
+    },
+    {
+      "type": "text",
+      "id": "popular_heading",
+      "label": "Popular searches heading",
+      "default": "Popular searches"
+    },
+    {
+      "type": "text",
+      "id": "popular_searches",
+      "label": "Popular searches",
+      "info": "Comma-separated search terms shown as chips.",
+      "default": "cooling comforter, pillow, side sleeper, bundle, sleep mask"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bestsellers",
+      "label": "Show bestsellers",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "bestsellers_heading",
+      "label": "Bestsellers heading",
+      "default": "Bestsellers"
+    },
+    {
+      "type": "collection",
+      "id": "bestsellers_collection",
+      "label": "Bestsellers collection",
+      "info": "Up to 4 products. Defaults to the \"most-loved\" collection, then all products."
     }
   ]
 }

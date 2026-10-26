@@ -1,0 +1,52 @@
+{%- comment -%}
+  One product option in the search drawer listbox (bestsellers and live
+  predictive results share this markup). Styles: assets/somna-search.css.
+  {% render 'somna-search-card', product: product, id: 'ps-p-1', term: 'pillow' %}
+  - id: unique option id (aria-activedescendant target)
+  - term: typed search term; matching words in the title are wrapped in <strong>
+{%- endcomment -%}
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign thumb = variant.image | default: product.featured_image
+  assign price = variant.price | default: product.price
+  assign compare_at = variant.compare_at_price | default: 0
+  assign on_sale = false
+  if compare_at > price
+    assign on_sale = true
+    assign saving = compare_at | minus: price
+  endif
+  assign product_href = product.url
+  if term != blank
+    assign term_param = term | url_param_escape
+    assign product_href = product.url | append: '?q=' | append: term_param
+  endif
+  assign title = product.title | escape
+  if term != blank
+    assign title = title | highlight: term
+  endif
+  assign meta = product.type | default: product.vendor
+  assign placeholder_label = product.type | default: 'Somna' | truncate: 12, ''
+-%}
+<li class="ss-option ss-option--product" role="option" id="{{ id }}" aria-selected="false">
+  <a class="ss-card" href="{{ product_href }}" tabindex="-1">
+    <span class="ss-card__media" aria-hidden="true">
+      {%- if thumb -%}
+        {{ thumb | image_url: width: 192, height: 192, crop: 'center' | image_tag: widths: '64, 128, 192', sizes: '64px', loading: 'lazy', decoding: 'async', alt: '', width: 64, height: 64 }}
+      {%- else -%}
+        <span class="ss-card__ph">{% render 'somna-icon', name: 'moon', size: 18 %}<span>{{ placeholder_label | escape }}</span></span>
+      {%- endif -%}
+    </span>
+    <span class="ss-card__body">
+      <span class="ss-card__title">{{ title }}</span>
+      {%- if meta != blank -%}<span class="ss-card__meta">{{ meta | escape }}</span>{%- endif -%}
+      <span class="s-price ss-price">
+        <span class="s-price__now">{{ price | money }}</span>
+        {%- if on_sale -%}
+          <s class="s-price__was"><span class="s-sr">Regular price </span>{{ compare_at | money_without_trailing_zeros }}</s>
+          <span class="s-save">Save {{ saving | money_without_trailing_zeros }}</span>
+        {%- endif -%}
+        {%- unless product.available -%}<span class="ss-soldout">Sold out</span>{%- endunless -%}
+      </span>
+    </span>
+  </a>
+</li>

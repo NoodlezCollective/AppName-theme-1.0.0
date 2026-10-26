@@ -1,47 +1,62 @@
 {%- comment -%}
-  Predictive search results for the search drawer
-  (app/components/SearchResultsPredictive.tsx + PageLayout.tsx SearchAside).
-  {% render 'predictive-results', products: predictive_search.products, term: predictive_search.terms %}
+  Live predictive search results for the search drawer combobox.
+  {% render 'predictive-results', products: products, collections: collections, queries: queries, term: term %}
   Rendered by sections/predictive-search.liquid through the Section Rendering
-  API; collection.js injects the output into `[data-predictive-results]`.
+  API; assets/collection.js (initPredictive) injects it into
+  [data-ps-live]. Every selectable row is a role="option" inside the
+  #predictive-search-listbox listbox; the "View all" link sits outside it so
+  it stays in the Tab order. Styles: assets/somna-search.css.
 {%- endcomment -%}
 {%- liquid
   assign term = term | strip
   assign term_param = term | url_param_escape
   assign search_href = routes.search_url | append: '?q=' | append: term_param | append: '&type=product'
+  assign total = products.size | plus: collections.size
 -%}
-{%- if products.size > 0 -%}
-  <section class="predictive-search-result" aria-labelledby="predictive-search-products-heading">
-    <h4 id="predictive-search-products-heading" class="eyebrow predictive-search-result__heading">Products</h4>
-    <ul class="predictive-search-result__list">
-      {%- for product in products -%}
-        {%- liquid
-          assign variant = product.selected_or_first_available_variant
-          assign thumb = variant.image | default: product.featured_image
-          assign product_href = product.url | append: '?q=' | append: term_param
-        -%}
-        <li class="predictive-search-result-item">
-          <a class="predictive-search-result-item__link" href="{{ product_href }}" data-predictive-link>
-            <span class="predictive-search-result-item__media" aria-hidden="true">
-              {%- if thumb -%}
-                {{ thumb | image_url: width: 168, height: 168, crop: 'center' | image_tag: widths: '56, 112, 168', sizes: '56px', loading: 'lazy', decoding: 'async', alt: '', width: 56, height: 56, style: 'width:100%;aspect-ratio:1/1' }}
-              {%- endif -%}
-            </span>
-            <span class="predictive-search-result-item__body">
-              <span class="predictive-search-result-item__title">{{ product.title | escape }}</span>
-              {%- if variant -%}{%- render 'price', price: variant.price, compare_at_price: variant.compare_at_price, size: 'sm' -%}{%- endif -%}
-            </span>
-          </a>
-        </li>
-      {%- endfor -%}
-    </ul>
-  </section>
-  {%- if term != blank -%}
-    <a class="btn btn--outline btn--md btn--block" href="{{ search_href }}" data-predictive-link><span class="btn__label">View all results for “{{ term | escape }}”</span></a>
+<div class="ss-results" data-ps-payload data-count="{{ total }}">
+  {%- if products.size > 0 or collections.size > 0 or queries.size > 0 -%}
+    <div class="ss-listbox" id="predictive-search-listbox" role="listbox" aria-label="Search suggestions">
+      {%- if queries.size > 0 -%}
+        <ul class="ss-group ss-group--queries" role="group" aria-labelledby="ps-h-queries">
+          <li class="ss-group__heading" id="ps-h-queries" role="presentation">Suggestions</li>
+          {%- for query in queries limit: 4 -%}
+            <li class="ss-option ss-option--query" role="option" id="ps-q-{{ forloop.index }}" aria-selected="false">
+              <a class="ss-query" href="{{ query.url }}" tabindex="-1">
+                {%- render 'somna-icon', name: 'search', size: 16, class: 'ss-query__icon' -%}
+                <span class="ss-query__text">{{ query.styled_text }}</span>
+                {%- render 'somna-icon', name: 'arrow-right', size: 16, class: 'ss-query__go' -%}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+      {%- if collections.size > 0 -%}
+        <ul class="ss-group ss-group--chips" role="group" aria-labelledby="ps-h-collections">
+          <li class="ss-group__heading" id="ps-h-collections" role="presentation">Collections</li>
+          {%- for collection in collections limit: 4 -%}
+            <li class="ss-option ss-option--chip" role="option" id="ps-c-{{ forloop.index }}" aria-selected="false">
+              <a class="s-chip ss-chip" href="{{ collection.url }}" tabindex="-1"><span>{{ collection.title | escape | highlight: term }}</span></a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+      {%- if products.size > 0 -%}
+        <ul class="ss-group ss-group--products" role="group" aria-labelledby="ps-h-products">
+          <li class="ss-group__heading" id="ps-h-products" role="presentation">Products</li>
+          {%- for product in products limit: 6 -%}
+            {%- assign option_id = 'ps-p-' | append: forloop.index -%}
+            {%- render 'somna-search-card', product: product, id: option_id, term: term -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  {%- else -%}
+    <div class="ss-empty">
+      <p class="ss-empty__title">No results for “{{ term | escape }}”</p>
+      <p class="ss-empty__hint">Check the spelling, or try a broader word like “pillow”, “comforter” or “bundle”.</p>
+    </div>
   {%- endif -%}
-{%- elsif term != blank -%}
-  <div class="predictive-search__empty">
-    <p class="predictive-search__status">No results for <q>{{ term | escape }}</q></p>
-    <p class="predictive-search__hint">Try a different spelling or search for “pillow”, “comforter” or “bundle”.</p>
-  </div>
-{%- endif -%}
+  {%- if term != blank -%}
+    <a class="s-btn s-btn--md s-btn--block ss-all" href="{{ search_href }}" data-ps-view-all>View all results for “{{ term | escape }}”</a>
+  {%- endif -%}
+</div>

@@ -646,7 +646,7 @@
       var form = searchButton.closest('form');
       var input = form && qs('[data-predictive-search-input], input[name="q"]', form);
       var term = input ? input.value.trim() : '';
-      window.location.href = (routes.search || '/search') + (term ? '?q=' + encodeURIComponent(term) : '');
+      window.location.href = (routes.search || '/search') + (term ? '?q=' + encodeURIComponent(term) + '&type=product' : '');
       return;
     }
 
