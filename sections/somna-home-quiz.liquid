@@ -1,0 +1,109 @@
+{%- comment -%}
+  Somna sleep quiz (design: Main / SLEEP QUIZ). Blocks: a "Question" starts a
+  step; the "Answer" blocks after it are that step's options (pill radio
+  buttons, first one preselected). Continue advances; on the last step it goes
+  to the chosen answer's link (else the latest earlier answer's link, else the
+  section's results link). Without JavaScript, Continue goes to the results link.
+  Interaction: assets/somna-home.js.
+{%- endcomment -%}
+{{ 'somna-home.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign brand = settings.brand_name
+  assign eyebrow = section.settings.eyebrow | replace: '{AppName}', brand
+  assign heading = section.settings.heading | replace: '{AppName}', brand
+  assign body = section.settings.body | replace: '{AppName}', brand
+  assign results_url = section.settings.results_url | default: routes.all_products_collection_url
+  assign questions = section.blocks | where: 'type', 'question'
+  assign total = questions.size
+  assign anchor = section.settings.anchor | strip | handleize
+-%}
+<section class="sh sh-quiz"{% if anchor != blank %} id="{{ anchor }}"{% endif %} aria-labelledby="SomnaQuizTitle-{{ section.id }}">
+  <div class="sh-inner sh-quiz__inner">
+    <div class="sh-quiz__intro">
+      {%- if eyebrow != blank -%}<span class="s-eyebrow">{{ eyebrow }}</span>{%- endif -%}
+      <h2 id="SomnaQuizTitle-{{ section.id }}" class="s-h2">{{ heading }}</h2>
+      {%- if body != blank -%}<p class="s-text">{{ body }}</p>{%- endif -%}
+    </div>
+    <div class="sh-quiz__form" data-sh-quiz>
+      {%- for question in questions -%}
+        {%- assign step = forloop.index -%}
+        {%- assign q_id = 'SomnaQuizQ-' | append: section.id | append: '-' | append: step -%}
+        <div class="sh-quiz__step" data-sh-quiz-step data-block-id="{{ question.id }}"{% if step > 1 %} hidden{% endif %} {{ question.shopify_attributes }}>
+          <span id="{{ q_id }}" class="sh-quiz__q">{{ step }} of {{ total }} · {{ question.settings.question | replace: '{AppName}', brand }}</span>
+          <div class="sh-quiz__opts" role="radiogroup" aria-labelledby="{{ q_id }}">
+            {%- assign qi = 0 -%}
+            {%- assign first_in_step = true -%}
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'question' -%}
+                {%- assign qi = qi | plus: 1 -%}
+              {%- elsif qi == step -%}
+                <button type="button" class="s-chip sh-quiz__opt" role="radio" aria-checked="{% if first_in_step %}true{% else %}false{% endif %}" tabindex="{% if first_in_step %}0{% else %}-1{% endif %}" data-sh-quiz-option data-value="{{ block.settings.label | handleize }}"{% if block.settings.url != blank %} data-url="{{ block.settings.url }}"{% endif %} {{ block.shopify_attributes }}>
+                  {{- block.settings.label | replace: '{AppName}', brand -}}
+                </button>
+                {%- assign first_in_step = false -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endfor -%}
+      <a class="s-btn" href="{{ results_url }}" data-sh-quiz-next data-results-url="{{ results_url }}" data-label="{{ section.settings.continue_label | escape }}" data-finish-label="{{ section.settings.finish_label | escape }}">
+        {%- if total > 1 -%}{{ section.settings.continue_label }}{%- else -%}{{ section.settings.finish_label | default: section.settings.continue_label }}{%- endif -%}
+      </a>
+    </div>
+  </div>
+</section>
+<script src="{{ 'somna-home.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Somna sleep quiz",
+  "max_blocks": 50,
+  "settings": [
+    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "60-second sleep quiz"},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "Not Sure Where to Start?"},
+    {"type": "textarea", "id": "body", "label": "Text", "default": "Tell us how you sleep and we'll match you with the right pillow height and comforter warmth."},
+    {"type": "text", "id": "continue_label", "label": "Continue button label", "default": "Continue"},
+    {"type": "text", "id": "finish_label", "label": "Last step button label", "default": "Continue", "info": "Shown on the last question."},
+    {"type": "url", "id": "results_url", "label": "Results link", "default": "/collections/all", "info": "Used when the chosen answers have no link of their own."},
+    {"type": "text", "id": "anchor", "label": "Anchor id", "default": "quiz", "info": "The hero's \"Find My Match\" button scrolls to #quiz."}
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {"type": "text", "id": "question", "label": "Question", "default": "How do you usually sleep?"},
+        {"type": "paragraph", "content": "Add Answer blocks after this question."}
+      ]
+    },
+    {
+      "type": "answer",
+      "name": "Answer",
+      "settings": [
+        {"type": "text", "id": "label", "label": "Label", "default": "On my side"},
+        {"type": "url", "id": "url", "label": "Link", "info": "Where Continue goes when this answer is chosen on the last step."}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Somna sleep quiz",
+      "blocks": [
+        {"type": "question", "settings": {"question": "How do you usually sleep?"}},
+        {"type": "answer", "settings": {"label": "On my side"}},
+        {"type": "answer", "settings": {"label": "On my back"}},
+        {"type": "answer", "settings": {"label": "On my stomach"}},
+        {"type": "answer", "settings": {"label": "A bit of everything"}},
+        {"type": "question", "settings": {"question": "Do you sleep hot or cold?"}},
+        {"type": "answer", "settings": {"label": "I run hot"}},
+        {"type": "answer", "settings": {"label": "I get cold"}},
+        {"type": "answer", "settings": {"label": "Somewhere in between"}},
+        {"type": "question", "settings": {"question": "What are you shopping for?"}},
+        {"type": "answer", "settings": {"label": "A pillow"}},
+        {"type": "answer", "settings": {"label": "A comforter"}},
+        {"type": "answer", "settings": {"label": "The full sleep stack"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

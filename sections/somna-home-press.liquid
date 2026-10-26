@@ -1,0 +1,60 @@
+{%- comment -%}
+  Somna press marquee (design: Main / PRESS BAR). The list renders twice so the
+  track loops seamlessly; the copy is hidden from assistive tech. Each block is
+  an outlet name, or a logo image (shown in white on the indigo band).
+{%- endcomment -%}
+{{ 'somna-home.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign brand = settings.brand_name
+  assign label = section.settings.label | replace: '{AppName}', brand
+-%}
+{%- if section.blocks.size > 0 -%}
+  <section class="sh s-marquee" aria-label="{{ label | escape }}">
+    <div class="s-marquee__track" style="animation-duration: {{ section.settings.speed }}s;">
+      {%- for pass in (1..2) -%}
+        <ul class="s-marquee__list"{% if pass == 2 %} aria-hidden="true"{% else %} aria-hidden="false"{% endif %}>
+          {%- for block in section.blocks -%}
+            {%- assign name = block.settings.name | replace: '{AppName}', brand -%}
+            <li{% if pass == 1 %} {{ block.shopify_attributes }}{% endif %}>
+              {%- if block.settings.logo != blank -%}
+                {{ block.settings.logo | image_url: height: 56 | image_tag: height: 28, alt: name, loading: 'lazy' }}
+              {%- else -%}
+                {{ name }}
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Somna press marquee",
+  "max_blocks": 16,
+  "settings": [
+    {"type": "text", "id": "label", "label": "Accessible label", "default": "As featured in"},
+    {"type": "range", "id": "speed", "label": "Loop duration", "min": 10, "max": 90, "step": 5, "unit": "s", "default": 35}
+  ],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Press outlet",
+      "settings": [
+        {"type": "text", "id": "name", "label": "Name", "default": "[Press outlet]"},
+        {"type": "image_picker", "id": "logo", "label": "Logo", "info": "Optional. Shown 28px tall; use a white or transparent logo."}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Somna press marquee",
+      "blocks": [
+        {"type": "logo"}, {"type": "logo"}, {"type": "logo"}, {"type": "logo"},
+        {"type": "logo"}, {"type": "logo"}, {"type": "logo"}, {"type": "logo"}
+      ]
+    }
+  ]
+}
+{% endschema %}

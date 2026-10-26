@@ -1,0 +1,61 @@
+{%- comment -%}
+  Somna FAQ (design: Main / FAQ). Native <details>/<summary> accordion
+  (.s-faq in assets/somna.css); items flagged "Open by default" start open.
+{%- endcomment -%}
+{{ 'somna-home.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign brand = settings.brand_name
+  assign heading = section.settings.heading | replace: '{AppName}', brand
+  assign link_label = section.settings.link_label | replace: '{AppName}', brand
+  assign link_url = section.settings.link_url | default: pages.support.url | default: '/pages/support'
+-%}
+<section class="sh s-section" aria-labelledby="SomnaFaqTitle-{{ section.id }}">
+  <div class="s-wrap s-wrap--760 sh-faq__inner">
+    <h2 id="SomnaFaqTitle-{{ section.id }}" class="s-h2">{{ heading }}</h2>
+    {%- if section.blocks.size > 0 -%}
+      <div class="s-faq">
+        {%- for block in section.blocks -%}
+          <details class="s-faq__item"{% if block.settings.open %} open{% endif %} {{ block.shopify_attributes }}>
+            <summary class="s-faq__q">{{ block.settings.question | replace: '{AppName}', brand }}<span class="s-faq__icon" aria-hidden="true"></span></summary>
+            <div class="s-faq__a">{{ block.settings.answer | replace: '{AppName}', brand }}</div>
+          </details>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+    {%- if link_label != blank -%}<a class="sh-faq__more" href="{{ link_url }}">{{ link_label }}</a>{%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Somna FAQ",
+  "max_blocks": 20,
+  "settings": [
+    {"type": "text", "id": "heading", "label": "Heading", "default": "Questions, Answered"},
+    {"type": "text", "id": "link_label", "label": "Link label", "default": "Visit the Help Center"},
+    {"type": "url", "id": "link_url", "label": "Link", "info": "Blank links to the page with the handle \"support\"."}
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Question",
+      "settings": [
+        {"type": "text", "id": "question", "label": "Question", "default": "How does the [100]-night trial work?"},
+        {"type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Sleep on it for up to [100] nights. If it isn’t right, contact us and we’ll arrange a free return and a full refund. No restocking fees.</p>"},
+        {"type": "checkbox", "id": "open", "label": "Open by default", "default": false}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Somna FAQ",
+      "blocks": [
+        {"type": "item", "settings": {"question": "How does the [100]-night trial work?", "answer": "<p>Sleep on it for up to [100] nights. If it isn’t right, contact us and we’ll arrange a free return and a full refund. No restocking fees.</p>", "open": true}},
+        {"type": "item", "settings": {"question": "Which pillow is right for me?", "answer": "<p>Side sleepers usually need more loft, back sleepers medium, stomach sleepers low. Take the 60-second quiz above and we’ll match you.</p>"}},
+        {"type": "item", "settings": {"question": "Can I machine wash my comforter?", "answer": "<p>Yes. Wash cold on a gentle cycle and tumble dry low. Full care instructions are on each product page.</p>"}},
+        {"type": "item", "settings": {"question": "When will my order arrive?", "answer": "<p>Orders ship within [1–2] business days and arrive in [3–7] business days in the [US]. You’ll get tracking by email.</p>"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

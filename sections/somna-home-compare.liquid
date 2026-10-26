@@ -1,0 +1,89 @@
+{%- comment -%}
+  Somna comparison table (design: Main / COMPARISON). Rows are blocks; the
+  brand column shows a check (with "Yes" for screen readers) unless a row gives
+  its own text. The brand column heading is the brand name as a lowercase
+  wordmark ({AppName} -> "somna").
+{%- endcomment -%}
+{{ 'somna-home.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign brand = settings.brand_name
+  assign brand_lower = brand | downcase
+  assign eyebrow = section.settings.eyebrow | replace: '{AppName}', brand
+  assign heading = section.settings.heading | replace: '{AppName}', brand
+  assign col_feature = section.settings.col_feature | replace: '{AppName}', brand
+  assign col_brand = section.settings.col_brand | replace: '{AppName}', brand_lower
+  assign col_other = section.settings.col_other | replace: '{AppName}', brand
+-%}
+<section class="sh s-section s-bg-soft" aria-labelledby="SomnaCompareTitle-{{ section.id }}">
+  <div class="s-wrap s-wrap--960 sh-stack-40">
+    <div class="sh-head-center">
+      {%- if eyebrow != blank -%}<span class="s-eyebrow">{{ eyebrow }}</span>{%- endif -%}
+      <h2 id="SomnaCompareTitle-{{ section.id }}" class="s-h2">{{ heading }}</h2>
+    </div>
+    {%- if section.blocks.size > 0 -%}
+      <div class="sh-compare__box">
+        <table class="sh-compare__table">
+          <thead>
+            <tr>
+              <th scope="col">{{ col_feature }}</th>
+              <th scope="col" class="sh-compare__brand">{{ col_brand }}</th>
+              <th scope="col">{{ col_other }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for block in section.blocks -%}
+              <tr {{ block.shopify_attributes }}>
+                <th scope="row">{{ block.settings.label | replace: '{AppName}', brand }}</th>
+                <td class="sh-compare__yes">
+                  {%- if block.settings.brand_value != blank -%}
+                    {{ block.settings.brand_value | replace: '{AppName}', brand }}
+                  {%- else -%}
+                    {%- render 'somna-icon', name: 'check', size: 22, stroke_width: 2.25 -%}<span class="s-sr">Yes</span>
+                  {%- endif -%}
+                </td>
+                <td>{{ block.settings.other_value | replace: '{AppName}', brand }}</td>
+              </tr>
+            {%- endfor -%}
+          </tbody>
+        </table>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Somna comparison",
+  "max_blocks": 12,
+  "settings": [
+    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The {AppName} difference"},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "{AppName} vs. Ordinary Bedding"},
+    {"type": "text", "id": "col_feature", "label": "First column heading", "default": "What matters"},
+    {"type": "text", "id": "col_brand", "label": "Brand column heading", "default": "{AppName}.", "info": "{AppName} is shown in lowercase here, as a wordmark."},
+    {"type": "text", "id": "col_other", "label": "Comparison column heading", "default": "Ordinary bedding"}
+  ],
+  "blocks": [
+    {
+      "type": "row",
+      "name": "Row",
+      "settings": [
+        {"type": "text", "id": "label", "label": "What matters", "default": "Breathable, cooling cover"},
+        {"type": "text", "id": "brand_value", "label": "Brand column text", "info": "Blank shows a check mark."},
+        {"type": "text", "id": "other_value", "label": "Comparison column text", "default": "Sometimes"}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Somna comparison",
+      "blocks": [
+        {"type": "row", "settings": {"label": "Breathable, cooling cover", "other_value": "Sometimes"}},
+        {"type": "row", "settings": {"label": "Machine washable", "other_value": "Rarely"}},
+        {"type": "row", "settings": {"label": "[100]-night home trial", "other_value": "—"}},
+        {"type": "row", "settings": {"label": "[Lifetime] warranty", "other_value": "—"}},
+        {"type": "row", "settings": {"label": "Free returns", "other_value": "Varies"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,163 @@
+/* ===== Somna homepage sections (sections/somna-home-*.liquid) =====
+ * Values copied from the Somna design canvas (Main). Shared tokens and
+ * primitives come from assets/somna.css; everything here is scoped under .sh.
+ */
+.sh a, .sh a:hover { text-decoration: none; }
+.sh .s-icon { display: block; flex: 0 0 auto; }
+.sh-inner { max-width: 1400px; margin: 0 auto; box-sizing: border-box; }
+.sh-stack-40 { display: flex; flex-direction: column; gap: 40px; }
+.sh-head-center { display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center; }
+.sh .s-ph__brief { display: block; }
+.sh-ph-sm.s-ph { gap: 8px; font-size: 13px; }
+.sh-ph-sm.s-ph .s-icon { width: 28px; height: 28px; }
+
+/* Shared dark play button (brand film + UGC) */
+.sh-play {
+  width: 72px; height: 72px; border-radius: 999px; border: 0; padding: 0; background: var(--s-white);
+  display: flex; align-items: center; justify-content: center; box-shadow: var(--s-shadow); cursor: pointer;
+  color: var(--s-indigo); flex: 0 0 auto; transition: transform 150ms ease;
+}
+.sh-play:hover { transform: scale(1.05); }
+.sh-play--sm { width: 60px; height: 60px; box-shadow: none; }
+
+/* ---------- Hero ---------- */
+.sh-hero { background: var(--s-soft); }
+.sh-hero__inner { padding: 64px var(--s-pad-x); display: flex; flex-wrap: wrap; align-items: center; gap: 48px; }
+.sh-hero__copy { flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+.sh-hero__rating {
+  align-self: flex-start; display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  background: var(--s-mist); border-radius: 999px; padding: 8px 16px; font-size: 14px; color: var(--s-ink);
+}
+.sh-hero__rating strong { font-weight: 600; }
+.sh .sh-hero__title {
+  margin: 0; font-family: var(--s-font-display); font-weight: 500; font-size: 40px; line-height: 1.15;
+  letter-spacing: -0.015em; color: var(--s-ink); text-wrap: balance; max-width: 620px;
+}
+.sh-hero__sub { margin: 0; font-size: 18px; line-height: 1.6; font-weight: 500; letter-spacing: 0.02em; color: var(--s-muted); max-width: 540px; }
+.sh-hero__ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+.sh-hero__ctas .sh-btn-px32 { padding: 0 32px; }
+.sh-hero__trust { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 28px; font-size: 14px; color: var(--s-ink); }
+.sh-hero__trust li { display: flex; align-items: center; gap: 8px; }
+.sh-hero__trust .s-icon { color: var(--s-dusk); }
+.sh-hero__media { flex: 1 1 520px; min-width: 0; position: relative; }
+.sh-hero__media .s-ph__brief { max-width: 360px; }
+.sh-hero__review {
+  position: absolute; left: 24px; bottom: -28px; max-width: 320px; background: var(--s-white); border-radius: 20px;
+  padding: 18px 20px; box-shadow: var(--s-shadow); display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;
+}
+.sh-hero__review p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--s-ink); }
+.sh-hero__review-by { font-size: 12px; color: var(--s-muted); }
+
+/* ---------- Bestsellers ---------- */
+.sh-products__all { color: var(--s-indigo); }
+
+/* ---------- Free gift ---------- */
+.sh-gift { padding: 0 var(--s-pad-x); }
+.sh-gift__inner {
+  background: var(--s-peach-tint); border-radius: 28px; padding: 40px clamp(24px, 4vw, 56px);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 32px;
+}
+.sh-gift__icon { width: 72px; height: 72px; border-radius: 999px; background: var(--s-white); display: flex; align-items: center; justify-content: center; color: var(--s-peach-deep); flex: 0 0 auto; }
+.sh-gift__text { flex: 1 1 380px; display: flex; flex-direction: column; gap: 8px; }
+.sh .sh-gift__title { margin: 0; font-family: var(--s-font-display); font-weight: 600; font-size: 26px; line-height: 1.2; letter-spacing: -0.01em; color: var(--s-indigo); }
+.sh-gift__text p { margin: 0; color: var(--s-muted); }
+.sh-gift__progress { flex: 1 1 280px; display: flex; flex-direction: column; gap: 8px; }
+.sh-gift__track { height: 12px; border-radius: 999px; background: var(--s-white); overflow: hidden; }
+.sh-gift__fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--s-amber), var(--s-peach-deep)); transition: width 400ms var(--s-ease); }
+.sh-gift__status { font-size: 14px; color: var(--s-ink); }
+
+/* ---------- Categories ---------- */
+.sh-cats__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.sh .sh-cat { display: flex; flex-direction: column; gap: 16px; color: var(--s-ink); }
+.sh-cat .s-ph__brief { max-width: 280px; }
+.sh-cat__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sh-cat__text { display: flex; flex-direction: column; gap: 4px; }
+.sh-cat__sub { font-size: 15px; color: var(--s-muted); }
+.sh-cat__arrow { width: 48px; height: 48px; border-radius: 999px; background: var(--s-lavender); color: var(--s-indigo); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; transition: background-color 150ms ease; }
+.sh-cat:hover .sh-cat__arrow { background: #d3d3fb; }
+
+/* ---------- Why Somna ---------- */
+.sh-why__inner { display: flex; flex-direction: column; gap: 48px; }
+.sh-why__top { display: flex; flex-wrap: wrap; gap: 48px; align-items: center; }
+.sh-why__copy { flex: 1 1 400px; display: flex; flex-direction: column; gap: 16px; }
+.sh-why__copy .s-btn { align-self: flex-start; }
+.sh-film {
+  flex: 1.3 1 520px; min-width: 0; position: relative; aspect-ratio: 16 / 9; border-radius: 28px; background: var(--s-dark);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--s-lavender);
+  text-align: center; padding: 24px; box-sizing: border-box; font-size: 14px; overflow: hidden;
+}
+.sh-film__code, .sh-ugc__code { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; }
+.sh-film__brief { max-width: 420px; }
+.sh-film > img, .sh-ugc__card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.sh-film > .sh-play, .sh-ugc__card > .sh-play { position: relative; z-index: 1; }
+.sh-film > video, .sh-film > iframe, .sh-ugc__card > video, .sh-ugc__card > iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; background: var(--s-dark); z-index: 2; }
+.sh-why__features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+.sh-feature { background: var(--s-white); border-radius: 20px; padding: 32px; display: flex; flex-direction: column; gap: 12px; }
+.sh-feature__icon { width: 52px; height: 52px; border-radius: 999px; background: var(--s-peach-tint); color: var(--s-peach-deep); display: flex; align-items: center; justify-content: center; }
+.sh-feature p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--s-muted); }
+
+/* ---------- Sleep quiz ---------- */
+.sh-quiz { padding: 96px var(--s-pad-x) 0; scroll-margin-top: 24px; }
+.sh-quiz__inner { background: var(--s-lavender); border-radius: 28px; padding: 56px clamp(24px, 4vw, 64px); display: flex; flex-wrap: wrap; gap: 40px; align-items: center; }
+.sh-quiz__intro { flex: 1 1 380px; display: flex; flex-direction: column; gap: 12px; }
+.sh-quiz__form { flex: 1 1 460px; display: flex; flex-direction: column; gap: 16px; }
+.sh-quiz__step { display: flex; flex-direction: column; gap: 16px; }
+.sh-quiz__step[hidden] { display: none; }
+.sh-quiz__q { font-size: 14px; font-weight: 600; color: var(--s-indigo); }
+.sh-quiz__opts { display: flex; flex-wrap: wrap; gap: 12px; }
+.sh .sh-quiz__opt { min-height: 48px; padding: 0 22px; font: 500 16px var(--s-font-body); letter-spacing: 0.02em; white-space: normal; }
+.sh-quiz__form > .s-btn { align-self: flex-start; }
+
+/* ---------- UGC videos ---------- */
+.sh-ugc__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
+.sh-ugc__item { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.sh-ugc__card {
+  position: relative; overflow: hidden; aspect-ratio: 3 / 5; border-radius: 20px; background: var(--s-dark);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 20px;
+  box-sizing: border-box; text-align: center; color: var(--s-lavender); font-size: 13px; line-height: 1.45;
+}
+.sh-ugc__item figcaption { font-size: 14px; color: var(--s-muted); }
+.sh .sh-ugc__product { color: var(--s-ink); font-weight: 500; }
+
+/* ---------- Proof ---------- */
+.sh-proof { padding: 0 var(--s-pad-x) 96px; }
+.sh-proof__inner { display: flex; flex-wrap: wrap; gap: 24px; }
+.sh-quote { flex: 1 1 460px; margin: 0; background: var(--s-peach-tint); border-radius: 20px; padding: 48px; display: flex; flex-direction: column; gap: 20px; box-sizing: border-box; }
+.sh-quote > .s-icon { color: var(--s-peach-deep); }
+.sh-quote blockquote { margin: 0; font-family: var(--s-font-display); font-size: 26px; font-weight: 500; line-height: 1.35; color: var(--s-ink); }
+.sh-quote figcaption { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+.sh-quote__avatar { width: 44px; height: 44px; border-radius: 999px; background: var(--s-white); display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--s-indigo); flex: 0 0 auto; overflow: hidden; }
+.sh-quote__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.sh-quote figcaption strong { font-weight: 600; }
+.sh-rings { flex: 1 1 460px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; list-style: none; margin: 0; padding: 0; }
+.sh-ring { background: var(--s-mist); border-radius: 20px; padding: 32px 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.sh-ring__dial { position: relative; width: 120px; height: 120px; }
+.sh-ring__value { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--s-font-display); font-size: 28px; font-weight: 700; color: var(--s-indigo); }
+.sh-ring__label { font-size: 15px; line-height: 1.45; color: var(--s-ink); }
+.sh-rings .s-note { grid-column: 1 / -1; }
+
+/* ---------- Comparison ---------- */
+.sh-compare__box { overflow-x: auto; background: var(--s-white); border-radius: 20px; }
+.sh-compare__table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 16px; color: var(--s-ink); }
+.sh-compare__table thead th { padding: 20px 28px; font-weight: 600; color: var(--s-muted); font-size: 14px; }
+.sh-compare__table thead th:first-child { text-align: left; }
+.sh-compare__table thead th.sh-compare__brand { background: var(--s-indigo); color: var(--s-white); font-family: var(--s-font-display); font-size: 20px; font-weight: 700; border-radius: 20px 20px 0 0; }
+.sh-compare__table tbody th { text-align: left; padding: 18px 28px; font-weight: 500; border-top: 1px solid var(--s-line); }
+.sh-compare__table tbody td { text-align: center; padding: 18px 28px; border-top: 1px solid var(--s-line); color: var(--s-subtle); }
+.sh-compare__table tbody td.sh-compare__yes { background: var(--s-soft); color: var(--s-success); }
+.sh-compare__yes .s-icon { display: inline-block; vertical-align: middle; }
+
+/* ---------- FAQ ---------- */
+.sh-faq__inner { display: flex; flex-direction: column; gap: 32px; }
+.sh-faq__inner > .s-h2 { text-align: center; }
+.sh a.sh-faq__more, .sh a.sh-faq__more:hover { align-self: center; font-weight: 500; text-decoration: underline; }
+
+/* ---------- Closing CTA ---------- */
+.sh-cta { padding: 0 var(--s-pad-x) 96px; }
+.sh-cta__inner { display: flex; flex-wrap: wrap; align-items: stretch; background: var(--s-soft); border-radius: 28px; overflow: hidden; }
+.sh-cta__copy { flex: 1 1 440px; padding: 64px clamp(24px, 4vw, 64px); display: flex; flex-direction: column; gap: 18px; justify-content: center; box-sizing: border-box; }
+.sh-cta__copy .s-btn { align-self: flex-start; }
+.sh-cta .sh-cta__media { flex: 1 1 440px; min-height: 360px; border-radius: 0; }
+.sh-cta .sh-cta__media .s-ph__brief { max-width: 320px; }
+.sh-ring__track { stroke: var(--s-lavender); }
+.sh-ring__arc { stroke: var(--s-peach); }

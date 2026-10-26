@@ -1,0 +1,108 @@
+{%- comment -%}
+  Somna proof (design: Main / PROOF). A featured review card + stat rings
+  (blocks) + a footnote. Ring arc = stroke-dasharray "2*PI*50*pct/100 2*PI*50";
+  assets/somna-home.js draws the arcs in when scrolled into view (not under
+  reduced motion). The figure can be custom text (e.g. "[97]%") or blank to
+  show the percentage.
+{%- endcomment -%}
+{{ 'somna-home.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign brand = settings.brand_name
+  assign quote = section.settings.quote | replace: '{AppName}', brand
+  assign name = section.settings.name | replace: '{AppName}', brand
+  assign verified = section.settings.verified | replace: '{AppName}', brand
+  assign purchased = section.settings.purchased | replace: '{AppName}', brand
+  assign footnote = section.settings.footnote | replace: '{AppName}', brand
+  assign initial = section.settings.initial | default: name | slice: 0
+  assign circumference = 314.1593
+-%}
+<section class="sh sh-proof" aria-label="{{ section.settings.label | replace: '{AppName}', brand | escape }}">
+  <div class="sh-inner sh-proof__inner">
+    {%- if quote != blank -%}
+      <figure class="sh-quote">
+        {%- render 'somna-icon', name: 'quote', size: 40 -%}
+        <blockquote>{{ quote }}</blockquote>
+        <figcaption>
+          <span class="sh-quote__avatar" aria-hidden="true">
+            {%- if section.settings.avatar != blank -%}
+              {{ section.settings.avatar | image_url: width: 88, height: 88, crop: 'center' | image_tag: width: 44, height: 44, alt: '', loading: 'lazy' }}
+            {%- else -%}
+              {{ initial }}
+            {%- endif -%}
+          </span>
+          <span>
+            <strong>{{ name }}</strong>{% if verified != blank %} · <span class="s-verified">{{ verified }}</span>{% endif %}
+            {%- if purchased != blank -%}<br><span class="s-muted">{{ purchased }}</span>{%- endif -%}
+          </span>
+        </figcaption>
+      </figure>
+    {%- endif -%}
+    {%- if section.blocks.size > 0 or footnote != blank -%}
+      <div class="sh-rings" data-sh-rings>
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign value = block.settings.value | at_least: 0 | at_most: 100
+            assign dash = circumference | times: value | divided_by: 100 | round: 1
+            assign shown = block.settings.display | strip
+            if shown == blank
+              assign shown = value | append: '%'
+            endif
+            assign label = block.settings.label | replace: '{AppName}', brand
+          -%}
+          <div class="sh-ring" {{ block.shopify_attributes }}>
+            <div class="sh-ring__dial">
+              <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+                <circle class="sh-ring__track" cx="60" cy="60" r="50" fill="none" stroke="#e0e0ff" stroke-width="12"></circle>
+                <circle class="sh-ring__arc" cx="60" cy="60" r="50" fill="none" stroke="#ffa38b" stroke-width="12" stroke-linecap="round" stroke-dasharray="{{ dash }} {{ circumference | round: 1 }}" transform="rotate(-90 60 60)" data-sh-ring data-dash="{{ dash }}"></circle>
+              </svg>
+              <span class="sh-ring__value" aria-hidden="true">{{ shown }}</span>
+            </div>
+            <span class="sh-ring__label"><span class="s-sr">{{ shown }} </span>{{ label }}</span>
+          </div>
+        {%- endfor -%}
+        {%- if footnote != blank -%}<p class="s-note">{{ footnote }}</p>{%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+<script src="{{ 'somna-home.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Somna proof",
+  "max_blocks": 6,
+  "settings": [
+    {"type": "text", "id": "label", "label": "Accessible section label", "default": "What sleepers say"},
+    {"type": "header", "content": "Featured review"},
+    {"type": "textarea", "id": "quote", "label": "Review", "default": "[Feature your single best long-form review here, ideally one naming a specific problem it solved, e.g. neck pain or night sweats.]"},
+    {"type": "text", "id": "name", "label": "Reviewer", "default": "[Reviewer name]"},
+    {"type": "text", "id": "initial", "label": "Avatar initial", "default": "[A]", "info": "Blank uses the reviewer's first letters."},
+    {"type": "image_picker", "id": "avatar", "label": "Avatar photo"},
+    {"type": "text", "id": "verified", "label": "Verified label", "default": "✓ Verified Buyer"},
+    {"type": "text", "id": "purchased", "label": "Purchase line", "default": "Purchased CloudAlign Pillow"},
+    {"type": "header", "content": "Stats"},
+    {"type": "textarea", "id": "footnote", "label": "Footnote", "default": "Based on [survey source, number of respondents, date]. Replace with your own data before launch."}
+  ],
+  "blocks": [
+    {
+      "type": "ring",
+      "name": "Stat ring",
+      "settings": [
+        {"type": "range", "id": "value", "label": "Percentage", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 97},
+        {"type": "text", "id": "display", "label": "Figure shown", "default": "[97]%", "info": "Blank shows the percentage."},
+        {"type": "text", "id": "label", "label": "Label", "default": "would recommend {AppName} to a friend"}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Somna proof",
+      "blocks": [
+        {"type": "ring", "settings": {"value": 97, "display": "[97]%", "label": "would recommend {AppName} to a friend"}},
+        {"type": "ring", "settings": {"value": 94, "display": "[94]%", "label": "say they sleep cooler"}},
+        {"type": "ring", "settings": {"value": 91, "display": "[91]%", "label": "fall asleep faster"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

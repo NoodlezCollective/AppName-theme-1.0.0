@@ -1,0 +1,130 @@
+{%- comment -%}
+  Somna customer videos (design: Main / UGC VIDEOS). 3:5 dark cards with a play
+  button; a card plays inline when it has a Shopify video or a YouTube/Vimeo
+  URL (assets/somna-home.js), otherwise it shows the poster or the design's
+  labelled placeholder. Caption: customer name · product.
+{%- endcomment -%}
+{{ 'somna-home.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign brand = settings.brand_name
+  assign eyebrow = section.settings.eyebrow | replace: '{AppName}', brand
+  assign heading = section.settings.heading | replace: '{AppName}', brand
+-%}
+<section class="sh s-section" aria-labelledby="SomnaUgcTitle-{{ section.id }}">
+  <div class="s-wrap sh-stack-40">
+    <div class="sh-head-center">
+      {%- if eyebrow != blank -%}<span class="s-eyebrow">{{ eyebrow }}</span>{%- endif -%}
+      <h2 id="SomnaUgcTitle-{{ section.id }}" class="s-h2">{{ heading }}</h2>
+    </div>
+    {%- if section.blocks.size > 0 -%}
+      <div class="sh-ugc__grid">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign video = block.settings.video
+            assign external = block.settings.video_url
+            assign product = block.settings.product
+            assign product_title = product.title | default: block.settings.product_title | replace: '{AppName}', brand
+            assign customer = block.settings.customer | replace: '{AppName}', brand
+            assign poster = block.settings.poster
+            if poster == blank and video != blank
+              assign poster = video.preview_image
+            endif
+            assign video_label = block.settings.shot_code
+            if customer != blank
+              assign video_label = customer | append: ' · ' | append: product_title
+            endif
+            assign embed_url = ''
+            if external != blank
+              if external.type == 'youtube'
+                assign embed_url = 'https://www.youtube-nocookie.com/embed/' | append: external.id | append: '?autoplay=1&rel=0'
+              elsif external.type == 'vimeo'
+                assign embed_url = 'https://player.vimeo.com/video/' | append: external.id | append: '?autoplay=1'
+              endif
+            endif
+            assign has_video = false
+            if video != blank and video.sources.size > 0
+              assign has_video = true
+            endif
+            assign playable = false
+            if has_video or embed_url != blank
+              assign playable = true
+            endif
+          -%}
+          <figure class="sh-ugc__item" {{ block.shopify_attributes }}>
+            <div class="sh-ugc__card" data-sh-video>
+              {%- if poster != blank -%}
+                {{ poster | image_url: width: 800 | image_tag: widths: '300, 400, 600, 800', sizes: '(min-width: 1400px) 330px, (min-width: 990px) 25vw, (min-width: 600px) 50vw, 100vw', loading: 'lazy', alt: '' }}
+              {%- endif -%}
+              {%- if playable -%}
+                <button type="button" class="sh-play sh-play--sm" aria-label="Play customer video {{ video_label | escape }}" data-sh-video-play>{%- render 'somna-icon', name: 'play', size: 24 -%}</button>
+                <template data-sh-video-player>
+                  {%- if has_video -%}
+                    <video controls autoplay playsinline{% if poster != blank %} poster="{{ poster | image_url: width: 800 }}"{% endif %} aria-label="{{ video_label | escape }}">
+                      {%- for source in video.sources -%}<source src="{{ source.url }}" type="{{ source.mime_type }}">{%- endfor -%}
+                    </video>
+                  {%- else -%}
+                    <iframe src="{{ embed_url }}" title="{{ video_label | escape }}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                  {%- endif -%}
+                </template>
+              {%- else -%}
+                <span class="sh-play sh-play--sm" aria-hidden="true">{%- render 'somna-icon', name: 'play', size: 24 -%}</span>
+              {%- endif -%}
+              {%- if poster == blank -%}
+                {%- if block.settings.shot_code != blank -%}<span class="sh-ugc__code">{{ block.settings.shot_code }}</span>{%- endif -%}
+                {%- if block.settings.shot_brief != blank -%}<span>{{ block.settings.shot_brief }}</span>{%- endif -%}
+              {%- endif -%}
+            </div>
+            {%- if customer != blank or product_title != blank -%}
+              <figcaption>
+                {{- customer -}}
+                {%- if customer != blank and product_title != blank %} · {% endif -%}
+                {%- if product_title != blank -%}
+                  {%- if product != blank -%}<a class="sh-ugc__product" href="{{ product.url }}">{{ product_title }}</a>{%- else -%}<span class="sh-ugc__product">{{ product_title }}</span>{%- endif -%}
+                {%- endif -%}
+              </figcaption>
+            {%- endif -%}
+          </figure>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+<script src="{{ 'somna-home.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Somna customer videos",
+  "max_blocks": 8,
+  "settings": [
+    {"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Sleepers who switched"},
+    {"type": "text", "id": "heading", "label": "Heading", "default": "Sleep Better With {AppName}"}
+  ],
+  "blocks": [
+    {
+      "type": "video",
+      "name": "Video",
+      "settings": [
+        {"type": "video", "id": "video", "label": "Video", "info": "Shopify-hosted, 9:16. Takes priority over the external URL."},
+        {"type": "video_url", "id": "video_url", "label": "External video", "accept": ["youtube", "vimeo"]},
+        {"type": "image_picker", "id": "poster", "label": "Poster image", "info": "Defaults to the video's preview image."},
+        {"type": "text", "id": "customer", "label": "Customer first name", "default": "[Customer first name]"},
+        {"type": "product", "id": "product", "label": "Product"},
+        {"type": "text", "id": "product_title", "label": "Product name", "default": "MarshMellow Comforter", "info": "Used until a product is picked."},
+        {"type": "text", "id": "shot_code", "label": "Placeholder shot code", "default": "U-01 · UGC 9:16"},
+        {"type": "textarea", "id": "shot_brief", "label": "Placeholder brief", "default": "Unboxing the vacuum-packed comforter as it expands"}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Somna customer videos",
+      "blocks": [
+        {"type": "video", "settings": {"product_title": "MarshMellow Comforter", "shot_code": "U-01 · UGC 9:16", "shot_brief": "Unboxing the vacuum-packed comforter as it expands"}},
+        {"type": "video", "settings": {"product_title": "CloudAlign Pillow", "shot_code": "U-02 · UGC 9:16", "shot_brief": "Side sleeper showing neck alignment on the pillow"}},
+        {"type": "video", "settings": {"product_title": "CloudCool Comforter", "shot_code": "U-03 · UGC 9:16", "shot_brief": "Hot sleeper, morning reaction after first night"}},
+        {"type": "video", "settings": {"product_title": "CloudControl Comforter", "shot_code": "U-04 · UGC 9:16", "shot_brief": "Couple flipping the dual-sided comforter"}}
+      ]
+    }
+  ]
+}
+{% endschema %}

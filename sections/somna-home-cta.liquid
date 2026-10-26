@@ -1,0 +1,52 @@
+{%- comment -%}
+  Somna closing call to action (design: Main / CLOSING CTA). Split card: copy
+  and button on the left, image (or the design's labelled placeholder) right.
+{%- endcomment -%}
+{{ 'somna-home.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign brand = settings.brand_name
+  assign heading = section.settings.heading | replace: '{AppName}', brand
+  assign body = section.settings.body | replace: '{AppName}', brand
+  assign button_label = section.settings.button_label | replace: '{AppName}', brand
+  assign button_url = section.settings.button_url | default: routes.all_products_collection_url
+  assign image = section.settings.image
+  assign image_alt = image.alt | default: section.settings.image_alt | replace: '{AppName}', brand
+-%}
+<section class="sh sh-cta" aria-labelledby="SomnaCtaTitle-{{ section.id }}">
+  <div class="sh-inner sh-cta__inner">
+    <div class="sh-cta__copy">
+      <h2 id="SomnaCtaTitle-{{ section.id }}" class="s-h2 s-balance">{{ heading }}</h2>
+      {%- if body != blank -%}<p class="s-lead">{{ body }}</p>{%- endif -%}
+      {%- if button_label != blank -%}<a class="s-btn s-btn--lg" href="{{ button_url }}">{{ button_label }}</a>{%- endif -%}
+    </div>
+    {%- render 'somna-media',
+      image: image,
+      alt: image_alt,
+      code: section.settings.shot_code,
+      brief: section.settings.shot_brief,
+      label: section.settings.placeholder_label,
+      ratio: '',
+      radius: 28,
+      class: 'sh-cta__media sh-ph-sm',
+      sizes: '(min-width: 1400px) 700px, (min-width: 990px) 50vw, 100vw'
+    -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Somna closing CTA",
+  "settings": [
+    {"type": "text", "id": "heading", "label": "Heading", "default": "Your Best Sleep Starts Tonight"},
+    {"type": "textarea", "id": "body", "label": "Text", "default": "Sleep on it for [100] nights. If it's not love, send it back for a full refund."},
+    {"type": "text", "id": "button_label", "label": "Button label", "default": "Sleep Better"},
+    {"type": "url", "id": "button_url", "label": "Button link", "default": "/collections/all"},
+    {"type": "image_picker", "id": "image", "label": "Image", "info": "Fills the right half (at least 360px tall)."},
+    {"type": "text", "id": "image_alt", "label": "Image alt text", "default": "Sleeper stretching awake in soft morning light"},
+    {"type": "text", "id": "shot_code", "label": "Placeholder shot code", "default": "H-02 · Morning lifestyle"},
+    {"type": "textarea", "id": "shot_brief", "label": "Placeholder brief", "default": "Sleeper stretching awake, soft morning light, rumpled MarshMellow Comforter"},
+    {"type": "text", "id": "placeholder_label", "label": "Placeholder label for screen readers", "default": "Photo placeholder H-02"}
+  ],
+  "presets": [{"name": "Somna closing CTA"}]
+}
+{% endschema %}

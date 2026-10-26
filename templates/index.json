@@ -1,218 +1,613 @@
 {
   "sections": {
     "hero": {
-      "type": "hero",
-      "settings": {
-        "rating_label": "124,952+ Happy Sleepers",
-        "rating": 5,
-        "headline": "Shop Premium\nCooling Comforters\n& Pillows For Better Sleep",
-        "subheadline": "Pillows that align. Comforters that adapt. Smarter sleep essentials, designed for every night.",
-        "cta_label": "Shop Now",
-        "image_alt": "Three friends relaxing on a bed layered with {AppName} pillows and comforters"
-      }
-    },
-    "press_bar": {
-      "type": "press-bar",
+      "type": "somna-home-hero",
       "blocks": {
-        "usa_today": {"type": "logo", "settings": {"name": "USA Today"}},
-        "scary_mommy": {"type": "logo", "settings": {"name": "Scary Mommy"}},
-        "readers_digest": {"type": "logo", "settings": {"name": "Reader's Digest"}},
-        "forbes": {"type": "logo", "settings": {"name": "Forbes"}},
-        "life_style": {"type": "logo", "settings": {"name": "Life & Style"}},
-        "us_weekly": {"type": "logo", "settings": {"name": "Us Weekly"}}
+        "trust_shipping": {
+          "type": "trust",
+          "settings": {
+            "icon": "truck",
+            "text": "Free shipping over $[X]"
+          }
+        },
+        "trust_trial": {
+          "type": "trust",
+          "settings": {
+            "icon": "moon",
+            "text": "[100]-night trial"
+          }
+        },
+        "trust_warranty": {
+          "type": "trust",
+          "settings": {
+            "icon": "shield-check",
+            "text": "[Lifetime] warranty"
+          }
+        }
       },
-      "block_order": ["usa_today", "scary_mommy", "readers_digest", "forbes", "life_style", "us_weekly"],
-      "settings": {}
-    },
-    "story": {
-      "type": "story",
+      "block_order": [
+        "trust_shipping",
+        "trust_trial",
+        "trust_warranty"
+      ],
       "settings": {
-        "heading": "Redefining Sleep. One Innovation At A Time.",
-        "body": "{AppName} started with a comforter that changed everything. Now, we're building a new standard for sleep with more innovative fabrics, dual-sided cooling, cloud-like pillows and effortless design. Sleep shouldn't be complicated. It should just feel right.",
-        "poster_alt": "{AppName} brand film",
-        "cta_label": "Our Story"
+        "rating_label": "[X]+ Happy Sleepers",
+        "rating_aria": "Rated [4.8] out of 5",
+        "heading": "Sleep Cooler. Wake Softer. Cloud-Like Comfort for Every Kind of Sleeper.",
+        "subheading": "Pillows that align and comforters that adapt, designed around the way you actually sleep. Try any of them for [100] nights.",
+        "primary_label": "Shop Bestsellers",
+        "primary_url": "/collections/all",
+        "secondary_label": "Find My Match",
+        "image_alt": "Woman asleep on a {AppName} pillow under a {AppName} comforter",
+        "shot_code": "H-01 · Hero lifestyle",
+        "shot_brief": "Woman asleep on CloudAlign Pillow under the CloudCool Comforter, warm sunset light through sheer curtains, lavender bedding",
+        "placeholder_label": "Photo placeholder H-01",
+        "show_review": true,
+        "review_quote": "\"[Short verified review about sleeping cooler, from your review app]\"",
+        "review_name": "[Reviewer name]",
+        "review_verified": "✓ Verified Buyer"
       }
     },
-    "stat_rings": {
-      "type": "stat-rings",
+    "press": {
+      "type": "somna-home-press",
       "blocks": {
-        "temperature": {"type": "stat", "settings": {"value": 95, "label": "sleep at their ideal temperature"}},
-        "recommend": {"type": "stat", "settings": {"value": 97, "label": "would recommend {AppName} to family and friends"}},
-        "five_star": {"type": "stat", "settings": {"value": 99, "label": "have left a 5-star review"}}
+        "press_1": {
+          "type": "logo",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "press_2": {
+          "type": "logo",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "press_3": {
+          "type": "logo",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "press_4": {
+          "type": "logo",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "press_5": {
+          "type": "logo",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "press_6": {
+          "type": "logo",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "press_7": {
+          "type": "logo",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        },
+        "press_8": {
+          "type": "logo",
+          "settings": {
+            "name": "[Press outlet]"
+          }
+        }
       },
-      "block_order": ["temperature", "recommend", "five_star"],
+      "block_order": [
+        "press_1",
+        "press_2",
+        "press_3",
+        "press_4",
+        "press_5",
+        "press_6",
+        "press_7",
+        "press_8"
+      ],
       "settings": {
-        "heading": "Sleepers who switched"
+        "label": "As featured in",
+        "speed": 35
       }
     },
-    "featured_products": {
-      "type": "featured-products",
+    "bestsellers": {
+      "type": "somna-home-products",
+      "blocks": {
+        "product_1": {
+          "type": "product",
+          "settings": {
+            "name": "CloudAlign Pillow",
+            "line": "Contoured support that keeps your neck aligned all night.",
+            "badge": "Bestseller",
+            "shot_code": "P-01",
+            "shot_brief": "CloudAlign Pillow, 3/4 angle on lavender sweep"
+          }
+        },
+        "product_2": {
+          "type": "product",
+          "settings": {
+            "name": "CloudCool Cooling Comforter",
+            "line": "Breathable, cool-to-touch comfort for hot sleepers.",
+            "badge": "New colors",
+            "shot_code": "P-02",
+            "shot_brief": "CloudCool Comforter, folded stack, fabric detail visible"
+          }
+        },
+        "product_3": {
+          "type": "product",
+          "settings": {
+            "name": "MarshMellow Comforter",
+            "line": "Marshmallow-soft loft for cosy, all-season sleep.",
+            "badge": "Most loved",
+            "shot_code": "P-03",
+            "shot_brief": "MarshMellow Comforter, loose drape showing loft"
+          }
+        },
+        "product_4": {
+          "type": "product",
+          "settings": {
+            "name": "CloudControl Comforter",
+            "line": "Dual-sided warmth you can flip as the seasons change.",
+            "badge": "New",
+            "shot_code": "P-04",
+            "shot_brief": "CloudControl Comforter, corner flipped to show both sides"
+          }
+        }
+      },
+      "block_order": [
+        "product_1",
+        "product_2",
+        "product_3",
+        "product_4"
+      ],
       "settings": {
+        "eyebrow": "Our most loved",
         "heading": "Explore Our Most Loved Sleep Products",
-        "subheading": "From adaptive comforters to cloud-like pillows, every {AppName} product is designed to make sleep effortless.",
+        "link_label": "Shop All",
         "collection": "most-loved",
-        "products_to_show": 6,
+        "products_to_show": 4,
         "cta_label": "Shop Now"
       }
     },
-    "ugc_grid": {
-      "type": "ugc-grid",
+    "free_gift": {
+      "type": "somna-home-gift",
+      "settings": {
+        "heading": "Spend {threshold}, Get a Free Silk Sleep Mask",
+        "body": "Added to your cart automatically when you reach the threshold. No code needed.",
+        "progress_text": "You're {remaining} away from {gift}",
+        "unlocked_text": "You've unlocked {gift}!",
+        "button_label": "Shop Now",
+        "button_url": "/collections/all"
+      }
+    },
+    "categories": {
+      "type": "somna-home-categories",
       "blocks": {
-        "ugc_1": {
-          "type": "video",
+        "category_1": {
+          "type": "category",
           "settings": {
-            "title": "Does your pillow do this? A chiropractor tests the CloudAlign.",
-            "poster_alt": "Chiropractor demonstrating the CloudAlign pillow",
-            "product": "cloudalign-pillow"
+            "title": "Pillows That Align",
+            "subtitle": "For side, back and stomach sleepers",
+            "shot_code": "C-01",
+            "shot_brief": "Hand pressing into CloudAlign Pillow, slow rebound"
           }
         },
-        "ugc_2": {
-          "type": "video",
+        "category_2": {
+          "type": "category",
           "settings": {
-            "title": "This is the dual sided comforter.",
-            "poster_alt": "Customer unfolding the dual-sided CloudCool comforter",
-            "product": "cloudcool-cooling-comforter"
+            "title": "Comforters That Adapt",
+            "subtitle": "Cooling, all-season and dual-sided",
+            "shot_code": "C-02",
+            "shot_brief": "Made bed with comforter, sunset light across it"
           }
         },
-        "ugc_3": {
-          "type": "video",
+        "category_3": {
+          "type": "category",
           "settings": {
-            "title": "I kept my {AppName} pillow.",
-            "poster_alt": "Customer holding a {AppName} pillow",
-            "product": "cloudalign-pillow"
-          }
-        },
-        "ugc_4": {
-          "type": "video",
-          "settings": {
-            "title": "No more hassling to put your duvet cover on again.",
-            "poster_alt": "Customer with the CloudControl comforter",
-            "product": "cloudcontrol-comforter"
+            "title": "Bundles That Save",
+            "subtitle": "Pair up and save up to [X]%",
+            "shot_code": "C-03",
+            "shot_brief": "Pillow 2-pack + comforter styled as a full bed set"
           }
         }
       },
-      "block_order": ["ugc_1", "ugc_2", "ugc_3", "ugc_4"],
+      "block_order": [
+        "category_1",
+        "category_2",
+        "category_3"
+      ],
       "settings": {
-        "heading": "Sleep Better With {AppName}",
-        "subheading": "Watch why everyone is making the switch to {AppName}!"
+        "eyebrow": "Shop by category",
+        "heading": "Build Your Sleep Stack"
       }
     },
-    "lifestyle_gallery": {
-      "type": "lifestyle-gallery",
+    "why": {
+      "type": "somna-home-why",
       "blocks": {
-        "lifestyle_1": {"type": "image", "settings": {"alt": "Woman smiling while resting on a stack of {AppName} pillows", "caption": ""}},
-        "lifestyle_2": {"type": "image", "settings": {"alt": "Close-up of the MarshMellow comforter fabric", "caption": ""}}
-      },
-      "block_order": ["lifestyle_1", "lifestyle_2"],
-      "settings": {
-        "label": "Life with {AppName}"
-      }
-    },
-    "testimonials": {
-      "type": "testimonials",
-      "blocks": {
-        "t_1": {
-          "type": "testimonial",
+        "feature_1": {
+          "type": "feature",
           "settings": {
-            "quote": "I wake up without neck pain for the first time in years. The CloudAlign actually keeps my head where it should be.",
-            "author": "Jenna R.",
-            "show_rating": true,
-            "rating": 5,
-            "product": "cloudalign-pillow",
-            "product_title": "CloudAlign Pillow"
+            "icon": "snowflake",
+            "title": "Temperature-Smart",
+            "body": "Breathable fabrics designed to move heat away so you stay comfortable from lights-out to alarm."
           }
         },
-        "t_2": {
-          "type": "testimonial",
+        "feature_2": {
+          "type": "feature",
           "settings": {
-            "quote": "The cool side is genuinely cool. I flip it in summer and my partner keeps the plush side. We finally agree on a comforter.",
-            "author": "Marcus T.",
-            "show_rating": true,
-            "rating": 5,
-            "product": "cloudcool-cooling-comforter",
-            "product_title": "CloudCool Cooling Comforter"
+            "icon": "soft",
+            "title": "Cloud-Soft Feel",
+            "body": "Plush on top, supportive underneath. Soft enough to sink into, structured enough to hold you."
           }
         },
-        "t_3": {
-          "type": "testimonial",
+        "feature_3": {
+          "type": "feature",
           "settings": {
-            "quote": "It washed beautifully and came out of the dryer just as fluffy. Hotel-bed feel at home.",
-            "author": "Priya S.",
-            "show_rating": true,
-            "rating": 5,
-            "product": "marshmellow-comforter",
-            "product_title": "MarshMellow Comforter"
+            "icon": "drop",
+            "title": "Easy to Care For",
+            "body": "Machine washable and dryer friendly, so fresh bedding never feels like a chore."
+          }
+        },
+        "feature_4": {
+          "type": "feature",
+          "settings": {
+            "icon": "moon",
+            "title": "[100] Nights to Decide",
+            "body": "Your body needs time to adjust. Sleep on it for [100] nights, risk-free."
           }
         }
       },
-      "block_order": ["t_1", "t_2", "t_3"],
+      "block_order": [
+        "feature_1",
+        "feature_2",
+        "feature_3",
+        "feature_4"
+      ],
       "settings": {
-        "heading": "Loved By 124,952+ Sleepers",
-        "subheading": "Real reviews from people who stopped fighting their bedding."
+        "eyebrow": "Why {AppName}",
+        "heading": "Redefining Sleep, One Soft Detail at a Time",
+        "body": "Sleep shouldn't be complicated. It should just feel right. Every {AppName} product starts with how you feel at 3am, then works backwards to the materials.",
+        "button_label": "Our Story",
+        "autoplay": false,
+        "loop": true,
+        "film_label": "brand film",
+        "shot_code": "V-01 · BRAND FILM (30–45s, LOOPING)",
+        "shot_brief": "Slow-motion fabric, a pillow springing back, a comforter settling over a sleeper at dusk"
+      }
+    },
+    "quiz": {
+      "type": "somna-home-quiz",
+      "blocks": {
+        "question_1": {
+          "type": "question",
+          "settings": {
+            "question": "How do you usually sleep?"
+          }
+        },
+        "answer_1_1": {
+          "type": "answer",
+          "settings": {
+            "label": "On my side"
+          }
+        },
+        "answer_1_2": {
+          "type": "answer",
+          "settings": {
+            "label": "On my back"
+          }
+        },
+        "answer_1_3": {
+          "type": "answer",
+          "settings": {
+            "label": "On my stomach"
+          }
+        },
+        "answer_1_4": {
+          "type": "answer",
+          "settings": {
+            "label": "A bit of everything"
+          }
+        },
+        "question_2": {
+          "type": "question",
+          "settings": {
+            "question": "Do you sleep hot or cold?"
+          }
+        },
+        "answer_2_1": {
+          "type": "answer",
+          "settings": {
+            "label": "I run hot"
+          }
+        },
+        "answer_2_2": {
+          "type": "answer",
+          "settings": {
+            "label": "I get cold"
+          }
+        },
+        "answer_2_3": {
+          "type": "answer",
+          "settings": {
+            "label": "Somewhere in between"
+          }
+        },
+        "question_3": {
+          "type": "question",
+          "settings": {
+            "question": "What are you shopping for?"
+          }
+        },
+        "answer_3_1": {
+          "type": "answer",
+          "settings": {
+            "label": "A pillow"
+          }
+        },
+        "answer_3_2": {
+          "type": "answer",
+          "settings": {
+            "label": "A comforter"
+          }
+        },
+        "answer_3_3": {
+          "type": "answer",
+          "settings": {
+            "label": "The full sleep stack"
+          }
+        }
+      },
+      "block_order": [
+        "question_1",
+        "answer_1_1",
+        "answer_1_2",
+        "answer_1_3",
+        "answer_1_4",
+        "question_2",
+        "answer_2_1",
+        "answer_2_2",
+        "answer_2_3",
+        "question_3",
+        "answer_3_1",
+        "answer_3_2",
+        "answer_3_3"
+      ],
+      "settings": {
+        "eyebrow": "60-second sleep quiz",
+        "heading": "Not Sure Where to Start?",
+        "body": "Tell us how you sleep and we'll match you with the right pillow height and comforter warmth.",
+        "continue_label": "Continue",
+        "finish_label": "Continue",
+        "results_url": "/collections/all",
+        "anchor": "quiz"
+      }
+    },
+    "ugc": {
+      "type": "somna-home-ugc",
+      "blocks": {
+        "video_1": {
+          "type": "video",
+          "settings": {
+            "customer": "[Customer first name]",
+            "product_title": "MarshMellow Comforter",
+            "shot_code": "U-01 · UGC 9:16",
+            "shot_brief": "Unboxing the vacuum-packed comforter as it expands"
+          }
+        },
+        "video_2": {
+          "type": "video",
+          "settings": {
+            "customer": "[Customer first name]",
+            "product_title": "CloudAlign Pillow",
+            "shot_code": "U-02 · UGC 9:16",
+            "shot_brief": "Side sleeper showing neck alignment on the pillow"
+          }
+        },
+        "video_3": {
+          "type": "video",
+          "settings": {
+            "customer": "[Customer first name]",
+            "product_title": "CloudCool Comforter",
+            "shot_code": "U-03 · UGC 9:16",
+            "shot_brief": "Hot sleeper, morning reaction after first night"
+          }
+        },
+        "video_4": {
+          "type": "video",
+          "settings": {
+            "customer": "[Customer first name]",
+            "product_title": "CloudControl Comforter",
+            "shot_code": "U-04 · UGC 9:16",
+            "shot_brief": "Couple flipping the dual-sided comforter"
+          }
+        }
+      },
+      "block_order": [
+        "video_1",
+        "video_2",
+        "video_3",
+        "video_4"
+      ],
+      "settings": {
+        "eyebrow": "Sleepers who switched",
+        "heading": "Sleep Better With {AppName}"
+      }
+    },
+    "proof": {
+      "type": "somna-home-proof",
+      "blocks": {
+        "ring_1": {
+          "type": "ring",
+          "settings": {
+            "value": 97,
+            "display": "[97]%",
+            "label": "would recommend {AppName} to a friend"
+          }
+        },
+        "ring_2": {
+          "type": "ring",
+          "settings": {
+            "value": 94,
+            "display": "[94]%",
+            "label": "say they sleep cooler"
+          }
+        },
+        "ring_3": {
+          "type": "ring",
+          "settings": {
+            "value": 91,
+            "display": "[91]%",
+            "label": "fall asleep faster"
+          }
+        }
+      },
+      "block_order": [
+        "ring_1",
+        "ring_2",
+        "ring_3"
+      ],
+      "settings": {
+        "label": "What sleepers say",
+        "quote": "[Feature your single best long-form review here, ideally one naming a specific problem it solved, e.g. neck pain or night sweats.]",
+        "name": "[Reviewer name]",
+        "initial": "[A]",
+        "verified": "✓ Verified Buyer",
+        "purchased": "Purchased CloudAlign Pillow",
+        "footnote": "Based on [survey source, number of respondents, date]. Replace with your own data before launch."
+      }
+    },
+    "comparison": {
+      "type": "somna-home-compare",
+      "blocks": {
+        "row_1": {
+          "type": "row",
+          "settings": {
+            "label": "Breathable, cooling cover",
+            "other_value": "Sometimes"
+          }
+        },
+        "row_2": {
+          "type": "row",
+          "settings": {
+            "label": "Machine washable",
+            "other_value": "Rarely"
+          }
+        },
+        "row_3": {
+          "type": "row",
+          "settings": {
+            "label": "[100]-night home trial",
+            "other_value": "—"
+          }
+        },
+        "row_4": {
+          "type": "row",
+          "settings": {
+            "label": "[Lifetime] warranty",
+            "other_value": "—"
+          }
+        },
+        "row_5": {
+          "type": "row",
+          "settings": {
+            "label": "Free returns",
+            "other_value": "Varies"
+          }
+        }
+      },
+      "block_order": [
+        "row_1",
+        "row_2",
+        "row_3",
+        "row_4",
+        "row_5"
+      ],
+      "settings": {
+        "eyebrow": "The {AppName} difference",
+        "heading": "{AppName} vs. Ordinary Bedding",
+        "col_feature": "What matters",
+        "col_brand": "{AppName}.",
+        "col_other": "Ordinary bedding"
       }
     },
     "faq": {
-      "type": "faq",
+      "type": "somna-home-faq",
       "blocks": {
         "faq_1": {
           "type": "item",
           "settings": {
-            "question": "How does the 30-day trial work?",
-            "answer": "Sleep on any {AppName} product for 30 nights. If it is not the best sleep you have had, start a return from your account and we will make it right.",
-            "open": false
+            "question": "How does the [100]-night trial work?",
+            "answer": "<p>Sleep on it for up to [100] nights. If it isn’t right, contact us and we’ll arrange a free return and a full refund. No restocking fees.</p>",
+            "open": true
           }
         },
         "faq_2": {
           "type": "item",
           "settings": {
-            "question": "Are {AppName} comforters and pillows machine washable?",
-            "answer": "Yes. Every comforter and pillow cover is designed to be washed at home on a gentle cycle and tumble dried low.",
+            "question": "Which pillow is right for me?",
+            "answer": "<p>Side sleepers usually need more loft, back sleepers medium, stomach sleepers low. Take the 60-second quiz above and we’ll match you.</p>",
             "open": false
           }
         },
         "faq_3": {
           "type": "item",
           "settings": {
-            "question": "Which side of the CloudCool comforter is the cool side?",
-            "answer": "The smooth, silk-touch side is the cooling side. The soft knit side is for cooler nights. Flip it whenever you like.",
+            "question": "Can I machine wash my comforter?",
+            "answer": "<p>Yes. Wash cold on a gentle cycle and tumble dry low. Full care instructions are on each product page.</p>",
             "open": false
           }
         },
         "faq_4": {
           "type": "item",
           "settings": {
-            "question": "How long does shipping take?",
-            "answer": "Orders ship within 1-2 business days and typically arrive in 3-6 business days. Tracking is emailed as soon as your order leaves our warehouse.",
+            "question": "When will my order arrive?",
+            "answer": "<p>Orders ship within [1–2] business days and arrive in [3–7] business days in the [US]. You’ll get tracking by email.</p>",
             "open": false
           }
         }
       },
-      "block_order": ["faq_1", "faq_2", "faq_3", "faq_4"],
+      "block_order": [
+        "faq_1",
+        "faq_2",
+        "faq_3",
+        "faq_4"
+      ],
       "settings": {
-        "heading": "Questions, Answered"
+        "heading": "Questions, Answered",
+        "link_label": "Visit the Help Center"
       }
     },
-    "newsletter": {
-      "type": "newsletter",
+    "closing_cta": {
+      "type": "somna-home-cta",
       "settings": {
-        "heading": "Sleep Smarter. Save More.",
-        "body": "Join the {AppName} list for early access to launches, bundle savings and sleep tips.",
-        "placeholder": "Enter your email",
-        "cta_label": "Sign Up",
-        "success_message": "You're on the list. Welcome to {AppName}."
+        "heading": "Your Best Sleep Starts Tonight",
+        "body": "Sleep on it for [100] nights. If it's not love, send it back for a full refund.",
+        "button_label": "Sleep Better",
+        "button_url": "/collections/all",
+        "image_alt": "Sleeper stretching awake in soft morning light",
+        "shot_code": "H-02 · Morning lifestyle",
+        "shot_brief": "Sleeper stretching awake, soft morning light, rumpled MarshMellow Comforter",
+        "placeholder_label": "Photo placeholder H-02"
       }
     }
   },
   "order": [
     "hero",
-    "press_bar",
-    "story",
-    "stat_rings",
-    "featured_products",
-    "ugc_grid",
-    "lifestyle_gallery",
-    "testimonials",
+    "press",
+    "bestsellers",
+    "free_gift",
+    "categories",
+    "why",
+    "quiz",
+    "ugc",
+    "proof",
+    "comparison",
     "faq",
-    "newsletter"
+    "closing_cta"
   ]
 }
